@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <arquillian.version>1.0.0.Final</arquillian.version>
-        <jboss.version>7.2.0.Alpha1-SNAPSHOT</jboss.version>
+        <jboss.version>8.0.0.Alpha1-SNAPSHOT</jboss.version>
     </properties>
 
     <dependencyManagement>
@@ -38,13 +38,13 @@
         <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
             <artifactId>narayana-jta</artifactId>
-            <version>5.0.0.M2-SNAPSHOT</version>
+            <version>5.0.0.M3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.narayana.xts</groupId>
             <artifactId>byteman_support</artifactId>
             <scope>test</scope>
-            <version>5.0.0.M2-SNAPSHOT</version>
+            <version>5.0.0.M3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.spec.javax.transaction</groupId>
