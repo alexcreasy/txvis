@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.transaction.RollbackException;
 
 
 /**
@@ -43,13 +44,13 @@ public class SimpleTest {
     @BeforeClass()
     public static void submitBytemanScript() throws Exception {
 
-        BMScript.submit(TXVIS_RULES);
+        //BMScript.submit(TXVIS_RULES);
     }
 
     @AfterClass()
     public static void removeBytemanScript() {
 
-        BMScript.remove(TXVIS_RULES);
+        //BMScript.remove(TXVIS_RULES);
     }
 
 
@@ -66,7 +67,7 @@ public class SimpleTest {
         TransactionManager.transactionManager().commit();
     }
 
-    //@Test
+    @Test
     public void clientDrivenRollbackTest() throws Exception {
 
         TransactionManager.transactionManager().begin();
@@ -79,7 +80,7 @@ public class SimpleTest {
         TransactionManager.transactionManager().rollback();
     }
 
-    //@Test(expected = RollbackException.class)
+    @Test(expected = RollbackException.class)
     public void resourceDrivenRollbackTest() throws Exception {
 
         TransactionManager.transactionManager().begin();
