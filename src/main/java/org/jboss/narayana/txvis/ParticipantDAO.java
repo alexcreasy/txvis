@@ -8,7 +8,7 @@ import java.util.Map;
  * Date: 16/04/2013
  * Time: 14:49
  */
-public class ParticipantBean {
+public class ParticipantDAO {
 
     private final Map<String, Participant> participants = new HashMap<>();
 

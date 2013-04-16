@@ -10,7 +10,7 @@ import java.util.Map;
  * Date: 16/04/2013
  * Time: 10:03
  */
-public class TransactionBean {
+public class TransactionDAO {
 
     private static final Map<String, Transaction> txList = new HashMap<>();
 

@@ -16,27 +16,27 @@ public class LogParser {
 
     private final Path logPath;
     private final Map<String, String> threadList = new HashMap<String, String>();
-    private final TransactionBean txBean;
-    private final ParticipantBean participantBean;
+    private final TransactionDAO txDAO;
+    private final ParticipantDAO participantDAO;
 
     /*
      *
      */
-    private LogParser(String filePath, TransactionBean txBean, ParticipantBean participantBean)
+    private LogParser(String filePath, TransactionDAO txDAO, ParticipantDAO participantDAO)
             throws NullPointerException, InvalidPathException, NoSuchFileException {
 
-        if (txBean == null)
-            throw new NullPointerException("Expected a TransactionBean, received null");
+        if (txDAO == null)
+            throw new NullPointerException("Expected a TransactionDAO, received null");
 
-        if (participantBean == null)
-            throw new NullPointerException("Excpected a ParticipantBean, received null");
+        if (participantDAO == null)
+            throw new NullPointerException("Excpected a ParticipantDAO, received null");
 
         Path inputPath = Paths.get(filePath);
-        if (!Files.exists(inputPath))
-            throw new NoSuchFileException("Unable to locate file: " + inputPath);
+//        if (!Files.exists(inputPath))
+//            throw new NoSuchFileException("Unable to locate file: " + inputPath);
 
-        this.txBean = txBean;
-        this.participantBean = participantBean;
+        this.txDAO = txDAO;
+        this.participantDAO = participantDAO;
         this.logPath = inputPath;
     }
 
@@ -45,10 +45,10 @@ public class LogParser {
      * @param filePath
      * @return
      */
-    public static LogParser getInstance(String filePath, TransactionBean txBean,
-            ParticipantBean participantBean) throws NullPointerException,
+    public static LogParser getInstance(String filePath, TransactionDAO txBean,
+            ParticipantDAO participantDAO) throws NullPointerException,
             InvalidPathException, NoSuchFileException {
-        return new LogParser(filePath, txBean, participantBean);
+        return new LogParser(filePath, txBean, participantDAO);
     }
 
 
@@ -70,8 +70,8 @@ public class LogParser {
         Matcher matcher = Patterns.TX_BEGIN.matcher(line);
 
         if (matcher.find()) {
-           txBean.create(matcher.group(2));
-           logger.trace("txBean.create( " + matcher.group(2) + " )");
+           txDAO.create(matcher.group(2));
+           logger.trace("txDAO.create( " + matcher.group(2) + " )");
            threadList.put(matcher.group(1), matcher.group(2));
            logger.trace("threadList.put( " + matcher.group(1) + " , " + matcher.group(2) + " )");
         }
@@ -85,8 +85,8 @@ public class LogParser {
                 logger.error("Thread: " + matcher.group(1)
                         + " does not have an associated transaction");
 
-            Transaction tx = txBean.get(txID);
-            Participant participant = participantBean.getParticipant(matcher.group(2));
+            Transaction tx = txDAO.get(txID);
+            Participant participant = participantDAO.getParticipant(matcher.group(2));
 
             tx.addParticipant(participant);
         }

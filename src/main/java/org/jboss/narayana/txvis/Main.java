@@ -12,8 +12,8 @@ public class Main {
     public static final String LOGFILE_PATH =
             "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
 
-    private static final TransactionBean txBean = new TransactionBean();
-    private static final ParticipantBean participantBean = new ParticipantBean();
+    private static final TransactionDAO txBean = new TransactionDAO();
+    private static final ParticipantDAO PARTICIPANT_DAO = new ParticipantDAO();
     private static LogParser parser;
 
 
@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            parser = LogParser.getInstance(LOGFILE_PATH, txBean, participantBean);
+            parser = LogParser.getInstance(LOGFILE_PATH, txBean, PARTICIPANT_DAO);
         } catch (NoSuchFileException e) {
             e.printStackTrace();
             System.exit(1);
