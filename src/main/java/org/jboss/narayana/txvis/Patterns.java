@@ -17,15 +17,32 @@ public class Patterns {
 
     public static final String THREAD_ID =  "\\(pool-\\d+-thread-\\d+\\)";
 
+    /**
+     * RegEx pattern for detecting creation of a transaction
+     * RegEx Groups:
+     * 0: The whole matched portion of the log entry
+     * 1: The Thread ID
+     * 2: The Transaction ID
+     */
+    public static final String BEGIN = "(" + THREAD_ID + ")\\sBasicAction::Begin\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
+
+    /**
+     *
+     * RegEx pattern for detecting a participant enlist
+     * RegEx Groups:
+     * 0: The whole matched portion of the log entry
+     * 1: The Thread ID
+     * 2: The Participant ID
+     */
+    public static final String ENLIST = "(" + THREAD_ID + ")\\sTransactionImple.enlistResource\\s\\(\\s([^\\s\\)]+)\\s\\)";
+
+
+
     /*
      * Pre-compiled patterns
      */
-    public static final Pattern TX_BEGIN = Pattern.compile(
-            "(" + THREAD_ID + ") BasicAction::Begin\\(\\) for action-id ("
-            + TX_ID + ")"
-            );
-
-    public static final Pattern TX_ENLIST = null;
+    public static final Pattern TX_BEGIN = Pattern.compile(BEGIN);
+    public static final Pattern TX_ENLIST = Pattern.compile(ENLIST);
 
 
 

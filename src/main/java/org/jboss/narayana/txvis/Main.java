@@ -13,19 +13,23 @@ public class Main {
             "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
 
     private static final TransactionBean txBean = new TransactionBean();
-
+    private static final ParticipantBean participantBean = new ParticipantBean();
     private static LogParser parser;
+
+
 
     public static void main(String[] args) {
 
         try {
-            parser = LogParser.getInstance(LOGFILE_PATH, txBean);
+            parser = LogParser.getInstance(LOGFILE_PATH, txBean, participantBean);
         } catch (NoSuchFileException e) {
             e.printStackTrace();
             System.exit(1);
         }
-        System.out.println("\n\n\nRESULTS\n");
         parser.run();
+        System.out.println("\nRESULTS\n");
         txBean.printAll();
+        System.out.println("\nTHREADS\n");
+        parser.printThreadList();
     }
 }

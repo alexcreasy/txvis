@@ -14,8 +14,10 @@ public class TransactionBean {
 
     private static final Map<String, Transaction> txList = new HashMap<>();
 
-    public void create(String txID) {
-        this.txList.put(txID, new Transaction(txID));
+    public Transaction create(String txID) {
+        Transaction tx = new Transaction(txID);
+        this.txList.put(txID, tx);
+        return tx;
     }
 
     public Transaction get(String txID) {
@@ -27,7 +29,7 @@ public class TransactionBean {
         StringBuilder result = new StringBuilder();
 
         for (Transaction tx : this.txList.values())
-            result.append(tx + "\n");
+            result.append(tx).append("\n");
 
         return result.toString();
     }

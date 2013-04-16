@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis;
 
 import org.apache.log4j.Logger;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -11,8 +12,8 @@ import java.util.List;
  */
 public class Transaction {
 
-    private static final Logger logger = Logger.getLogger(Transaction.class.getName());
     private String txId;
+    private List<Participant> participants = new LinkedList<>();
 
     public Transaction(String txId) throws IllegalArgumentException, NullPointerException {
         if (!txId.matches(Patterns.TX_ID))
@@ -21,9 +22,22 @@ public class Transaction {
         this.txId = txId;
     }
 
+    public void addParticipant(Participant participant) throws NullPointerException {
+        if(participant == null)
+            throw new NullPointerException("Expected participant");
+        participants.add(participant);
+    }
+
     @Override
     public String toString() {
-        return "Tx ID: " + txId;
+        StringBuilder result = new StringBuilder();
+        result.append("Tx ID: ").append(txId);
+
+        for(Participant p : participants) {
+            result.append("\n\t").append(p);
+        }
+
+        return result.toString();
     }
 
 }
