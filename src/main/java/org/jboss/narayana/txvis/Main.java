@@ -1,7 +1,6 @@
 package org.jboss.narayana.txvis;
 
 import java.nio.file.NoSuchFileException;
-import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -13,23 +12,20 @@ public class Main {
     public static final String LOGFILE_PATH =
             "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
 
+    private static final TransactionBean txBean = new TransactionBean();
+
+    private static LogParser parser;
+
     public static void main(String[] args) {
 
-        LogReader lp = null;
-
         try {
-            lp = LogReader.getInstance(LOGFILE_PATH);
+            parser = LogParser.getInstance(LOGFILE_PATH, txBean);
         } catch (NoSuchFileException e) {
             e.printStackTrace();
             System.exit(1);
         }
-
-        List<Transaction> txList = lp.getTx();
-
-        System.out.println("Found " + txList.size() + " transactions:");
-
-        for (Transaction tx : txList) {
-            System.out.println(tx);
-        }
+        System.out.println("\n\n\nRESULTS\n");
+        parser.run();
+        txBean.printAll();
     }
 }
