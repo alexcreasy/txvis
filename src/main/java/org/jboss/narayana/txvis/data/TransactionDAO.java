@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.data;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,8 @@ import java.util.Map;
  */
 public class TransactionDAO {
 
-    private static final Map<String, Transaction> txList = new HashMap<String, Transaction>();
+    private final Map<String, Transaction> txList =
+            Collections.synchronizedMap(new HashMap<String, Transaction>());
 
     public Transaction create(String txID) {
         Transaction tx = new Transaction(txID);
@@ -20,6 +22,10 @@ public class TransactionDAO {
 
     public Transaction get(String txID) {
         return this.txList.get(txID);
+    }
+
+    public int totalTx() {
+        return this.txList.size();
     }
 
     @Override

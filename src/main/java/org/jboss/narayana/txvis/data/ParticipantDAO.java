@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.data;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,8 @@ import java.util.Map;
  */
 public class ParticipantDAO {
 
-    private final Map<String, Participant> participants = new HashMap<String, Participant>();
+    private final Map<String, Participant> participants =
+            Collections.synchronizedMap(new HashMap<String, Participant>());
 
     public Participant getParticipant(String participantID)
             throws IllegalArgumentException, NullPointerException {

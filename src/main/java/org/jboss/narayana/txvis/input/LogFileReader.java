@@ -52,6 +52,7 @@ public class LogFileReader implements Runnable {
     }
 
     public void run() {
+        this.read = true;
 
         RandomAccessFile log;
         try {
@@ -62,8 +63,6 @@ public class LogFileReader implements Runnable {
 
         long index = this.startAtBeginningOfFile ? 0 : this.logFile.length();
         long length = this.logFile.length();
-
-        this.read = true;
 
         while (this.read) {
             try {
@@ -79,6 +78,7 @@ public class LogFileReader implements Runnable {
                 Thread.sleep(POLL_INTERVAL);
             } catch (IOException e) {
                 logger.error("IOException while reading from log file", e);
+                throw new RuntimeException("IO ERROR!!!");
             } catch (InterruptedException e) {
                 logger.trace("LogFileReader thread interrupted", e);
             }
