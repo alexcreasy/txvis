@@ -1,6 +1,6 @@
-package org.jboss.narayana.txvis;
+package org.jboss.narayana.txvis.data;
 
-import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.Patterns;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public class Transaction {
 
     private String txId;
-    private List<Participant> participants = new LinkedList<>();
+    private List<Participant> participants = new LinkedList<Participant>();
 
     public Transaction(String txId) throws IllegalArgumentException, NullPointerException {
         if (!txId.matches(Patterns.TX_ID))

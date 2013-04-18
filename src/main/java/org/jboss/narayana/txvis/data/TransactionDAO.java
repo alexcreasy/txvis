@@ -1,8 +1,6 @@
-package org.jboss.narayana.txvis;
+package org.jboss.narayana.txvis.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +10,7 @@ import java.util.Map;
  */
 public class TransactionDAO {
 
-    private static final Map<String, Transaction> txList = new HashMap<>();
+    private static final Map<String, Transaction> txList = new HashMap<String, Transaction>();
 
     public Transaction create(String txID) {
         Transaction tx = new Transaction(txID);

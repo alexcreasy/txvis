@@ -1,7 +1,5 @@
 package org.jboss.narayana.txvis.simple;
 
-import com.arjuna.ats.jta.recovery.XAResourceOrphanFilter;
-
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
