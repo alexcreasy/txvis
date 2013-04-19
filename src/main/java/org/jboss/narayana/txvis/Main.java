@@ -1,10 +1,12 @@
 package org.jboss.narayana.txvis;
 
+import org.apache.commons.io.input.Tailer;
+import org.apache.commons.io.input.TailerListener;
 import org.jboss.narayana.txvis.data.ParticipantDAO;
 import org.jboss.narayana.txvis.data.TransactionDAO;
 import org.jboss.narayana.txvis.input.JBossLogParser;
-import org.jboss.narayana.txvis.input.LogFileReader;
-import org.jboss.narayana.txvis.input.LogParser;
+
+import java.io.File;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -18,20 +20,19 @@ public class Main {
 
     private static final TransactionDAO txDAO = new TransactionDAO();
     private static final ParticipantDAO ptDAO = new ParticipantDAO();
-    private static LogFileReader reader;
-    private static LogParser parser;
-
-
 
     public static void main(String[] args) throws Exception {
 
-        reader = new LogFileReader(LOGFILE_PATH, new JBossLogParser(txDAO, ptDAO), true);
+        File file = new File(LOGFILE_PATH);
+        TailerListener parser = new JBossLogParser(txDAO, ptDAO);
 
-        Thread thread = new Thread(reader);
+        Tailer tailer = new Tailer(file, parser, 1000, false);
+
+        Thread thread = new Thread(tailer);
 
         thread.start();
         Thread.sleep(10000);
-        reader.stop();
+        tailer.stop();
 
         System.out.println("\nRESULTS\n");
         txDAO.printAll();

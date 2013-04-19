@@ -14,6 +14,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.resolver</groupId>
+                <artifactId>shrinkwrap-resolver-bom</artifactId>
+                <version>2.0.0-alpha-5</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
             <!-- Define the version of JBoss' Java EE 6 APIs and Tools we want to import.  -->
 
             <!-- JBoss distributes a complete set of Java EE 6 APIs including a Bill
@@ -25,6 +32,7 @@
                          the JBoss stack of the Java EE 6 APIs, with some extras tools for your project, such
         as Arquillian for testing) -->
             <dependency>
+
                 <groupId>org.jboss.bom</groupId>
                 <artifactId>jboss-javaee-6.0-with-tools</artifactId>
                 <version>1.0.0.Final</version>
@@ -35,6 +43,24 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-api</artifactId>
+            <version>2.0.0-alpha-5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+            <version>2.0.0-alpha-5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+            <version>2.0.0-alpha-5</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
             <artifactId>narayana-jta</artifactId>

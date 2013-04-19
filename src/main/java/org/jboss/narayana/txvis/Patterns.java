@@ -13,7 +13,7 @@ public class Patterns {
     /*
      * Strings used for RegEx patterns
      */
-    public static final String TX_ID = "[0-9a-fA-F]+:[0-9a-fA-F]+:-[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+";
+    public static final String TX_ID = "[0-9a-fA-F\\-]+:[0-9a-fA-F\\-]+:[0-9a-fA-F\\-]+:[0-9a-fA-F\\-]+:[0-9a-fA-F\\-]+";
 
     public static final String THREAD_ID =  "\\(pool-\\d+-thread-\\d+\\)";
 

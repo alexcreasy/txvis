@@ -13,6 +13,7 @@ import java.util.List;
 public class Transaction {
 
     private String txId;
+    private String outcome;
     private List<Participant> participants = new LinkedList<Participant>();
 
     public Transaction(String txId) throws IllegalArgumentException, NullPointerException {
@@ -23,7 +24,7 @@ public class Transaction {
     }
 
     public void addParticipant(Participant participant) throws NullPointerException {
-        if(participant == null)
+        if (participant == null)
             throw new NullPointerException("Expected participant");
         participants.add(participant);
     }
@@ -33,7 +34,7 @@ public class Transaction {
         StringBuilder result = new StringBuilder();
         result.append("Tx ID: ").append(txId);
 
-        for(Participant p : participants) {
+        for (Participant p : participants) {
             result.append("\n\t").append(p);
         }
 
