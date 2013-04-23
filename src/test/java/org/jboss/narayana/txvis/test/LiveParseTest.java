@@ -2,10 +2,13 @@ package org.jboss.narayana.txvis.test;
 
 import com.arjuna.ats.jta.TransactionManager;
 import org.apache.commons.io.input.Tailer;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.data.ParticipantDAO;
+import org.jboss.narayana.txvis.data.Transaction;
 import org.jboss.narayana.txvis.data.TransactionDAO;
 import org.jboss.narayana.txvis.input.JBossLogParser;
 import org.jboss.narayana.txvis.simple.DummyXAResource;
@@ -25,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -41,7 +45,7 @@ public class LiveParseTest {
 
     private static DummyXAResource dummyXAResource2 = new DummyXAResource("dummy2");
 
-    private static final int NO_OF_TX = 10;
+    private static final int NO_OF_TX = 5;
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -63,21 +67,35 @@ public class LiveParseTest {
     }
 
     @Test
-    public void liveLogParse() throws Exception {
+    public void liveParseTest() throws Exception {
+
+        Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
+        logger.setLevel(Level.INFO);
+
         TransactionDAO txDAO = new TransactionDAO();
         ParticipantDAO ptDAO = new ParticipantDAO();
-        Tailer tailer = new Tailer(new File(LOGFILE_PATH), new JBossLogParser(txDAO, ptDAO), 500, true);
-        Thread thread = new Thread(tailer);
-        thread.start();
-        Thread.sleep(500);
 
-        for (int i = 0; i < NO_OF_TX; i++)
-            createTx();
+        Tailer tailer = null;
+        try {
+            tailer = new Tailer(new File(LOGFILE_PATH), new JBossLogParser(txDAO, ptDAO), 500, true);
+            Thread thread = new Thread(tailer);
+            thread.start();
+            Thread.sleep(500);
 
-        Thread.sleep(5000);
-        Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, txDAO.totalTx());
-        tailer.stop();
+            for (int i = 0; i < NO_OF_TX; i++)
+                createTx();
+
+            Thread.sleep(10000);
+            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, txDAO.totalTx());
+
+            for (Transaction tx : txDAO.getList())
+                Assert.assertEquals("Did not parse the correct number of participants for Transaction: "
+                        + tx.getTxId(), 2, tx.totalParticipants());
+        } finally {
+            tailer.stop();
+        }
     }
+
 
     //@Test
     public void clientDrivenCommitTest() throws Exception {

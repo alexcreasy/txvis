@@ -39,44 +39,43 @@ public class JBossLogParser implements TailerListener {
     }
 
     public void handle(String line) {
-        logger.info("Read line: " + line);
         // MATCH BEGIN TRANSACTION
         Matcher matcher = Patterns.TX_BEGIN.matcher(line);
-
         if (matcher.find()) {
-            logger.info("Matched line to pattern " + Patterns.TX_BEGIN);
+            logger.info("Parsed Tx Begin: txID=" + matcher.group(2) + ", thread=" + matcher.group(1));
             txDAO.create(matcher.group(2));
-            logger.info("txDAO.create( " + matcher.group(2) + " )");
             threadList.put(matcher.group(1), matcher.group(2));
-            logger.info("threadList.put( " + matcher.group(1) + " , " + matcher.group(2) + " )");
+            return;
         }
+
+
 
         // MATCH ENLIST PARTICIPANT
         matcher = Patterns.TX_ENLIST.matcher(line);
 
         if (matcher.find()) {
-            logger.info("Matched line to pattern " + Patterns.TX_BEGIN);
             String txID = threadList.get(matcher.group(1));
+            logger.info("Parsed enlist: participantID=" + matcher.group(2) + ", txID=" + txID + ", thread=" + matcher.group(1));
             if (txID == null)
                 logger.error("Thread: " + matcher.group(1)
                         + " does not have an associated transaction");
 
             Transaction tx = txDAO.get(txID);
             Participant participant = participantDAO.getParticipant(matcher.group(2));
-
             tx.addParticipant(participant);
+            return;
         }
-        logger.info("Did not parse line");
+        logger.debug("Did not parse line: " + line);
     }
 
     public void init(Tailer tailer) {}
     public void fileNotFound() {
-        logger.fatal("COULDN'T FIND THE RUDDY FILE!");
+        logger.fatal("couldn't find the log file");
     }
     public void fileRotated() {}
 
     public void handle(Exception ex) {
-        logger.fatal("\n\n\n\n\n EXCEPTION WITH LOG TAILER", ex);
+        logger.error("Exception thrown by log tailer", ex);
     }
 
 }

@@ -23,10 +23,18 @@ public class Transaction {
         this.txId = txId;
     }
 
+    public String getTxId() {
+        return this.txId;
+    }
+
     public void addParticipant(Participant participant) throws NullPointerException {
         if (participant == null)
             throw new NullPointerException("Expected participant");
         participants.add(participant);
+    }
+
+    public int totalParticipants() {
+        return participants.size();
     }
 
     @Override

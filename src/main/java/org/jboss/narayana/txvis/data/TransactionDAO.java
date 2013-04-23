@@ -1,8 +1,6 @@
 package org.jboss.narayana.txvis.data;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -22,6 +20,10 @@ public class TransactionDAO {
 
     public Transaction get(String txID) {
         return this.txList.get(txID);
+    }
+
+    public List<Transaction> getList() {
+        return Collections.unmodifiableList(new LinkedList<Transaction>(this.txList.values()));
     }
 
     public int totalTx() {
