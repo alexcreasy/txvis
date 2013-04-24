@@ -18,8 +18,8 @@ public class Patterns {
      * (:?-?[0-9a-fA-F^:]+:){4}-?[0-9a-fA-F]+
      *
      */
-    public static final String TX_ID = "-?[0-9a-fA-F]+:-?[0-9a-fA-F]+:-?[0-9a-fA-F]+:-?[0-9a-fA-F]+:-?[0-9a-fA-F]+";
-
+    //public static final String TX_ID = "-?[0-9a-fA-F]+:-?[0-9a-fA-F]+:-?[0-9a-fA-F]+:-?[0-9a-fA-F]+:-?[0-9a-fA-F]+";
+    public static final String TX_ID = "(:?-?[0-9a-fA-F^:]+:){4}-?[0-9a-fA-F]+";
     public static final String THREAD_ID =  "pool-\\d+-thread-\\d+";
 
     /**
