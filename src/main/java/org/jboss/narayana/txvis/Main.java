@@ -4,7 +4,7 @@ import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
 import org.jboss.narayana.txvis.data.ParticipantDAO;
 import org.jboss.narayana.txvis.data.TransactionDAO;
-import org.jboss.narayana.txvis.input.JBossLogParser;
+import org.jboss.narayana.txvis.parser.LogParser;
 
 import java.io.File;
 
@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         File file = new File(LOGFILE_PATH);
-        TailerListener parser = new JBossLogParser(txDAO, ptDAO);
+        TailerListener parser = new LogParser(txDAO, ptDAO);
 
         Tailer tailer = new Tailer(file, parser, 1000, false);
 

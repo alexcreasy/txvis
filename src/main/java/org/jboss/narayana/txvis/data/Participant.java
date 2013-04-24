@@ -1,17 +1,19 @@
 package org.jboss.narayana.txvis.data;
 
+import org.jboss.narayana.txvis.Vote;
+
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 16/04/2013
  * Time: 14:26
  */
-public class Participant {
+final class Participant {
 
     private final String participantID;
+    private Vote vote = null;
 
     public Participant(String participantID)
             throws IllegalArgumentException, NullPointerException {
-
         if (participantID.trim().isEmpty())
             throw new IllegalArgumentException("Empty participant ID");
 
@@ -20,6 +22,16 @@ public class Participant {
 
     public String getParticipantID() {
         return this.participantID;
+    }
+
+    public Vote getVote() {
+        return this.vote;
+    }
+
+    public void setVote(Vote vote) throws NullPointerException {
+        if (vote == null)
+            throw new NullPointerException("null param vote");
+        this.vote = vote;
     }
 
     @Override

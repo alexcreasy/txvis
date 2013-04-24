@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.data;
 
-import org.jboss.narayana.txvis.Patterns;
+import org.jboss.narayana.txvis.Status;
+import org.jboss.narayana.txvis.parser.Patterns;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,27 +11,38 @@ import java.util.List;
  * Date: 15/04/2013
  * Time: 14:09
  */
-public class Transaction {
+public final class Transaction {
 
-    private String txId;
-    private String outcome;
-    private List<Participant> participants = new LinkedList<Participant>();
+    private final String txId;
+    private Status status;
+    private final List<Participant> participants = new LinkedList<Participant>();
 
     public Transaction(String txId) throws IllegalArgumentException, NullPointerException {
         if (!txId.matches(Patterns.TX_ID))
             throw new IllegalArgumentException("Invalid transaction ID: " + txId);
 
         this.txId = txId;
+        this.status = Status.IN_FLIGHT;
     }
 
     public String getTxId() {
         return this.txId;
     }
 
+    public Status getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(Status status) throws NullPointerException {
+        if (status == null)
+            throw new NullPointerException("null param status");
+        this.status = status;
+    }
+
     public void addParticipant(Participant participant) throws NullPointerException {
         if (participant == null)
-            throw new NullPointerException("Expected participant");
-        participants.add(participant);
+            throw new NullPointerException("null param participant");
+        this.participants.add(participant);
     }
 
     public int totalParticipants() {
@@ -45,8 +57,6 @@ public class Transaction {
         for (Participant p : participants) {
             result.append("\n\t").append(p);
         }
-
         return result.toString();
     }
-
 }

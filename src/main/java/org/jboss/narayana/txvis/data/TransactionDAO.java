@@ -7,12 +7,15 @@ import java.util.*;
  * Date: 16/04/2013
  * Time: 10:03
  */
-public class TransactionDAO {
+public final class TransactionDAO {
 
     private final Map<String, Transaction> txList =
             Collections.synchronizedMap(new HashMap<String, Transaction>());
 
     public Transaction create(String txID) {
+        if (this.txList.containsKey(txID))
+            throw new IllegalStateException("Transaction with this ID already exists");
+
         Transaction tx = new Transaction(txID);
         this.txList.put(txID, tx);
         return tx;

@@ -5,30 +5,23 @@ import org.apache.commons.io.input.Tailer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.narayana.txvis.Status;
+import org.jboss.narayana.txvis.data.DAOFactory;
 import org.jboss.narayana.txvis.data.ParticipantDAO;
 import org.jboss.narayana.txvis.data.Transaction;
 import org.jboss.narayana.txvis.data.TransactionDAO;
-import org.jboss.narayana.txvis.input.JBossLogParser;
+import org.jboss.narayana.txvis.parser.LogParser;
 import org.jboss.narayana.txvis.simple.DummyXAResource;
-import org.jboss.narayana.txvis.test.input.DummyLogParser;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -37,15 +30,6 @@ import java.util.List;
  */
 @RunWith(Arquillian.class)
 public class LiveParseTest {
-
-    public static final String LOGFILE_PATH =
-            "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
-
-    private static DummyXAResource dummyXAResource1 = new DummyXAResource("dummy1");
-
-    private static DummyXAResource dummyXAResource2 = new DummyXAResource("dummy2");
-
-    private static final int NO_OF_TX = 5;
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -66,49 +50,46 @@ public class LiveParseTest {
         return archive;
     }
 
+    public static final String LOGFILE_PATH =
+            "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
+
+    private static DummyXAResource dummyXAResource1 = new DummyXAResource("dummy1");
+
+    private static DummyXAResource dummyXAResource2 = new DummyXAResource("dummy2");
+
+    private static final int NO_OF_TX = 1;
+
     @Test
     public void liveParseTest() throws Exception {
 
-        Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
-        logger.setLevel(Level.INFO);
-
-        TransactionDAO txDAO = new TransactionDAO();
-        ParticipantDAO ptDAO = new ParticipantDAO();
+//        Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
+//        logger.setLevel(Level.DEBUG);
 
         Tailer tailer = null;
         try {
-            tailer = new Tailer(new File(LOGFILE_PATH), new JBossLogParser(txDAO, ptDAO), 500, true);
+            tailer = new Tailer(new File(LOGFILE_PATH), new LogParser(), 500, true);
             Thread thread = new Thread(tailer);
             thread.start();
-            Thread.sleep(500);
+            Thread.sleep(100);
 
             for (int i = 0; i < NO_OF_TX; i++)
                 createTx();
 
-            Thread.sleep(10000);
-            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, txDAO.totalTx());
+            Thread.sleep(5000);
 
-            for (Transaction tx : txDAO.getList())
+            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transaction().totalTx());
+
+            for (Transaction tx : DAOFactory.transaction().getList()) {
                 Assert.assertEquals("Did not parse the correct number of participants for Transaction: "
                         + tx.getTxId(), 2, tx.totalParticipants());
+
+                Assert.assertEquals("Did not parse commits", Status.COMMIT, tx.getStatus());
+            }
         } finally {
             tailer.stop();
         }
     }
 
-
-    //@Test
-    public void clientDrivenCommitTest() throws Exception {
-
-        TransactionManager.transactionManager().begin();
-
-        DummyXAResource dummyXAResource1 = new DummyXAResource("dummy1");
-        TransactionManager.transactionManager().getTransaction().enlistResource(dummyXAResource1);
-        DummyXAResource dummyXAResource2 = new DummyXAResource("dummy2");
-        TransactionManager.transactionManager().getTransaction().enlistResource(dummyXAResource2);
-
-        TransactionManager.transactionManager().commit();
-    }
 
     private void createTx() throws Exception {
         TransactionManager.transactionManager().begin();

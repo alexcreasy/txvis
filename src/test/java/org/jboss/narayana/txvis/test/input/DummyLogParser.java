@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.test.input;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
-import org.jboss.narayana.txvis.Patterns;
+import org.jboss.narayana.txvis.parser.Patterns;
 
 import java.io.BufferedWriter;
 import java.io.File;

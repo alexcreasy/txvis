@@ -9,12 +9,12 @@ import java.util.Map;
  * Date: 16/04/2013
  * Time: 14:49
  */
-public class ParticipantDAO {
+public final class ParticipantDAO {
 
     private final Map<String, Participant> participants =
             Collections.synchronizedMap(new HashMap<String, Participant>());
 
-    public Participant getParticipant(String participantID)
+    public Participant get(String participantID)
             throws IllegalArgumentException, NullPointerException {
         Participant participant = this.participants.get(participantID);
 
@@ -25,7 +25,4 @@ public class ParticipantDAO {
 
         return participant;
     }
-
-
-
 }
