@@ -2,12 +2,9 @@ package org.jboss.narayana.txvis.test;
 
 import com.arjuna.ats.jta.TransactionManager;
 import org.apache.commons.io.input.Tailer;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.Status;
-import org.jboss.narayana.txvis.data.DAOFactory;
 import org.jboss.narayana.txvis.data.ParticipantDAO;
 import org.jboss.narayana.txvis.data.Transaction;
 import org.jboss.narayana.txvis.data.TransactionDAO;
@@ -57,7 +54,7 @@ public class LiveParseTest {
 
     private static DummyXAResource dummyXAResource2 = new DummyXAResource("dummy2");
 
-    private static final int NO_OF_TX = 1;
+    private static final int NO_OF_TX = 5;
 
     @Test
     public void liveParseTest() throws Exception {
@@ -65,9 +62,12 @@ public class LiveParseTest {
 //        Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
 //        logger.setLevel(Level.DEBUG);
 
+        TransactionDAO txDAO = new TransactionDAO();
+        ParticipantDAO ptDAO = new ParticipantDAO();
+
         Tailer tailer = null;
         try {
-            tailer = new Tailer(new File(LOGFILE_PATH), new LogParser(), 500, true);
+            tailer = new Tailer(new File(LOGFILE_PATH), new LogParser(txDAO, ptDAO), 500, true);
             Thread thread = new Thread(tailer);
             thread.start();
             Thread.sleep(100);
@@ -77,9 +77,9 @@ public class LiveParseTest {
 
             Thread.sleep(5000);
 
-            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transaction().totalTx());
+            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, txDAO.totalTx());
 
-            for (Transaction tx : DAOFactory.transaction().getList()) {
+            for (Transaction tx : txDAO.getList()) {
                 Assert.assertEquals("Did not parse the correct number of participants for Transaction: "
                         + tx.getTxId(), 2, tx.totalParticipants());
 

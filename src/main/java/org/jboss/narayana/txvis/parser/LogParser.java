@@ -21,6 +21,20 @@ public class LogParser implements TailerListener {
 
     private final Map<String, String> threadList = new HashMap<String, String>();
 
+    private final TransactionDAO txDAO;
+    private final ParticipantDAO participantDAO;
+
+    public LogParser(TransactionDAO txDAO, ParticipantDAO participantDAO)
+            throws IllegalArgumentException {
+        if (txDAO == null)
+            throw new IllegalArgumentException("null txDAO param");
+        if (participantDAO == null)
+            throw new IllegalArgumentException("null participantDAO param");
+
+        this.txDAO = txDAO;
+        this.participantDAO = participantDAO;
+    }
+
     public void handle(String line) {
         Matcher matcher;
 
@@ -30,7 +44,7 @@ public class LogParser implements TailerListener {
                 logger.debug("Parsed Tx Begin: txID=" + matcher.group(2) +
                         ", thread=" + matcher.group(1));
 
-            DAOFactory.transaction().create(matcher.group(2));
+            txDAO.create(matcher.group(2));
 
             threadList.put(matcher.group(1), matcher.group(2));
         }
@@ -46,13 +60,13 @@ public class LogParser implements TailerListener {
                 logger.error("Thread: " + matcher.group(1) +
                         " does not have an associated transaction");
 
-            DAOFactory.transaction().get(txID).addParticipant(DAOFactory.participant().get(matcher.group(2)));
+            txDAO.get(txID).addParticipant(participantDAO.get(matcher.group(2)));
         }
         // MATCH COMMIT
         else if ((matcher = Patterns.TX_COMMIT.matcher(line)).find()) {
             if (logger.isDebugEnabled())
                 logger.debug("Parsed commit: txID=" + matcher.group(2));
-            DAOFactory.transaction().get(matcher.group(2)).setStatus(Status.COMMIT);
+            txDAO.get(matcher.group(2)).setStatus(Status.COMMIT);
         }
         else {
             //logger.trace("Did not parse line: " + line);
