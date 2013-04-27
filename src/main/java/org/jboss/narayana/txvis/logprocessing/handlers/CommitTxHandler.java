@@ -24,15 +24,13 @@ public final class CommitTxHandler extends AbstractHandler {
     public static final String REGEX = "\\((" + THREAD_ID
             + ")\\)\\sFileSystemStore.remove_committed\\((" + TX_ID + "),";
 
-    private TransactionDAO transactionDAO = DAOFactory.transaction();
-
     public CommitTxHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-        transactionDAO.get(matcher.group(2)).setStatus(Status.COMMIT);
+        DAOFactory.transaction().get(matcher.group(2)).setStatus(Status.COMMIT);
     }
 
 

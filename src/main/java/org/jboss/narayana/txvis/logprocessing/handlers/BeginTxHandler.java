@@ -1,7 +1,6 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
-import org.jboss.narayana.txvis.dataaccess.TransactionDAO;
 
 import java.util.regex.Matcher;
 
@@ -22,15 +21,13 @@ public final class BeginTxHandler extends AbstractHandler {
     public static final String REGEX = "\\((" + THREAD_ID +
             ")\\)\\sBasicAction::Begin\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
 
-    private TransactionDAO transactionDAO = DAOFactory.transaction();
-
     public BeginTxHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-        transactionDAO.create(matcher.group(2));
-        ThreadDirectory.INSTANCE.put(matcher.group(1), matcher.group(2));
+        DAOFactory.transaction().create(matcher.group(2));
+        ThreadDirectory.INSTANCE.registerTx(matcher.group(1), matcher.group(2));
     }
 }

@@ -15,11 +15,11 @@ enum ThreadDirectory {
     private final Map<String, String> directory = new HashMap<String, String>();
 
 
-    String put(String key, String value) {
+    String registerTx(String key, String value) {
         return this.directory.put(key, value);
     }
 
-    String get(String key) {
+    String lookupTxID(String key) {
         return this.directory.get(key);
     }
 }

@@ -1,8 +1,6 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
-import org.jboss.narayana.txvis.dataaccess.ParticipantDAO;
-import org.jboss.narayana.txvis.dataaccess.TransactionDAO;
 
 import java.util.regex.Matcher;
 
@@ -24,18 +22,15 @@ public final class EnlistResourceHandler extends AbstractHandler {
     public static final String REGEX = "\\((" + THREAD_ID +
             ")\\)\\sTransactionImple.enlistResource\\s\\(\\s([^\\s\\)]+)\\s\\)";
 
-    private TransactionDAO transactionDAO = DAOFactory.transaction();
-    private ParticipantDAO participantDAO = DAOFactory.participant();
-
     public EnlistResourceHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-        String txID = ThreadDirectory.INSTANCE.get(matcher.group(1));
+        String txID = ThreadDirectory.INSTANCE.lookupTxID(matcher.group(1));
         if (txID == null)
             throw new IllegalStateException("Could not match Transaction to Thread");
-        transactionDAO.get(txID).addParticipant(participantDAO.get(matcher.group(2)));
+        DAOFactory.transaction().get(txID).addParticipant(DAOFactory.participant().get(matcher.group(2)));
     }
 }
