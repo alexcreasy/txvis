@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis;
+package org.jboss.narayana.txvis.dataaccess;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

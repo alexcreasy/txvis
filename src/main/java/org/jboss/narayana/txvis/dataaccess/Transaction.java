@@ -1,7 +1,6 @@
-package org.jboss.narayana.txvis.data;
+package org.jboss.narayana.txvis.dataaccess;
 
-import org.jboss.narayana.txvis.Status;
-import org.jboss.narayana.txvis.parser.Patterns;
+import org.jboss.narayana.txvis.logprocessing.handlers.AbstractHandler;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +17,7 @@ public final class Transaction {
     private final List<Participant> participants = new LinkedList<Participant>();
 
     public Transaction(String txId) throws IllegalArgumentException, NullPointerException {
-        if (!txId.matches(Patterns.TX_ID))
+        if (!txId.matches(AbstractHandler.TX_ID))
             throw new IllegalArgumentException("Invalid transaction ID: " + txId);
 
         this.txId = txId;

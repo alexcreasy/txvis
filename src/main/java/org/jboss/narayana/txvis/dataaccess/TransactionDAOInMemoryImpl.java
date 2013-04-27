@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.data;
+package org.jboss.narayana.txvis.dataaccess;
 
 import java.util.*;
 
@@ -7,11 +7,12 @@ import java.util.*;
  * Date: 16/04/2013
  * Time: 10:03
  */
-public final class TransactionDAO {
+public final class TransactionDAOInMemoryImpl implements TransactionDAO {
 
     private final Map<String, Transaction> txList =
             Collections.synchronizedMap(new HashMap<String, Transaction>());
 
+    @Override
     public Transaction create(String txID) {
         if (this.txList.containsKey(txID))
             throw new IllegalStateException("Transaction with this ID already exists");
@@ -21,14 +22,17 @@ public final class TransactionDAO {
         return tx;
     }
 
+    @Override
     public Transaction get(String txID) {
         return this.txList.get(txID);
     }
 
+    @Override
     public List<Transaction> getList() {
         return Collections.unmodifiableList(new LinkedList<Transaction>(this.txList.values()));
     }
 
+    @Override
     public int totalTx() {
         return this.txList.size();
     }
@@ -41,9 +45,5 @@ public final class TransactionDAO {
             result.append(tx).append("\n");
 
         return result.toString();
-    }
-
-    public void printAll() {
-        System.out.println(this);
     }
 }

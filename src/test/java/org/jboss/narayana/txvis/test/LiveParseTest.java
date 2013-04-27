@@ -1,14 +1,10 @@
 package org.jboss.narayana.txvis.test;
 
 import com.arjuna.ats.jta.TransactionManager;
-import org.apache.commons.io.input.Tailer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.Status;
-import org.jboss.narayana.txvis.data.ParticipantDAO;
-import org.jboss.narayana.txvis.data.Transaction;
-import org.jboss.narayana.txvis.data.TransactionDAO;
-import org.jboss.narayana.txvis.parser.LogParser;
+import org.jboss.narayana.txvis.TransactionMonitor;
+import org.jboss.narayana.txvis.dataaccess.*;
 import org.jboss.narayana.txvis.simple.DummyXAResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -19,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -47,57 +44,110 @@ public class LiveParseTest {
         return archive;
     }
 
-    public static final String LOGFILE_PATH =
-            "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
-
-    private static DummyXAResource dummyXAResource1 = new DummyXAResource("dummy1");
-
-    private static DummyXAResource dummyXAResource2 = new DummyXAResource("dummy2");
-
     private static final int NO_OF_TX = 5;
+    private static final int NO_OF_PARTICIPANTS = 3;
 
     @Test
-    public void liveParseTest() throws Exception {
+    public void clientDrivenCommitTest() throws Exception {
+        TransactionMonitor transactionMonitor = new TransactionMonitor();
 
-//        Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
-//        logger.setLevel(Level.DEBUG);
-
-        TransactionDAO txDAO = new TransactionDAO();
-        ParticipantDAO ptDAO = new ParticipantDAO();
-
-        Tailer tailer = null;
         try {
-            tailer = new Tailer(new File(LOGFILE_PATH), new LogParser(txDAO, ptDAO), 500, true);
-            Thread thread = new Thread(tailer);
-            thread.start();
-            Thread.sleep(100);
+            transactionMonitor.start();
+            Thread.sleep(500);
 
             for (int i = 0; i < NO_OF_TX; i++)
-                createTx();
+                createTx(NO_OF_PARTICIPANTS, Status.COMMIT);
 
             Thread.sleep(5000);
 
-            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, txDAO.totalTx());
+            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transaction().totalTx());
 
-            for (Transaction tx : txDAO.getList()) {
-                Assert.assertEquals("Did not parse the correct number of participants for Transaction: "
-                        + tx.getTxId(), 2, tx.totalParticipants());
+            for (Transaction tx : DAOFactory.transaction().getList()) {
+                Assert.assertEquals("Did not parse the correct number of participants: txID="
+                        + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
-                Assert.assertEquals("Did not parse commits", Status.COMMIT, tx.getStatus());
+                Assert.assertEquals("Incorrect final transactions status: txID=" + tx.getTxId(),
+                        Status.COMMIT, tx.getStatus());
             }
         } finally {
-            tailer.stop();
+            transactionMonitor.stop();
+        }
+    }
+
+    //@Test
+    public void clientDrivenRollbackTest() throws Exception {
+        TransactionMonitor transactionMonitor = new TransactionMonitor();
+
+        try {
+            transactionMonitor.start();
+            Thread.sleep(500);
+
+            for (int i = 0; i < NO_OF_TX; i++)
+                createTx(NO_OF_PARTICIPANTS, Status.ROLLBACK_CLIENT);
+
+            Thread.sleep(5000);
+
+            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
+                    DAOFactory.transaction().totalTx());
+
+            for (Transaction tx : DAOFactory.transaction().getList()) {
+                Assert.assertEquals("Did not parse the correct number of participants txID="
+                        + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
+
+                Assert.assertEquals("Incorrect final transactions status for txID=" + tx.getTxId(),
+                        Status.ROLLBACK_CLIENT, tx.getStatus());
+            }
+        } finally {
+            transactionMonitor.stop();
+        }
+    }
+
+    //@Test(expected = RollbackException.class)
+    public void resourceDrivenRollbackTest() throws Exception {
+        TransactionMonitor transactionMonitor = new TransactionMonitor();
+
+        try {
+            transactionMonitor.start();
+            Thread.sleep(500);
+
+            for (int i = 0; i < NO_OF_TX; i++)
+                createTx(NO_OF_PARTICIPANTS, Status.ROLLBACK_RESOURCE);
+
+            Thread.sleep(5000);
+
+            Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
+                    DAOFactory.transaction().totalTx());
+
+            for (Transaction tx : DAOFactory.transaction().getList()) {
+                Assert.assertEquals("Did not parse the correct number of participants txID="
+                        + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
+
+                Assert.assertEquals("Incorrect final transactions status for txID=" + tx.getTxId(),
+                        Status.ROLLBACK_RESOURCE, tx.getStatus());
+            }
+        } finally {
+            transactionMonitor.stop();
         }
     }
 
 
-    private void createTx() throws Exception {
+    private void createTx(int noOfParticipantsPerTx, Status outcome) throws Exception {
         TransactionManager.transactionManager().begin();
 
-        TransactionManager.transactionManager().getTransaction().enlistResource(dummyXAResource1);
-        TransactionManager.transactionManager().getTransaction().enlistResource(dummyXAResource2);
+        if (outcome.equals(Status.ROLLBACK_RESOURCE)) {
+            TransactionManager.transactionManager().getTransaction().enlistResource(
+                    new DummyXAResource(UUID.randomUUID().toString(), false));
+            noOfParticipantsPerTx--;
+        }
 
-        TransactionManager.transactionManager().commit();
+        for (int i = 0; i < noOfParticipantsPerTx; i++)
+            TransactionManager.transactionManager().getTransaction().enlistResource(
+                    new DummyXAResource(UUID.randomUUID().toString()));
+
+        if (outcome.equals(Status.ROLLBACK_CLIENT))
+            TransactionManager.transactionManager().rollback();
+        else
+            TransactionManager.transactionManager().commit();
     }
 
 }

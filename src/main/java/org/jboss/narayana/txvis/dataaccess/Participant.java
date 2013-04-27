@@ -1,6 +1,4 @@
-package org.jboss.narayana.txvis.data;
-
-import org.jboss.narayana.txvis.Vote;
+package org.jboss.narayana.txvis.dataaccess;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

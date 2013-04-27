@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.data;
+package org.jboss.narayana.txvis.dataaccess;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,11 +9,12 @@ import java.util.Map;
  * Date: 16/04/2013
  * Time: 14:49
  */
-public final class ParticipantDAO {
+public final class ParticipantDAOInMemoryImpl implements ParticipantDAO {
 
     private final Map<String, Participant> participants =
             Collections.synchronizedMap(new HashMap<String, Participant>());
 
+    @Override
     public Participant get(String participantID)
             throws IllegalArgumentException, NullPointerException {
         Participant participant = this.participants.get(participantID);
