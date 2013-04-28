@@ -5,7 +5,7 @@ package org.jboss.narayana.txvis.dataaccess;
  * Date: 16/04/2013
  * Time: 14:26
  */
-final class Participant {
+public final class Participant {
 
     private final String participantID;
     private Vote vote = null;

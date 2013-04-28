@@ -9,13 +9,12 @@ import java.util.*;
  */
 public final class TransactionDAOInMemoryImpl implements TransactionDAO {
 
-    private final Map<String, Transaction> txList =
-            Collections.synchronizedMap(new HashMap<String, Transaction>());
+    private final Map<String, Transaction> txList = new HashMap<String, Transaction>();
 
     @Override
     public Transaction create(String txID) {
         if (this.txList.containsKey(txID))
-            throw new IllegalStateException("Transaction with this ID already exists");
+            throw new IllegalStateException("Transaction already exists with id=" + txID);
 
         Transaction tx = new Transaction(txID);
         this.txList.put(txID, tx);

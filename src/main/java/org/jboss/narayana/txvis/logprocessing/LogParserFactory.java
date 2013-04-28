@@ -14,7 +14,7 @@ import java.util.List;
 public class LogParserFactory {
 
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
-    private static final List<Class> handlerClasses = new LinkedList<Class>();
+    private static List<Class> handlerClasses;
 
     public static LogParser getInstance() {
         LogParser logParser = new LogParser();
@@ -41,6 +41,8 @@ public class LogParserFactory {
     }
 
     public static void initialize(Iterable<String> handlers) {
+        handlerClasses = new LinkedList<Class>();
+
         for (String s : handlers) {
             try {
                 handlerClasses.add(Class.forName(s));

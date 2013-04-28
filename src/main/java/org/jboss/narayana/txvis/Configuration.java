@@ -7,6 +7,7 @@ package org.jboss.narayana.txvis;
  */
 public final class Configuration {
 
+
     public static final String LOGFILE_PATH =
             "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
 
@@ -20,7 +21,8 @@ public final class Configuration {
     private static final String[] LOG_HANDLERS = new String[] {
             "org.jboss.narayana.txvis.logprocessing.handlers.BeginTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.EnlistResourceHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler"
+            "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler",
+            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceRollbackHandler"
     };
 
 
