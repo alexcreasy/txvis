@@ -15,11 +15,9 @@ public final class BeginTxHandler extends AbstractHandler {
      * RegEx pattern for detecting creation of a transaction
      * RegEx Groups:
      * 0: The whole matched portion of the log entry
-     * 1: The Thread ID
-     * 2: The Transaction ID
+     * 1: The Transaction ID
      */
-    public static final String REGEX = "\\((" + THREAD_ID +
-            ")\\)\\sBasicAction::Begin\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
+    public static final String REGEX = "BasicAction::Begin\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
 
     public BeginTxHandler() {
         super(REGEX);
@@ -27,6 +25,6 @@ public final class BeginTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transaction().create(matcher.group(2));
+        DAOFactory.transaction().create(matcher.group(1));
     }
 }

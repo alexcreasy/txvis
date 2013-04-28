@@ -14,15 +14,12 @@ import java.util.regex.Matcher;
 public final class CommitTxHandler extends AbstractHandler {
 
     /**
-     * RegEx pattern for detecting a successful commit.
+     * RegEx pattern for parsing a successful commit log entry.
      * RegEx Groups:
      * 0: The whole matched portion of the log entry
-     * 1: The Thread ID
-     * 2: The Transaction ID
-     * (pool-1-thread-1) FileSystemStore.remove_committed(0:ffffac118223:61d0e901:515016c7:13,
+     * 1: The Transaction ID
      */
-    public static final String REGEX = "\\((" + THREAD_ID
-            + ")\\)\\sFileSystemStore.remove_committed\\((" + TX_ID + "),";
+    public static final String REGEX = "\\)\\sFileSystemStore.remove_committed\\((" + TX_ID + "),";
 
     public CommitTxHandler() {
         super(REGEX);
@@ -30,7 +27,7 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transaction().get(matcher.group(2)).setStatus(Status.COMMIT);
+        DAOFactory.transaction().get(matcher.group(1)).setStatus(Status.COMMIT);
     }
 
 

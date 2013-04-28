@@ -11,7 +11,6 @@ import java.util.regex.PatternSyntaxException;
 public abstract class AbstractHandler implements Handler {
 
     public static final String TX_ID = "(:?-?[0-9a-fA-F^:]+:){4}-?[0-9a-fA-F]+";
-    public static final String THREAD_ID =  "pool-\\d+-thread-\\d+";
 
     private Pattern pattern;
 

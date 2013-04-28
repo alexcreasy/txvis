@@ -18,6 +18,7 @@ final class LogParser implements TailerListener {
 
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
     private final List<Handler> handlers = new LinkedList<Handler>();
+    private Tailer tailer;
 
     public void addHandler(Handler lineHandler) throws NullPointerException {
         if (lineHandler == null)
@@ -36,12 +37,16 @@ final class LogParser implements TailerListener {
         }
     }
 
-    public void init(Tailer tailer) {}
+    public void init(Tailer tailer) {
+        this.tailer = tailer;
+    }
+
     public void fileNotFound() {
-        logger.fatal("couldn't find the log file");
+        logger.fatal("Log file not found: " + tailer.getFile());
     }
     public void fileRotated() {}
+
     public void handle(Exception ex) {
-        logger.error("Exception thrown by log tailer", ex);
+        logger.error("Exception thrown while parsing logfile", ex);
     }
 }
