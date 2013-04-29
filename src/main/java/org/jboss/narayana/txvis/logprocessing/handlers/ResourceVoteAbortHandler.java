@@ -20,7 +20,8 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
      * Group 1: Transaction ID
      * Group 2: Resource ID
      */
-    public static final String REGEX = "tx_uid=(" + TX_ID + "),.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
+    public static final String REGEX = "tx_uid=(" + TX_ID
+            + "),.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
 
 
 
@@ -30,7 +31,6 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        //DAOFactory.transactionInstance().get(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
         DAOFactory.transactionInstance().getEnlistedParticipantResource(
                 matcher.group(1), matcher.group(2)).setVote(Vote.ABORT);
     }
