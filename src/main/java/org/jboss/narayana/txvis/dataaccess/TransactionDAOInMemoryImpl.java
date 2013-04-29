@@ -52,6 +52,7 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
                 DAOFactory.resourceInstance().get(resourceId)));
     }
 
+    @Override
     public ParticipantRecord getEnlistedParticipantResource(String transactionId, String resourceId)
             throws IllegalArgumentException, NullPointerException {
         if (!validateTxId(transactionId))
