@@ -8,19 +8,21 @@ import java.util.regex.Matcher;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
- * Date: 27/04/2013
- * Time: 20:34
+ * Date: 29/04/2013
+ * Time: 17:37
  */
 public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
+   // 20:28:03,915 TRACE [com.arjuna.ats.arjuna] (pool-1-thread-1) BasicAction::phase2Abort() for action-id 0:ffff05974e0a:7540f300:517c26a8:1c
     /**
-     * RegEx for parsing a resource driven rollback
+     * RegEx for parsing an resource abort vote
      *
      * Group 0: Whole matched part of string
      * Group 1: Transaction ID
-     * Group 2: Resource ID
      */
-    public static final String REGEX = "tx_uid=(" + TX_ID + "),.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
+    public static final String REGEX = "BasicAction::phase2Abort\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
+
+
 
     public ResourceDrivenRollbackHandler() {
         super(REGEX);
@@ -29,7 +31,5 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
     @Override
     public void handle(Matcher matcher, String line) {
         DAOFactory.transactionInstance().get(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
-        DAOFactory.transactionInstance().getEnlistedParticipantResource(
-                matcher.group(1), matcher.group(2)).setVote(Vote.ABORT);
     }
 }

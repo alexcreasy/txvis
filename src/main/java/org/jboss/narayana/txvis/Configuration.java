@@ -23,7 +23,9 @@ public final class Configuration {
             "org.jboss.narayana.txvis.logprocessing.handlers.EnlistResourceHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ClientDrivenRollbackHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler"
+            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteAbortHandler",
+            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler",
+
     };
 
 
