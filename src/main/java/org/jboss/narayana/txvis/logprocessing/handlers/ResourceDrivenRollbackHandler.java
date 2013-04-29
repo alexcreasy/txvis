@@ -28,7 +28,8 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transaction().get(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
-
+        DAOFactory.transactionInstance().get(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
+        DAOFactory.transactionInstance().getEnlistedParticipantResource(
+                matcher.group(1), matcher.group(2)).setVote(Vote.ABORT);
     }
 }

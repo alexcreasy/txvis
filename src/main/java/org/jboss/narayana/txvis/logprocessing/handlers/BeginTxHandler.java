@@ -25,6 +25,6 @@ public final class BeginTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transaction().create(matcher.group(1));
+        DAOFactory.transactionInstance().create(matcher.group(1));
     }
 }

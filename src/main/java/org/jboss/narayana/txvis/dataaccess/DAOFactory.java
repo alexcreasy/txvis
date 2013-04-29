@@ -12,13 +12,13 @@ public final class DAOFactory {
     private static TransactionDAO transactionDAO;
     private static ResourceDAO resourceDAO;
 
-    public static TransactionDAO transaction() {
+    public static TransactionDAO transactionInstance() {
         if (transactionDAO == null)
             throw new IllegalStateException("DAOFactory has not been initialized");
         return transactionDAO;
     }
 
-    public static ResourceDAO participant() {
+    public static ResourceDAO resourceInstance() {
         if (resourceDAO == null)
             throw new IllegalStateException("DAOFactory has not been initialized");
         return resourceDAO;
@@ -30,7 +30,7 @@ public final class DAOFactory {
             resourceDAO = (ResourceDAO) Class.forName(Configuration.RESOURCE_DAO_IMPLEMENTATION_CLASS).newInstance();
         }
         catch (Throwable t) {
-            throw new IllegalStateException("Unable to initialize DAO layer", t);
+            throw new IllegalStateException("Unable to initialize DAOFactory", t);
         }
     }
 }

@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.dataaccess;
 
+import org.jboss.narayana.txvis.logprocessing.handlers.AbstractHandler;
+
 import java.util.*;
 
 /**
@@ -14,18 +16,20 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
     TransactionDAOInMemoryImpl() {}
 
     @Override
-    public Transaction create(String txID) {
-        if (this.txList.containsKey(txID))
-            throw new IllegalStateException("Transaction already exists with id=" + txID);
+    public Transaction create(String transactionId) throws IllegalArgumentException, NullPointerException {
+        if (!validateTxId(transactionId))
+            throw new IllegalArgumentException("Illegal transactionId");
+        if (this.txList.containsKey(transactionId))
+            throw new IllegalStateException("Transaction already exists with id=" + transactionId);
 
-        Transaction tx = new Transaction(txID);
-        this.txList.put(txID, tx);
+        Transaction tx = new Transaction(transactionId);
+        this.txList.put(transactionId, tx);
         return tx;
     }
 
     @Override
-    public Transaction get(String txID) {
-        return this.txList.get(txID);
+    public Transaction get(String txId) {
+        return this.txList.get(txId);
     }
 
     @Override
@@ -39,6 +43,29 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
     }
 
     @Override
+    public void enlistParticipantResource(String transactionId, String resourceId)
+            throws IllegalArgumentException, NullPointerException {
+        if (!validateTxId(transactionId))
+            throw new IllegalArgumentException("Illegal transactionId");
+
+        get(transactionId).addParticipant(new ParticipantRecord(get(transactionId),
+                DAOFactory.resourceInstance().get(resourceId)));
+    }
+
+    public ParticipantRecord getEnlistedParticipantResource(String transactionId, String resourceId)
+            throws IllegalArgumentException, NullPointerException {
+        if (!validateTxId(transactionId))
+            throw new IllegalArgumentException("Illegal transactionId");
+
+        for (ParticipantRecord p : get(transactionId).getParticipants()) {
+            if (p.getResource().getResourceID().equals(resourceId))
+                return p;
+        }
+        return null;
+    }
+
+
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
 
@@ -46,5 +73,9 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
             result.append(tx).append("\n");
 
         return result.toString();
+    }
+
+    private boolean validateTxId(String txId) throws NullPointerException {
+        return txId.matches(AbstractHandler.TX_ID);
     }
 }

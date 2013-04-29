@@ -1,39 +1,30 @@
 package org.jboss.narayana.txvis.dataaccess;
 
+import java.io.Serializable;
+
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 16/04/2013
  * Time: 14:26
  */
-public final class Resource {
+public final class Resource implements Serializable {
+    private static final long serialVersionUID = 773651601216334875L;
+    private String resourceID;
 
-    private final String participantID;
-    private Vote vote = null;
-
-    Resource(String participantID)
-            throws IllegalArgumentException, NullPointerException {
-        if (participantID.trim().isEmpty())
-            throw new IllegalArgumentException("Empty participant ID");
-
-        this.participantID = participantID;
+    Resource(String resourceID) {
+        this.resourceID = resourceID;
     }
 
-    public String getParticipantID() {
-        return this.participantID;
+    public String getResourceID() {
+        return this.resourceID;
     }
 
-    public Vote getVote() {
-        return this.vote;
-    }
-
-    public void setVote(Vote vote) throws NullPointerException {
-        if (vote == null)
-            throw new NullPointerException("null param vote");
-        this.vote = vote;
+    private void setResourceID(String resourceID) {
+        this.resourceID = resourceID;
     }
 
     @Override
     public String toString() {
-        return "Resource ID: " + this.participantID;
+        return "Resource ID: " + this.resourceID;
     }
 }

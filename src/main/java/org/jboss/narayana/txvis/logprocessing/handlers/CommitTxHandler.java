@@ -2,7 +2,6 @@ package org.jboss.narayana.txvis.logprocessing.handlers;
 
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
 import org.jboss.narayana.txvis.dataaccess.Status;
-import org.jboss.narayana.txvis.dataaccess.TransactionDAO;
 
 import java.util.regex.Matcher;
 
@@ -27,7 +26,7 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transaction().get(matcher.group(1)).setStatus(Status.COMMIT);
+        DAOFactory.transactionInstance().get(matcher.group(1)).setStatus(Status.COMMIT);
     }
 
 

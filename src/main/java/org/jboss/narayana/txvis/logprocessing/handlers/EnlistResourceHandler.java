@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 public class EnlistResourceHandler extends AbstractHandler {
 
     /**
-     * RegEx pattern for detecting a participant enlist
+     * RegEx pattern for parsing a participant resource enlist
      *
      * RegEx Groups:
      * 0: The whole matched portion of the log entry
@@ -27,7 +27,7 @@ public class EnlistResourceHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transaction().get(matcher.group(1)).addParticipant(DAOFactory.participant().get(matcher.group(2)));
+        DAOFactory.transactionInstance().enlistParticipantResource(matcher.group(1), matcher.group(2));
     }
 
 }

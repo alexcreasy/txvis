@@ -11,21 +11,22 @@ import java.util.Map;
  */
 public final class ResourceDAOInMemoryImpl implements ResourceDAO {
 
-    private final Map<String, Resource> resources =
-            Collections.synchronizedMap(new HashMap<String, Resource>());
+    private final Map<String, Resource> resources = new HashMap<String, Resource>();
 
     ResourceDAOInMemoryImpl() {}
 
     @Override
-    public Resource get(String resourceID)
+    public Resource get(String resourceId)
             throws IllegalArgumentException, NullPointerException {
-        Resource resource = this.resources.get(resourceID);
+        if (resourceId.trim().isEmpty())
+            throw new IllegalArgumentException("Empty parameter resourceId");
+
+        Resource resource = this.resources.get(resourceId);
 
         if (resource == null) {
-            resource = new Resource(resourceID);
-            this.resources.put(resourceID, resource);
+            resource = new Resource(resourceId);
+            this.resources.put(resourceId, resource);
         }
-
         return resource;
     }
 }

@@ -65,9 +65,9 @@ public class LiveParseTest {
             transactionMonitor.stop();
         }
 
-        Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transaction().totalTx());
+        Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transactionInstance().totalTx());
 
-        for (Transaction tx : DAOFactory.transaction().getAll()) {
+        for (Transaction tx : DAOFactory.transactionInstance().getAll()) {
             Assert.assertEquals("Did not parse the correct number of participants: txID="
                     + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
@@ -90,9 +90,9 @@ public class LiveParseTest {
             Thread.sleep(5000);
 
             Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
-                    DAOFactory.transaction().totalTx());
+                    DAOFactory.transactionInstance().totalTx());
 
-            for (Transaction tx : DAOFactory.transaction().getAll()) {
+            for (Transaction tx : DAOFactory.transactionInstance().getAll()) {
                 Assert.assertEquals("Did not parse the correct number of participants txID="
                         + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
@@ -121,14 +121,23 @@ public class LiveParseTest {
             transactionMonitor.stop();
         }
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
-                DAOFactory.transaction().totalTx());
+                DAOFactory.transactionInstance().totalTx());
 
-        for (Transaction tx : DAOFactory.transaction().getAll()) {
+        for (Transaction tx : DAOFactory.transactionInstance().getAll()) {
             Assert.assertEquals("Did not parse the correct number of participants txID="
                     + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
             Assert.assertEquals("Incorrect final transactions status for txID=" + tx.getTxId(),
                     Status.ROLLBACK_RESOURCE, tx.getStatus());
+
+            int abortCounter = 0;
+            for (ParticipantRecord p : DAOFactory.transactionInstance().get(tx.getTxId()).getParticipants()) {
+                if (Vote.ABORT.equals(p.getVote()))
+                    abortCounter++;
+            }
+
+            Assert.assertEquals("Incorrect number of participant resources report having voted to abort for txID="
+                    + tx.getTxId(), 1, abortCounter);
         }
     }
 
