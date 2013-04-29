@@ -11,6 +11,8 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
 
     private final Map<String, Transaction> txList = new HashMap<String, Transaction>();
 
+    TransactionDAOInMemoryImpl() {}
+
     @Override
     public Transaction create(String txID) {
         if (this.txList.containsKey(txID))
@@ -27,8 +29,8 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
     }
 
     @Override
-    public List<Transaction> getList() {
-        return Collections.unmodifiableList(new LinkedList<Transaction>(this.txList.values()));
+    public Collection<Transaction> getAll() {
+        return Collections.unmodifiableCollection(this.txList.values());
     }
 
     @Override

@@ -5,12 +5,12 @@ package org.jboss.narayana.txvis.dataaccess;
  * Date: 16/04/2013
  * Time: 14:26
  */
-public final class Participant {
+public final class Resource {
 
     private final String participantID;
     private Vote vote = null;
 
-    public Participant(String participantID)
+    Resource(String participantID)
             throws IllegalArgumentException, NullPointerException {
         if (participantID.trim().isEmpty())
             throw new IllegalArgumentException("Empty participant ID");
@@ -34,6 +34,6 @@ public final class Participant {
 
     @Override
     public String toString() {
-        return "Participant ID: " + this.participantID;
+        return "Resource ID: " + this.participantID;
     }
 }

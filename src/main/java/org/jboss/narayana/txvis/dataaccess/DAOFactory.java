@@ -10,7 +10,7 @@ import org.jboss.narayana.txvis.Configuration;
 public final class DAOFactory {
 
     private static TransactionDAO transactionDAO;
-    private static ParticipantDAO participantDAO;
+    private static ResourceDAO resourceDAO;
 
     public static TransactionDAO transaction() {
         if (transactionDAO == null)
@@ -18,16 +18,16 @@ public final class DAOFactory {
         return transactionDAO;
     }
 
-    public static ParticipantDAO participant() {
-        if (participantDAO == null)
+    public static ResourceDAO participant() {
+        if (resourceDAO == null)
             throw new IllegalStateException("DAOFactory has not been initialized");
-        return participantDAO;
+        return resourceDAO;
     }
 
     public static void initialize() {
         try {
             transactionDAO = (TransactionDAO) Class.forName(Configuration.TRANSACTION_DAO_IMPLEMENTATION_CLASS).newInstance();
-            participantDAO = (ParticipantDAO) Class.forName(Configuration.PARTICIPANT_DAO_IMPLEMENTATION_CLASS).newInstance();
+            resourceDAO = (ResourceDAO) Class.forName(Configuration.RESOURCE_DAO_IMPLEMENTATION_CLASS).newInstance();
         }
         catch (Throwable t) {
             throw new IllegalStateException("Unable to initialize DAO layer", t);

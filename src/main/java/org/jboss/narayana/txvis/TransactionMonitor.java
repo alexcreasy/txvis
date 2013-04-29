@@ -2,13 +2,10 @@ package org.jboss.narayana.txvis;
 
 import org.apache.commons.io.input.Tailer;
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
-import org.jboss.narayana.txvis.dataaccess.ParticipantDAO;
-import org.jboss.narayana.txvis.dataaccess.TransactionDAO;
 import org.jboss.narayana.txvis.logprocessing.LogParserFactory;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

@@ -1,6 +1,6 @@
 package org.jboss.narayana.txvis.dataaccess;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -12,7 +12,7 @@ public interface TransactionDAO {
 
     Transaction get(String txID);
 
-    List<Transaction> getList();
+    Collection<Transaction> getAll();
 
     int totalTx();
 }

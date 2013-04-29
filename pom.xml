@@ -10,6 +10,7 @@
     <properties>
         <arquillian.version>1.0.0.Final</arquillian.version>
         <jboss.version>8.0.0.Alpha1-SNAPSHOT</jboss.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>

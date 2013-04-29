@@ -5,7 +5,7 @@ package org.jboss.narayana.txvis.dataaccess;
  * Date: 27/04/2013
  * Time: 18:16
  */
-public interface ParticipantDAO {
-    Participant get(String participantID)
+public interface ResourceDAO {
+    Resource get(String resourceID)
             throws IllegalArgumentException, NullPointerException;
 }

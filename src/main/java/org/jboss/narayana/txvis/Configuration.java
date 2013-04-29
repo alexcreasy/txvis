@@ -15,14 +15,15 @@ public final class Configuration {
 
     public static final String TRANSACTION_DAO_IMPLEMENTATION_CLASS
             = "org.jboss.narayana.txvis.dataaccess.TransactionDAOInMemoryImpl";
-    public static final String PARTICIPANT_DAO_IMPLEMENTATION_CLASS
-            = "org.jboss.narayana.txvis.dataaccess.ParticipantDAOInMemoryImpl";
+    public static final String RESOURCE_DAO_IMPLEMENTATION_CLASS
+            = "org.jboss.narayana.txvis.dataaccess.ResourceDAOInMemoryImpl";
 
     private static final String[] LOG_HANDLERS = new String[] {
             "org.jboss.narayana.txvis.logprocessing.handlers.BeginTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.EnlistResourceHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceRollbackHandler"
+            "org.jboss.narayana.txvis.logprocessing.handlers.ClientDrivenRollbackHandler",
+            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler"
     };
 
 

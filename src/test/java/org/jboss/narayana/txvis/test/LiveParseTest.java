@@ -38,8 +38,7 @@ public class LiveParseTest {
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addPackages(true, "org.jboss.narayana.txvis")
                 .addAsLibraries(libs)
-                .addAsWebInfResource(new StringAsset("<beans/>"), "beans.xml")
-                .addAsWebInfResource(new StringAsset("<web-app></web-app>"), "web.xml")
+
                 .setManifest(new StringAsset(ManifestMF));
 
         return archive;
@@ -48,7 +47,7 @@ public class LiveParseTest {
     private static final int NO_OF_TX = 5;
     private static final int NO_OF_PARTICIPANTS = 3;
 
-   // @Test
+   @Test
     public void clientDrivenCommitTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
@@ -68,7 +67,7 @@ public class LiveParseTest {
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transaction().totalTx());
 
-        for (Transaction tx : DAOFactory.transaction().getList()) {
+        for (Transaction tx : DAOFactory.transaction().getAll()) {
             Assert.assertEquals("Did not parse the correct number of participants: txID="
                     + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
@@ -77,7 +76,7 @@ public class LiveParseTest {
         }
     }
 
-    //@Test
+    @Test
     public void clientDrivenRollbackTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
@@ -93,7 +92,7 @@ public class LiveParseTest {
             Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
                     DAOFactory.transaction().totalTx());
 
-            for (Transaction tx : DAOFactory.transaction().getList()) {
+            for (Transaction tx : DAOFactory.transaction().getAll()) {
                 Assert.assertEquals("Did not parse the correct number of participants txID="
                         + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
@@ -105,7 +104,7 @@ public class LiveParseTest {
         }
     }
 
-    @Test//(expected = RollbackException.class)
+    @Test
     public void resourceDrivenRollbackTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
@@ -124,7 +123,7 @@ public class LiveParseTest {
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
                 DAOFactory.transaction().totalTx());
 
-        for (Transaction tx : DAOFactory.transaction().getList()) {
+        for (Transaction tx : DAOFactory.transaction().getAll()) {
             Assert.assertEquals("Did not parse the correct number of participants txID="
                     + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 

@@ -14,11 +14,13 @@ import java.util.regex.Matcher;
  * Date: 25/04/2013
  * Time: 16:49
  */
-final class LogParser implements TailerListener {
+public final class LogParser implements TailerListener {
 
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
     private final List<Handler> handlers = new LinkedList<Handler>();
     private Tailer tailer;
+
+    LogParser() {}
 
     public void addHandler(Handler lineHandler) throws NullPointerException {
         if (lineHandler == null)
@@ -31,7 +33,7 @@ final class LogParser implements TailerListener {
             Matcher matcher = handler.getPattern().matcher(line);
             if (matcher.find()) {
                 if (logger.isDebugEnabled())
-                    logger.debug("Parser match: logger=" + this + ", handler=" + handler.getClass() + ", line=" + line);
+                    logger.debug("Parser match: logparser=" + this + ", handler=" + handler.getClass() + ", line=" + line);
                 handler.handle(matcher, line);
             }
         }
@@ -44,6 +46,7 @@ final class LogParser implements TailerListener {
     public void fileNotFound() {
         logger.fatal("Log file not found: " + tailer.getFile());
     }
+
     public void fileRotated() {}
 
     public void handle(Exception ex) {
