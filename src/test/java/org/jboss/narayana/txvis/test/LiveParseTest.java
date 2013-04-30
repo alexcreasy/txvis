@@ -106,14 +106,13 @@ public class LiveParseTest {
             Assert.assertEquals("Incorrect final transaction status for txID=" + tx.getTxId(),
                     Status.ROLLBACK_RESOURCE, tx.getStatus());
 
-//            int abortCounter = 0;
-//            for (ParticipantRecord p : DAOFactory.transactionInstance().get(tx.getTxId()).getParticipants()) {
-//                if (Vote.ABORT.equals(p.getVote()))
-//                    abortCounter++;
-//            }
-//
-//            Assert.assertEquals("Incorrect number of participant resources report having voted to abort for txID="
-//                    + tx.getTxId(), 1, abortCounter);
+            int aborts = 0;
+            for (ParticipantRecord p : tx.getParticipants()) {
+                if (Vote.ABORT.equals(p.getVote()))
+                    aborts++;
+            }
+            Assert.assertEquals("Incorrect number of participant resources report having voted to abort for txID="
+                    + tx.getTxId(), 1, aborts);
         }
     }
 
