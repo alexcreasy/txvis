@@ -19,11 +19,12 @@ public final class Configuration {
             = "org.jboss.narayana.txvis.dataaccess.ResourceDAOInMemoryImpl";
 
     private static final String[] LOG_HANDLERS = new String[] {
-            "org.jboss.narayana.txvis.logprocessing.handlers.BeginTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.EnlistResourceHandler",
+            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteAbortHandler",
+            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteCommitHandler",
+            "org.jboss.narayana.txvis.logprocessing.handlers.BeginTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ClientDrivenRollbackHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteAbortHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler",
 
     };

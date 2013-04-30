@@ -5,7 +5,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.TransactionMonitor;
 import org.jboss.narayana.txvis.dataaccess.*;
-import org.jboss.narayana.txvis.simple.DummyXAResource;
+import org.jboss.narayana.txvis.test.utils.DummyXAResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -44,26 +44,17 @@ public class LiveParseTest {
         return archive;
     }
 
-    private static final int NO_OF_TX = 5;
+    private static final int NO_OF_TX = 1;
     private static final int NO_OF_PARTICIPANTS = 3;
+    private static final int INTRO_DELAY = 500;
+    private static final int OUTRO_DELAY = 3000;
+
 
    @Test
     public void clientDrivenCommitTest() throws Exception {
-        TransactionMonitor transactionMonitor = new TransactionMonitor();
+        TransactionMonitor txmon = new TransactionMonitor();
 
-        try {
-            transactionMonitor.start();
-            Thread.sleep(500);
-
-            for (int i = 0; i < NO_OF_TX; i++)
-                createTx(NO_OF_PARTICIPANTS, Status.COMMIT);
-
-            Thread.sleep(5000);
-
-        }
-        finally {
-            transactionMonitor.stop();
-        }
+        setupTxMonitor(txmon, Status.COMMIT);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transactionInstance().totalTx());
 
@@ -76,18 +67,18 @@ public class LiveParseTest {
         }
     }
 
-    @Test
+    //@Test
     public void clientDrivenRollbackTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
         try {
             transactionMonitor.start();
-            Thread.sleep(500);
+            Thread.sleep(INTRO_DELAY);
 
             for (int i = 0; i < NO_OF_TX; i++)
                 createTx(NO_OF_PARTICIPANTS, Status.ROLLBACK_CLIENT);
 
-            Thread.sleep(5000);
+            Thread.sleep(OUTRO_DELAY);
 
             Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
                     DAOFactory.transactionInstance().totalTx());
@@ -104,18 +95,18 @@ public class LiveParseTest {
         }
     }
 
-    @Test
+    //@Test
     public void resourceDrivenRollbackTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
         try {
             transactionMonitor.start();
-            Thread.sleep(500);
+            Thread.sleep(INTRO_DELAY);
 
             for (int i = 0; i < NO_OF_TX; i++)
                 createTx(NO_OF_PARTICIPANTS, Status.ROLLBACK_RESOURCE);
 
-            Thread.sleep(5000);
+            Thread.sleep(OUTRO_DELAY);
         }
         finally {
             transactionMonitor.stop();
@@ -139,6 +130,32 @@ public class LiveParseTest {
             Assert.assertEquals("Incorrect number of participant resources report having voted to abort for txID="
                     + tx.getTxId(), 1, abortCounter);
         }
+    }
+
+
+
+
+    private void setupTxMonitor(TransactionMonitor txmon, Status outcome) throws Exception {
+        setupTxMonitor(txmon, INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
+    }
+
+    private void setupTxMonitor(TransactionMonitor txmon, int introSleepDelay, int outroSleepDelay,
+                                int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
+        try {
+            txmon.start();
+            Thread.sleep(introSleepDelay);
+            createTx(noOfTx, noOfParticipantsPerTx, outcome);
+            Thread.sleep(outroSleepDelay);
+        }
+        finally {
+            txmon.stop();
+        }
+
+    }
+
+    private void createTx(int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
+        for (int i = 0; i < noOfTx; i++)
+            createTx(noOfParticipantsPerTx, outcome);
     }
 
 

@@ -33,7 +33,7 @@ public final class LogParser implements TailerListener {
             Matcher matcher = handler.getPattern().matcher(line);
             if (matcher.find()) {
                 if (logger.isDebugEnabled())
-                    logger.debug("Parser match: logparser=" + this + ", handler=" + handler.getClass() + ", line=" + line);
+                    logger.debug("Parser match: handler=" + handler.getClass()); //+ ", logparser=" + this + ", line=" + line);
                 handler.handle(matcher, line);
             }
         }

@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.simple;
+package org.jboss.narayana.txvis.test.utils;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
