@@ -33,10 +33,20 @@ public final class LogParser implements TailerListener {
             Matcher matcher = handler.getPattern().matcher(line);
             if (matcher.find()) {
                 if (logger.isDebugEnabled())
-                    logger.debug("Parser match: handler=" + handler.getClass()); //+ ", logparser=" + this + ", line=" + line);
+                    logger.debug(logFormat(handler, matcher));
                 handler.handle(matcher, line);
             }
         }
+    }
+
+    private String logFormat(Handler handler, Matcher matcher) {
+        StringBuilder sb =
+                new StringBuilder("Parser match: handler=").append(handler.getClass().getName());
+
+        for (int i = 1; i <= matcher.groupCount(); i++)
+            sb.append(", matcher.group(").append(i).append(")=").append(matcher.group(i));
+
+        return sb.toString();
     }
 
     public void init(Tailer tailer) {

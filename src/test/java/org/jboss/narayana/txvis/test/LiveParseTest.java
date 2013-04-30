@@ -44,7 +44,7 @@ public class LiveParseTest {
         return archive;
     }
 
-    private static final int NO_OF_TX = 1;
+    private static final int NO_OF_TX = 2;
     private static final int NO_OF_PARTICIPANTS = 3;
     private static final int INTRO_DELAY = 500;
     private static final int OUTRO_DELAY = 3000;
