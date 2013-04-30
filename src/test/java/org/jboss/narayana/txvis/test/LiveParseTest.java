@@ -53,7 +53,6 @@ public class LiveParseTest {
    @Test
     public void clientDrivenCommitTest() throws Exception {
         TransactionMonitor txmon = new TransactionMonitor();
-
         setupTxMonitor(txmon, Status.COMMIT);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transactionInstance().totalTx());
@@ -64,10 +63,18 @@ public class LiveParseTest {
 
             Assert.assertEquals("Incorrect final transactions status: txID=" + tx.getTxId(),
                     Status.COMMIT, tx.getStatus());
+
+            int commits = 0;
+            for (ParticipantRecord p : tx.getParticipants()) {
+                if (Vote.COMMIT.equals(p.getVote()))
+                    commits++;
+            }
+            Assert.assertEquals("Incorrect number of participant resources report having voted to commit for txID="
+                    + tx.getTxId(), NO_OF_PARTICIPANTS, commits);
         }
     }
 
-    //@Test
+    @Test
     public void clientDrivenRollbackTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
@@ -95,7 +102,7 @@ public class LiveParseTest {
         }
     }
 
-    //@Test
+    @Test
     public void resourceDrivenRollbackTest() throws Exception {
         TransactionMonitor transactionMonitor = new TransactionMonitor();
 
