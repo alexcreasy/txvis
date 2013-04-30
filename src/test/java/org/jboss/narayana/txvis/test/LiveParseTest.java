@@ -3,9 +3,9 @@ package org.jboss.narayana.txvis.test;
 import com.arjuna.ats.jta.TransactionManager;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.TransactionMonitor;
 import org.jboss.narayana.txvis.dataaccess.*;
 import org.jboss.narayana.txvis.test.utils.DummyXAResource;
+import org.jboss.narayana.txvis.test.utils.LiveTestMockTransactionMonitor;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -48,12 +48,12 @@ public class LiveParseTest {
     private static final int NO_OF_PARTICIPANTS = 3;
     private static final int INTRO_DELAY = 500;
     private static final int OUTRO_DELAY = 3000;
+    private static final int READY_POLL_INTERVAL = 200;
 
 
    @Test
     public void clientDrivenCommitTest() throws Exception {
-        TransactionMonitor txmon = new TransactionMonitor();
-        setupTxMonitor(txmon, Status.COMMIT);
+        testBootstrap(Status.COMMIT);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transactionInstance().totalTx());
 
@@ -76,8 +76,7 @@ public class LiveParseTest {
 
     @Test
     public void clientDrivenRollbackTest() throws Exception {
-        TransactionMonitor txmon = new TransactionMonitor();
-        setupTxMonitor(txmon, Status.ROLLBACK_CLIENT);
+        testBootstrap(Status.ROLLBACK_CLIENT);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
                 DAOFactory.transactionInstance().totalTx());
@@ -93,8 +92,7 @@ public class LiveParseTest {
 
     @Test
     public void resourceDrivenRollbackTest() throws Exception {
-        TransactionMonitor txmon = new TransactionMonitor();
-        setupTxMonitor(txmon, Status.ROLLBACK_RESOURCE);
+        testBootstrap(Status.ROLLBACK_RESOURCE);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
                 DAOFactory.transactionInstance().totalTx());
@@ -118,16 +116,19 @@ public class LiveParseTest {
 
 
 
-
-    private void setupTxMonitor(TransactionMonitor txmon, Status outcome) throws Exception {
-        setupTxMonitor(txmon, INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
+    private void testBootstrap(Status outcome) throws Exception {
+        LiveTestMockTransactionMonitor txmon = new LiveTestMockTransactionMonitor();
+        testBootstrap(txmon, INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
     }
 
-    private void setupTxMonitor(TransactionMonitor txmon, int introSleepDelay, int outroSleepDelay,
-                                int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
+    private void testBootstrap(LiveTestMockTransactionMonitor txmon, int introSleepDelay, int outroSleepDelay,
+                               int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
         try {
             txmon.start();
-            Thread.sleep(introSleepDelay);
+            while(!txmon.isReady()) {
+                System.out.println("Polling for test start");
+                Thread.sleep(READY_POLL_INTERVAL);
+            }
             createTx(noOfTx, noOfParticipantsPerTx, outcome);
             Thread.sleep(outroSleepDelay);
         }

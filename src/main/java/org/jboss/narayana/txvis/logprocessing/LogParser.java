@@ -20,8 +20,6 @@ public final class LogParser implements TailerListener {
     private final List<Handler> handlers = new LinkedList<Handler>();
     private Tailer tailer;
 
-    LogParser() {}
-
     public void addHandler(Handler lineHandler) throws NullPointerException {
         if (lineHandler == null)
             throw new NullPointerException();
@@ -32,21 +30,14 @@ public final class LogParser implements TailerListener {
         for (Handler handler : handlers) {
             Matcher matcher = handler.getPattern().matcher(line);
             if (matcher.find()) {
+
                 if (logger.isDebugEnabled())
                     logger.debug(logFormat(handler, matcher));
+
                 handler.handle(matcher, line);
+                break;
             }
         }
-    }
-
-    private String logFormat(Handler handler, Matcher matcher) {
-        StringBuilder sb =
-                new StringBuilder("Parser match: handler=").append(handler.getClass().getName());
-
-        for (int i = 1; i <= matcher.groupCount(); i++)
-            sb.append(", matcher.group(").append(i).append(")=").append(matcher.group(i));
-
-        return sb.toString();
     }
 
     public void init(Tailer tailer) {
@@ -61,5 +52,18 @@ public final class LogParser implements TailerListener {
 
     public void handle(Exception ex) {
         logger.error("Exception thrown while parsing logfile", ex);
+    }
+
+
+
+
+    private String logFormat(Handler handler, Matcher matcher) {
+        StringBuilder sb =
+                new StringBuilder("Parser match: handler=").append(handler.getClass().getName());
+
+        for (int i = 1; i <= matcher.groupCount(); i++)
+            sb.append(", matcher.group(").append(i).append(")=").append(matcher.group(i));
+
+        return sb.toString();
     }
 }
