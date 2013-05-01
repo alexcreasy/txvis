@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.dataaccess;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -7,6 +8,7 @@ import java.io.Serializable;
  * Date: 29/04/2013
  * Time: 09:33
  */
+@Entity
 public final class ParticipantRecord implements Serializable {
 
     private static final long serialVersionUID = -3441505744449729394L;
@@ -20,6 +22,8 @@ public final class ParticipantRecord implements Serializable {
         this.resource = resource;
     }
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     public Long getId() {
         return this.id;
     }
@@ -28,6 +32,7 @@ public final class ParticipantRecord implements Serializable {
         this.id = id;
     }
 
+    @ManyToOne
     public Transaction getTransaction() {
         return this.transaction;
     }
@@ -36,6 +41,7 @@ public final class ParticipantRecord implements Serializable {
         this.transaction = transaction;
     }
 
+    @ManyToOne
     public Resource getResource() {
         return this.resource;
     }

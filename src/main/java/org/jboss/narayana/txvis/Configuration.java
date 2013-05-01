@@ -7,7 +7,6 @@ package org.jboss.narayana.txvis;
  */
 public final class Configuration {
 
-
     public static final String LOGFILE_PATH =
             "/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone/log/server.log";
 
@@ -18,7 +17,7 @@ public final class Configuration {
     public static final String RESOURCE_DAO_IMPLEMENTATION_CLASS
             = "org.jboss.narayana.txvis.dataaccess.ResourceDAOInMemoryImpl";
 
-    private static final String[] LOG_HANDLERS = new String[] {
+    public static final String[] LOG_HANDLERS = new String[] {
             "org.jboss.narayana.txvis.logprocessing.handlers.EnlistResourceHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteAbortHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteCommitHandler",
@@ -28,13 +27,4 @@ public final class Configuration {
             "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler",
 
     };
-
-
-
-
-
-
-
-
-    public static String[] getHandlers() { return LOG_HANDLERS; }
 }

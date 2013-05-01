@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis.dataaccess;
 
 import org.jboss.narayana.txvis.logprocessing.handlers.AbstractHandler;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,9 +14,12 @@ import java.util.List;
  * Date: 15/04/2013
  * Time: 14:09
  */
+@Entity
 public final class Transaction implements Serializable {
 
     private static final long serialVersionUID = -189443407589350068L;
+
+    private Long id;
 
     private String txId;
     private Status status = Status.IN_FLIGHT;
@@ -45,12 +49,8 @@ public final class Transaction implements Serializable {
         this.participants.add(participant);
     }
 
-    public Collection<ParticipantRecord> getParticipants() {
+    public Collection<ParticipantRecord> getEnlistedParticipants() {
         return Collections.unmodifiableCollection(participants);
-    }
-
-    private void setParticipants(List<ParticipantRecord> participants) {
-        this.participants = participants;
     }
 
     public int totalParticipants() {
@@ -66,5 +66,29 @@ public final class Transaction implements Serializable {
             result.append("\n\t").append(p.getResource());
         }
         return result.toString();
+    }
+
+
+
+    /*
+     * Private getters / setters for JPA
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long getId() {
+        return id;
+    }
+
+    private void setId(Long id) {
+        this.id = id;
+    }
+
+    @OneToMany//(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    private List<ParticipantRecord> getParticipants() {
+        return this.participants;
+    }
+
+    private void setParticipants(List<ParticipantRecord> participants) {
+        this.participants = participants;
     }
 }

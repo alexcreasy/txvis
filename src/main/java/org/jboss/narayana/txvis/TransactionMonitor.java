@@ -18,17 +18,15 @@ public class TransactionMonitor {
 
     private File logFile;
     private Tailer tailer;
-    //private Thread tailerThread;
-
     private ExecutorService executor;
 
     public TransactionMonitor() {
         DAOFactory.initialize();
-        LogParserFactory.initialize(Arrays.asList(Configuration.getHandlers()));
+        LogParserFactory.initialize(ConfigurationManager.INSTANCE.getLogHandlers());
 
-        this.logFile = new File(Configuration.LOGFILE_PATH);
-        this.tailer = new Tailer(logFile, LogParserFactory.getInstance(), Configuration.LOGFILE_POLL_INTERVAL, true);
-        //this.tailerThread = new Thread(this.tailer);
+        this.logFile = new File(ConfigurationManager.INSTANCE.getLogfilePath());
+        this.tailer = new Tailer(logFile, LogParserFactory.getInstance(),
+                ConfigurationManager.INSTANCE.getLogfilePollInterval(), true);
     }
 
     public void start() {
@@ -39,6 +37,5 @@ public class TransactionMonitor {
     public void stop() {
         executor.shutdown();
         this.tailer.stop();
-        //executor.shutdown();
     }
 }

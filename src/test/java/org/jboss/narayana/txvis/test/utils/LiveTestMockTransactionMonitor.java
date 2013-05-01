@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis.test.utils;
 
 import org.apache.commons.io.input.Tailer;
 import org.jboss.narayana.txvis.Configuration;
+import org.jboss.narayana.txvis.ConfigurationManager;
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
 import org.jboss.narayana.txvis.logprocessing.LogParser;
 import org.jboss.narayana.txvis.logprocessing.LogParserFactory;
@@ -25,10 +26,10 @@ public class LiveTestMockTransactionMonitor {
 
     public LiveTestMockTransactionMonitor() {
         DAOFactory.initialize();
-        LogParserFactory.initialize(Arrays.asList(Configuration.getHandlers()));
-        logParser =  new LiveTestMockLogParser(LogParserFactory.getInstance());
-        this.logFile = new File(Configuration.LOGFILE_PATH);
-        this.tailer = new Tailer(logFile,logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
+        LogParserFactory.initialize(ConfigurationManager.INSTANCE.getLogHandlers());
+        logParser = new LiveTestMockLogParser(LogParserFactory.getInstance());
+        this.logFile = new File(ConfigurationManager.INSTANCE.getLogfilePath());
+        this.tailer = new Tailer(logFile,logParser, ConfigurationManager.INSTANCE.getLogfilePollInterval(), true);
     }
 
     public void start() {

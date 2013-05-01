@@ -58,7 +58,7 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionId");
 
-        for (ParticipantRecord p : get(transactionId).getParticipants()) {
+        for (ParticipantRecord p : get(transactionId).getEnlistedParticipants()) {
             if (p.getResource().getResourceID().equals(resourceId))
                 return p;
         }

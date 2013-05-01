@@ -1,6 +1,6 @@
 package org.jboss.narayana.txvis.dataaccess;
 
-import org.jboss.narayana.txvis.Configuration;
+import org.jboss.narayana.txvis.ConfigurationManager;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -26,8 +26,10 @@ public final class DAOFactory {
 
     public static void initialize() {
         try {
-            transactionDAO = (TransactionDAO) Class.forName(Configuration.TRANSACTION_DAO_IMPLEMENTATION_CLASS).newInstance();
-            resourceDAO = (ResourceDAO) Class.forName(Configuration.RESOURCE_DAO_IMPLEMENTATION_CLASS).newInstance();
+            transactionDAO = (TransactionDAO) Class.forName(
+                    ConfigurationManager.INSTANCE.getTransactionDaoImplementationClass()).newInstance();
+            resourceDAO = (ResourceDAO) Class.forName(
+                    ConfigurationManager.INSTANCE.getResourceDaoImplementationClass()).newInstance();
         }
         catch (Throwable t) {
             throw new IllegalStateException("Unable to initialize DAOFactory", t);

@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.logprocessing;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.logprocessing.handlers.Handler;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class LogParserFactory {
         return logParser;
     }
 
-    public static void initialize(Iterable<String> handlers) {
+    public static void initialize(Collection<String> handlers) {
         handlerClasses = new LinkedList<Class>();
 
         for (String s : handlers) {

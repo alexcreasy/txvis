@@ -21,8 +21,6 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
      */
     public static final String REGEX = "XAResourceRecord.topLevelPrepare\\sfor\\sXAResourceRecord\\s<\\sresource:([^,]+).*tx_uid=(" + TX_ID + "),.*TwoPhaseOutcome.FINISH_OK";
 
-
-
     public ResourceVoteCommitHandler() {
         super(REGEX);
     }

@@ -65,7 +65,7 @@ public class LiveParseTest {
                     Status.COMMIT, tx.getStatus());
 
             int commits = 0;
-            for (ParticipantRecord p : tx.getParticipants()) {
+            for (ParticipantRecord p : tx.getEnlistedParticipants()) {
                 if (Vote.COMMIT.equals(p.getVote()))
                     commits++;
             }
@@ -105,7 +105,7 @@ public class LiveParseTest {
                     Status.ROLLBACK_RESOURCE, tx.getStatus());
 
             int aborts = 0;
-            for (ParticipantRecord p : tx.getParticipants()) {
+            for (ParticipantRecord p : tx.getEnlistedParticipants()) {
                 if (Vote.ABORT.equals(p.getVote()))
                     aborts++;
             }
