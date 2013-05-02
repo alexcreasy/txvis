@@ -25,6 +25,5 @@ public final class Configuration {
             "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ClientDrivenRollbackHandler",
             "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler",
-
     };
 }

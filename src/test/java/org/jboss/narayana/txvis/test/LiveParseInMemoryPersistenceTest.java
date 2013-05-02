@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.test;
 import com.arjuna.ats.jta.TransactionManager;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.narayana.txvis.ConfigurationManager;
 import org.jboss.narayana.txvis.dataaccess.*;
 import org.jboss.narayana.txvis.test.utils.DummyXAResource;
 import org.jboss.narayana.txvis.test.utils.LiveTestMockTransactionMonitor;
@@ -10,8 +11,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import javax.transaction.RollbackException;
@@ -24,7 +24,7 @@ import java.util.UUID;
  * Time: 14:56
  */
 @RunWith(Arquillian.class)
-public class LiveParseTest {
+public class LiveParseInMemoryPersistenceTest {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -50,27 +50,47 @@ public class LiveParseTest {
     private static final int OUTRO_DELAY = 3000;
     private static final int READY_POLL_INTERVAL = 200;
 
+    private LiveTestMockTransactionMonitor txmon;
+    private TransactionDAO transactionDAO;
+    private ResourceDAO resourceDAO;
 
-   @Test
+    @Before
+    public void setup() throws Exception {
+        ConfigurationManager.INSTANCE.setResourceDaoImplementationClass(
+                "org.jboss.narayana.txvis.dataaccess.ResourceDAOInMemoryImpl");
+        ConfigurationManager.INSTANCE.setTransactionDaoImplementationClass(
+                "org.jboss.narayana.txvis.dataaccess.TransactionDAOInMemoryImpl");
+
+        txmon = new LiveTestMockTransactionMonitor();
+        transactionDAO = DAOFactory.transactionInstance();
+        resourceDAO = DAOFactory.resourceInstance();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        DAOFactory.shutdown();
+    }
+
+    @Test
     public void clientDrivenCommitTest() throws Exception {
         testBootstrap(Status.COMMIT);
 
-        Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, DAOFactory.transactionInstance().totalTx());
+        Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX, this.transactionDAO.totalTx());
 
-        for (Transaction tx : DAOFactory.transactionInstance().getAll()) {
+        for (Transaction tx : this.transactionDAO.getAll()) {
             Assert.assertEquals("Did not parse the correct number of participants: txID="
-                    + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
+                    + tx.getTransactionID(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
-            Assert.assertEquals("Incorrect final transaction status: txID=" + tx.getTxId(),
+            Assert.assertEquals("Incorrect final transaction status: txID=" + tx.getTransactionID(),
                     Status.COMMIT, tx.getStatus());
 
             int commits = 0;
-            for (ParticipantRecord p : tx.getEnlistedParticipants()) {
+            for (ParticipantRecord p : tx.getParticipants()) {
                 if (Vote.COMMIT.equals(p.getVote()))
                     commits++;
             }
             Assert.assertEquals("Incorrect number of participant resources report having voted to commit for txID="
-                    + tx.getTxId(), NO_OF_PARTICIPANTS, commits);
+                    + tx.getTransactionID(), NO_OF_PARTICIPANTS, commits);
         }
     }
 
@@ -79,13 +99,13 @@ public class LiveParseTest {
         testBootstrap(Status.ROLLBACK_CLIENT);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
-                DAOFactory.transactionInstance().totalTx());
+                transactionDAO.totalTx());
 
-            for (Transaction tx : DAOFactory.transactionInstance().getAll()) {
+            for (Transaction tx : transactionDAO.getAll()) {
                 Assert.assertEquals("Did not parse the correct number of participants txID="
-                        + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
+                        + tx.getTransactionID(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
-                Assert.assertEquals("Incorrect final transaction status for txID=" + tx.getTxId(),
+                Assert.assertEquals("Incorrect final transaction status for txID=" + tx.getTransactionID(),
                         Status.ROLLBACK_CLIENT, tx.getStatus());
             }
     }
@@ -95,29 +115,26 @@ public class LiveParseTest {
         testBootstrap(Status.ROLLBACK_RESOURCE);
 
         Assert.assertEquals("Incorrect number of transactions parsed", NO_OF_TX,
-                DAOFactory.transactionInstance().totalTx());
+                transactionDAO.totalTx());
 
-        for (Transaction tx : DAOFactory.transactionInstance().getAll()) {
+        for (Transaction tx : transactionDAO.getAll()) {
             Assert.assertEquals("Did not parse the correct number of participants txID="
-                    + tx.getTxId(), NO_OF_PARTICIPANTS, tx.totalParticipants());
+                    + tx.getTransactionID(), NO_OF_PARTICIPANTS, tx.totalParticipants());
 
-            Assert.assertEquals("Incorrect final transaction status for txID=" + tx.getTxId(),
+            Assert.assertEquals("Incorrect final transaction status for txID=" + tx.getTransactionID(),
                     Status.ROLLBACK_RESOURCE, tx.getStatus());
 
             int aborts = 0;
-            for (ParticipantRecord p : tx.getEnlistedParticipants()) {
+            for (ParticipantRecord p : tx.getParticipants()) {
                 if (Vote.ABORT.equals(p.getVote()))
                     aborts++;
             }
             Assert.assertEquals("Incorrect number of participant resources report having voted to abort for txID="
-                    + tx.getTxId(), 1, aborts);
+                    + tx.getTransactionID(), 1, aborts);
         }
     }
 
-
-
     private void testBootstrap(Status outcome) throws Exception {
-        LiveTestMockTransactionMonitor txmon = new LiveTestMockTransactionMonitor();
         testBootstrap(txmon, INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
     }
 

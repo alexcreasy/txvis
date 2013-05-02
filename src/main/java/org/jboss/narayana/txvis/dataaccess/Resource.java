@@ -11,15 +11,18 @@ import java.util.List;
  */
 @Entity
 public final class Resource implements Serializable {
+
     private static final long serialVersionUID = 773651601216334875L;
     private Long id;
     private String resourceID;
-
     private List<ParticipantRecord> enlistedIn;
 
-    Resource(String resourceID) {
+    public Resource() {}
+
+    public Resource(String resourceID) {
         this.resourceID = resourceID;
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long getId() {

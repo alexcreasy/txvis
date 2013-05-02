@@ -29,4 +29,9 @@ public final class ResourceDAOInMemoryImpl implements ResourceDAO {
         }
         return resource;
     }
+
+    @Override
+    public void deconstruct() {
+        this.resources.clear();
+    }
 }

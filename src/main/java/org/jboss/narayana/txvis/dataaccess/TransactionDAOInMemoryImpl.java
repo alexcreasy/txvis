@@ -16,20 +16,18 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
     TransactionDAOInMemoryImpl() {}
 
     @Override
-    public Transaction create(String transactionId) throws IllegalArgumentException, NullPointerException {
-        if (!validateTxId(transactionId))
+    public void create(String transactionID) throws IllegalArgumentException, NullPointerException {
+        if (!validateTxId(transactionID))
             throw new IllegalArgumentException("Illegal transactionId");
-        if (this.txList.containsKey(transactionId))
-            throw new IllegalStateException("Transaction already exists with id=" + transactionId);
+        if (this.txList.containsKey(transactionID))
+            throw new IllegalStateException("Transaction already exists with id=" + transactionID);
 
-        Transaction tx = new Transaction(transactionId);
-        this.txList.put(transactionId, tx);
-        return tx;
+        this.txList.put(transactionID, new Transaction(transactionID));
     }
 
     @Override
-    public Transaction get(String txId) {
-        return this.txList.get(txId);
+    public Transaction get(String transactionID) {
+        return this.txList.get(transactionID);
     }
 
     @Override
@@ -43,23 +41,23 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
     }
 
     @Override
-    public void enlistParticipantResource(String transactionId, String resourceId)
+    public void enlistParticipantResource(String transactionID, String resourceID)
             throws IllegalArgumentException, NullPointerException {
-        if (!validateTxId(transactionId))
+        if (!validateTxId(transactionID))
             throw new IllegalArgumentException("Illegal transactionId");
 
-        get(transactionId).addParticipant(new ParticipantRecord(get(transactionId),
-                DAOFactory.resourceInstance().get(resourceId)));
+        get(transactionID).addParticipant(new ParticipantRecord(get(transactionID),
+                DAOFactory.resourceInstance().get(resourceID)));
     }
 
     @Override
-    public ParticipantRecord getEnlistedParticipantResource(String transactionId, String resourceId)
+    public ParticipantRecord getEnlistedParticipantResource(String transactionID, String resourceID)
             throws IllegalArgumentException, NullPointerException {
-        if (!validateTxId(transactionId))
+        if (!validateTxId(transactionID))
             throw new IllegalArgumentException("Illegal transactionId");
 
-        for (ParticipantRecord p : get(transactionId).getEnlistedParticipants()) {
-            if (p.getResource().getResourceID().equals(resourceId))
+        for (ParticipantRecord p : get(transactionID).getParticipants()) {
+            if (p.getResource().getResourceID().equals(resourceID))
                 return p;
         }
         return null;
@@ -78,5 +76,10 @@ public final class TransactionDAOInMemoryImpl implements TransactionDAO {
 
     private boolean validateTxId(String txId) throws NullPointerException {
         return txId.matches(AbstractHandler.TX_ID);
+    }
+
+    @Override
+    public void deconstruct() {
+        this.txList.clear();
     }
 }

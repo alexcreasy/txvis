@@ -8,17 +8,20 @@ import java.util.Collection;
  * Time: 18:18
  */
 public interface TransactionDAO {
-    Transaction create(String txID) throws IllegalArgumentException, NullPointerException;
 
-    Transaction get(String txID);
+    void create(String transactionID) throws IllegalArgumentException, NullPointerException;
+
+    Transaction get(String transactionID);
 
     Collection<Transaction> getAll();
 
-    void enlistParticipantResource(String transactionId, String resourceId)
+    void enlistParticipantResource(String transactionID, String resourceID)
             throws IllegalArgumentException, NullPointerException;
 
-    ParticipantRecord getEnlistedParticipantResource(String transactionId, String resourceId)
+    ParticipantRecord getEnlistedParticipantResource(String transactionID, String resourceID)
             throws IllegalArgumentException, NullPointerException;
 
     int totalTx();
+
+    void deconstruct();
 }

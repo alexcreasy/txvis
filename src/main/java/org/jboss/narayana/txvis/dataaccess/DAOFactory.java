@@ -35,4 +35,11 @@ public final class DAOFactory {
             throw new IllegalStateException("Unable to initialize DAOFactory", t);
         }
     }
+
+    public static void shutdown() {
+        transactionDAO.deconstruct();
+        transactionDAO = null;
+        resourceDAO.deconstruct();
+        resourceDAO = null;
+    }
 }

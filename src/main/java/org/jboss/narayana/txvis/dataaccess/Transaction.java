@@ -1,11 +1,7 @@
 package org.jboss.narayana.txvis.dataaccess;
 
-import org.jboss.narayana.txvis.logprocessing.handlers.AbstractHandler;
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,20 +17,23 @@ public final class Transaction implements Serializable {
 
     private Long id;
 
-    private String txId;
+    private String transactionID;
     private Status status = Status.IN_FLIGHT;
     private List<ParticipantRecord> participants = new LinkedList<ParticipantRecord>();
 
-    Transaction(String txId) {
-        this.txId = txId;
+
+    public Transaction() {}
+
+    public Transaction(String transactionID) {
+        this.transactionID = transactionID;
     }
 
-    public String getTxId() {
-        return this.txId;
+    public String getTransactionID() {
+        return this.transactionID;
     }
 
-    private void setTxId(String txId) {
-        this.txId = txId;
+    private void setTransactionID(String transactionID) {
+        this.transactionID = transactionID;
     }
 
     public Status getStatus() {
@@ -49,10 +48,6 @@ public final class Transaction implements Serializable {
         this.participants.add(participant);
     }
 
-    public Collection<ParticipantRecord> getEnlistedParticipants() {
-        return Collections.unmodifiableCollection(participants);
-    }
-
     public int totalParticipants() {
         return participants.size();
     }
@@ -60,7 +55,7 @@ public final class Transaction implements Serializable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Tx ID: ").append(txId);
+        result.append("Tx ID: ").append(transactionID);
 
         for (ParticipantRecord p : participants) {
             result.append("\n\t").append(p.getResource());
@@ -84,7 +79,7 @@ public final class Transaction implements Serializable {
     }
 
     @OneToMany//(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private List<ParticipantRecord> getParticipants() {
+    public List<ParticipantRecord> getParticipants() {
         return this.participants;
     }
 

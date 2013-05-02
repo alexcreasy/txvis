@@ -8,4 +8,5 @@ package org.jboss.narayana.txvis.dataaccess;
 public interface ResourceDAO {
     Resource get(String resourceID)
             throws IllegalArgumentException, NullPointerException;
+    void deconstruct();
 }

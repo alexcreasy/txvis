@@ -17,10 +17,12 @@ public final class ParticipantRecord implements Serializable {
     private Resource resource;
     private Vote vote;
 
-    ParticipantRecord(Transaction transaction, Resource resource) {
+    public ParticipantRecord(Transaction transaction, Resource resource) {
         this.transaction = transaction;
         this.resource = resource;
     }
+
+    public ParticipantRecord() {}
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -50,6 +52,7 @@ public final class ParticipantRecord implements Serializable {
         this.resource = resource;
     }
 
+    @Enumerated(EnumType.STRING)
     public Vote getVote() {
         return this.vote;
     }
