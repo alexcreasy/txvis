@@ -17,23 +17,23 @@ public final class Transaction implements Serializable {
 
     private Long id;
 
-    private String transactionID;
+    private String transactionId;
     private Status status = Status.IN_FLIGHT;
     private List<Participant> participants = new LinkedList<Participant>();
 
 
     public Transaction() {}
 
-    public Transaction(String transactionID) {
-        this.transactionID = transactionID;
+    public Transaction(String transactionId) {
+        this.transactionId = transactionId;
     }
 
-    public String getTransactionID() {
-        return this.transactionID;
+    public String getTransactionId() {
+        return this.transactionId;
     }
 
-    private void setTransactionID(String transactionID) {
-        this.transactionID = transactionID;
+    private void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public Status getStatus() {
@@ -48,7 +48,7 @@ public final class Transaction implements Serializable {
         this.participants.add(participant);
     }
 
-    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<Participant> getParticipants() {
         return this.participants;
     }
@@ -60,7 +60,7 @@ public final class Transaction implements Serializable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Tx ID: ").append(transactionID);
+        result.append("Tx ID: ").append(transactionId);
 
         for (Participant p : participants) {
             result.append("\n\t").append(p);

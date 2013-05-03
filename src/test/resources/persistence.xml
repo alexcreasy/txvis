@@ -9,11 +9,10 @@
          data source, the example data source is just for proofs of concept! -->
       <jta-data-source>java:jboss/datasources/MySqlDS</jta-data-source>
        <class>org.jboss.narayana.txvis.dataaccess.Transaction</class>
-       <class>org.jboss.narayana.txvis.dataaccess.Resource</class>
-       <class>org.jboss.narayana.txvis.dataaccess.ParticipantRecord</class>
+       <class>org.jboss.narayana.txvis.dataaccess.Participant</class>
       <properties>
          <!-- Properties for Hibernate -->
-          <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+          <property name="hibernate.hbm2ddl.auto" value="create" />
          <property name="hibernate.show_sql" value="true" />
       </properties>
    </persistence-unit>
