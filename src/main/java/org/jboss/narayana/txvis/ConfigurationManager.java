@@ -14,8 +14,6 @@ public enum ConfigurationManager {
 
     private String logfilePath;
     private int logfilePollInterval = -1;
-    private String transactionDaoImplementationClass;
-    private String resourceDaoImplementationClass;
     private List<String> logHandlers;
 
     public String getLogfilePath() {
@@ -32,26 +30,6 @@ public enum ConfigurationManager {
 
     public void setLogfilePollInterval(int logfilePollInterval) {
         this.logfilePollInterval = logfilePollInterval;
-    }
-
-    public String getTransactionDaoImplementationClass() {
-        return transactionDaoImplementationClass == null
-                ? Configuration.TRANSACTION_DAO_IMPLEMENTATION_CLASS
-                : transactionDaoImplementationClass;
-    }
-
-    public void setTransactionDaoImplementationClass(String transactionDaoImplementationClass) {
-        this.transactionDaoImplementationClass = transactionDaoImplementationClass;
-    }
-
-    public String getResourceDaoImplementationClass() {
-        return resourceDaoImplementationClass == null
-                ? Configuration.RESOURCE_DAO_IMPLEMENTATION_CLASS
-                : resourceDaoImplementationClass;
-    }
-
-    public void setResourceDaoImplementationClass(String resourceDaoImplementationClass) {
-        this.resourceDaoImplementationClass = resourceDaoImplementationClass;
     }
 
     public List<String> getLogHandlers() {

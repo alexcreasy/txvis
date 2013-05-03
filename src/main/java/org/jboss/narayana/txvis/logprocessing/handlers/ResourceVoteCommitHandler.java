@@ -27,7 +27,7 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transactionInstance().getEnlistedParticipantResource(
+        DAOFactory.getInstance().getEnlistedParticipantResource(
                 matcher.group(2), matcher.group(1)).setVote(Vote.COMMIT);
     }
 }

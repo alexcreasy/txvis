@@ -62,7 +62,7 @@ public class LiveParseInMemoryPersistenceTest {
                 "org.jboss.narayana.txvis.dataaccess.TransactionDAOInMemoryImpl");
 
         txmon = new LiveTestMockTransactionMonitor();
-        transactionDAO = DAOFactory.transactionInstance();
+        transactionDAO = DAOFactory.getInstance();
         resourceDAO = DAOFactory.resourceInstance();
     }
 

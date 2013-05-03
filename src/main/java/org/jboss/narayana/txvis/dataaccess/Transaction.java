@@ -19,7 +19,7 @@ public final class Transaction implements Serializable {
 
     private String transactionID;
     private Status status = Status.IN_FLIGHT;
-    private List<ParticipantRecord> participants = new LinkedList<ParticipantRecord>();
+    private List<Participant> participants = new LinkedList<Participant>();
 
 
     public Transaction() {}
@@ -44,12 +44,17 @@ public final class Transaction implements Serializable {
         this.status = status;
     }
 
-    public void addParticipant(ParticipantRecord participant) {
+    public void addParticipant(Participant participant) {
         this.participants.add(participant);
     }
 
-    public int totalParticipants() {
-        return participants.size();
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
+    public List<Participant> getParticipants() {
+        return this.participants;
+    }
+
+    private void setParticipants(List<Participant> participants) {
+        this.participants = participants;
     }
 
     @Override
@@ -57,13 +62,11 @@ public final class Transaction implements Serializable {
         StringBuilder result = new StringBuilder();
         result.append("Tx ID: ").append(transactionID);
 
-        for (ParticipantRecord p : participants) {
-            result.append("\n\t").append(p.getResource());
+        for (Participant p : participants) {
+            result.append("\n\t").append(p);
         }
         return result.toString();
     }
-
-
 
     /*
      * Private getters / setters for JPA
@@ -76,14 +79,5 @@ public final class Transaction implements Serializable {
 
     private void setId(Long id) {
         this.id = id;
-    }
-
-    @OneToMany//(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    public List<ParticipantRecord> getParticipants() {
-        return this.participants;
-    }
-
-    private void setParticipants(List<ParticipantRecord> participants) {
-        this.participants = participants;
     }
 }

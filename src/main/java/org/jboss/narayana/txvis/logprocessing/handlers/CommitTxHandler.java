@@ -26,7 +26,7 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transactionInstance().get(matcher.group(1)).setStatus(Status.COMMIT);
+        DAOFactory.getInstance().retrieve(matcher.group(1)).setStatus(Status.COMMIT);
     }
 
 

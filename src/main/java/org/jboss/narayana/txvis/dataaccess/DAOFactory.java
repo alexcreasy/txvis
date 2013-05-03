@@ -9,37 +9,17 @@ import org.jboss.narayana.txvis.ConfigurationManager;
  */
 public final class DAOFactory {
 
-    private static TransactionDAO transactionDAO;
-    private static ResourceDAO resourceDAO;
+    private static DataAccessObject DAO;
 
-    public static TransactionDAO transactionInstance() {
-        if (transactionDAO == null)
-            throw new IllegalStateException("DAOFactory has not been initialized");
-        return transactionDAO;
-    }
-
-    public static ResourceDAO resourceInstance() {
-        if (resourceDAO == null)
-            throw new IllegalStateException("DAOFactory has not been initialized");
-        return resourceDAO;
+    public static DataAccessObject getInstance() {
+        return DAO;
     }
 
     public static void initialize() {
-        try {
-            transactionDAO = (TransactionDAO) Class.forName(
-                    ConfigurationManager.INSTANCE.getTransactionDaoImplementationClass()).newInstance();
-            resourceDAO = (ResourceDAO) Class.forName(
-                    ConfigurationManager.INSTANCE.getResourceDaoImplementationClass()).newInstance();
-        }
-        catch (Throwable t) {
-            throw new IllegalStateException("Unable to initialize DAOFactory", t);
-        }
+        DAO = new DataAccessObject();
     }
 
     public static void shutdown() {
-        transactionDAO.deconstruct();
-        transactionDAO = null;
-        resourceDAO.deconstruct();
-        resourceDAO = null;
+
     }
 }

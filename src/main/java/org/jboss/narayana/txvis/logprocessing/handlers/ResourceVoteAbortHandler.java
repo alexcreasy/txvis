@@ -1,7 +1,6 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
-import org.jboss.narayana.txvis.dataaccess.Status;
 import org.jboss.narayana.txvis.dataaccess.Vote;
 
 import java.util.regex.Matcher;
@@ -31,7 +30,7 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transactionInstance().getEnlistedParticipantResource(
+        DAOFactory.getInstance().getEnlistedParticipantResource(
                 matcher.group(1), matcher.group(2)).setVote(Vote.ABORT);
     }
 }

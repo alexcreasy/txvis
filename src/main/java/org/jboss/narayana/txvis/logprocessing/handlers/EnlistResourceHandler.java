@@ -27,7 +27,7 @@ public class EnlistResourceHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transactionInstance().enlistParticipantResource(matcher.group(1), matcher.group(2));
+        DAOFactory.getInstance().enlistParticipant(matcher.group(1), matcher.group(2));
     }
 
 }

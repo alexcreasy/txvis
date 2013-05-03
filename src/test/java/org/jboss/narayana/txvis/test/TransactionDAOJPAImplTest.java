@@ -12,7 +12,6 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,7 +55,7 @@ public class TransactionDAOJPAImplTest {
         ConfigurationManager.INSTANCE.setTransactionDaoImplementationClass(
                 "org.jboss.narayana.txvis.dataaccess.TransactionDAOJPAImpl");
         DAOFactory.initialize();
-        transactionDAO = DAOFactory.transactionInstance();
+        transactionDAO = DAOFactory.getInstance();
 
         idGen = new UniqueIdGenerator();
     }

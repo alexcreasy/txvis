@@ -1,31 +1,30 @@
 package org.jboss.narayana.txvis.dataaccess;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
- * Date: 29/04/2013
- * Time: 09:33
+ * Date: 03/05/2013
+ * Time: 15:26
  */
 @Entity
-public final class ParticipantRecord implements Serializable {
+public class Participant {
 
     private static final long serialVersionUID = -3441505744449729394L;
     private Long id;
     private Transaction transaction;
-    private Resource resource;
+    private String resourceId;
     private Vote vote;
 
-    public ParticipantRecord(Transaction transaction, Resource resource) {
+    public Participant(Transaction transaction, String resourceId) {
         this.transaction = transaction;
-        this.resource = resource;
+        this.resourceId = resourceId;
     }
 
-    public ParticipantRecord() {}
+    public Participant() {}
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     public Long getId() {
         return this.id;
     }
@@ -43,13 +42,12 @@ public final class ParticipantRecord implements Serializable {
         this.transaction = transaction;
     }
 
-    @ManyToOne
-    public Resource getResource() {
-        return this.resource;
+    public String getResourceId() {
+        return this.resourceId;
     }
 
-    private void setResource(Resource resource) {
-        this.resource = resource;
+    private void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
     }
 
     @Enumerated(EnumType.STRING)

@@ -2,7 +2,6 @@ package org.jboss.narayana.txvis.logprocessing.handlers;
 
 import org.jboss.narayana.txvis.dataaccess.DAOFactory;
 import org.jboss.narayana.txvis.dataaccess.Status;
-import org.jboss.narayana.txvis.dataaccess.Vote;
 
 import java.util.regex.Matcher;
 
@@ -30,6 +29,6 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.transactionInstance().get(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
+        DAOFactory.getInstance().retrieve(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
     }
 }
