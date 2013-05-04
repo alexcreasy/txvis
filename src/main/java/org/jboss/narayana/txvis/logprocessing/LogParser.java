@@ -20,12 +20,16 @@ public final class LogParser implements TailerListener {
     private final List<Handler> handlers = new LinkedList<Handler>();
     private Tailer tailer;
 
-    public void addHandler(Handler lineHandler) throws NullPointerException {
+    // Enforce package-private constructor
+    LogParser() {}
+
+    void addHandler(Handler lineHandler) throws NullPointerException {
         if (lineHandler == null)
             throw new NullPointerException();
         handlers.add(lineHandler);
     }
 
+    @Override
     public void handle(String line) {
         for (Handler handler : handlers) {
             Matcher matcher = handler.getPattern().matcher(line);
@@ -40,21 +44,23 @@ public final class LogParser implements TailerListener {
         }
     }
 
+    @Override
     public void init(Tailer tailer) {
         this.tailer = tailer;
     }
 
+    @Override
     public void fileNotFound() {
         logger.fatal("Log file not found: " + tailer.getFile());
     }
 
+    @Override
     public void fileRotated() {}
 
+    @Override
     public void handle(Exception ex) {
         logger.error("Exception thrown while parsing logfile", ex);
     }
-
-
 
 
     private String logFormat(Handler handler, Matcher matcher) {

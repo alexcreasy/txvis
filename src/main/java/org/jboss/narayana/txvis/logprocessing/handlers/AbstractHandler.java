@@ -23,9 +23,6 @@ public abstract class AbstractHandler implements Handler {
         this.pattern = Pattern.compile(regex, flags);
     }
 
-    // Suppress default constructor
-    private AbstractHandler(){}
-
     @Override
     public final Pattern getPattern() {
         return this.pattern;

@@ -17,13 +17,23 @@ public class LogParserFactory {
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
     private static List<Class> handlerClasses;
 
-    public static LogParser getInstance() {
+    /**
+     *
+     * @return a LogParser
+     * @throws IllegalStateException
+     */
+    public static LogParser getInstance() throws IllegalStateException {
+        if (handlerClasses == null)
+            throw new IllegalStateException("LogParserFactory has not been initialized");
+
         LogParser logParser = new LogParser();
 
         for (Class c : handlerClasses) {
             try {
                 logParser.addHandler((Handler) c.newInstance());
-                logger.info("Successfully loaded log handler: " + c);
+
+                if (logger.isInfoEnabled())
+                    logger.info("Successfully loaded log handler: " + c);
             }
             catch (InstantiationException e) {
                 logger.fatal("Unable to load log handler: " + c, e);
@@ -41,7 +51,12 @@ public class LogParserFactory {
         return logParser;
     }
 
-    public static void initialize(Collection<String> handlers) {
+    /**
+     *
+     * @param handlers
+     * @throws IllegalStateException
+     */
+    public static void initialize(Collection<String> handlers) throws IllegalStateException {
         handlerClasses = new LinkedList<Class>();
 
         for (String s : handlers) {

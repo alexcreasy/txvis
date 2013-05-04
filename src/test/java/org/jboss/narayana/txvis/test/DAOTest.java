@@ -11,6 +11,8 @@ import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.io.File;
@@ -43,22 +45,29 @@ public class DAOTest {
         return archive;
     }
 
+    UniqueIdGenerator idGen;
+
+    @Before
+    public void setup() throws Exception {
+        DAOFactory.initialize();
+        idGen = new UniqueIdGenerator();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        DAOFactory.shutdown();
+    }
+
 
     @Test
-    public void crudTest() throws Exception {
-        DAOFactory.initialize();
-        final String txID = new UniqueIdGenerator().getUniqueTxId();
+    public void createRetrieveTest() throws Exception {
+        final String txID = idGen.getUniqueTxId();
         DAOFactory.getInstance().create(txID);
         assertNotNull(DAOFactory.getInstance().retrieve(txID));
-        DAOFactory.shutdown();
     }
 
     @Test
     public void enlistTest() throws Exception {
-        DAOFactory.initialize();
-
-        UniqueIdGenerator idGen = new UniqueIdGenerator();
-
         final String txID = idGen.getUniqueTxId();
         final String ptID = idGen.getUniqueResourceId();
 
@@ -66,16 +75,10 @@ public class DAOTest {
         DAOFactory.getInstance().enlistParticipant(txID, ptID);
 
         assertNotNull(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID));
-
-        DAOFactory.shutdown();
     }
 
     @Test
     public void enlistTest2() throws Exception {
-        DAOFactory.initialize();
-
-        UniqueIdGenerator idGen = new UniqueIdGenerator();
-
         final String txID = idGen.getUniqueTxId();
         final String ptID = idGen.getUniqueResourceId();
         final String ptID2 = idGen.getUniqueResourceId();
@@ -85,5 +88,10 @@ public class DAOTest {
         DAOFactory.getInstance().enlistParticipant(txID, ptID2);
         assertNotNull(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID));
         assertNotNull(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID2));
+
+        assertEquals(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID).getResourceId(), ptID);
+        assertEquals(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID2).getResourceId(), ptID2);
+
+        assertEquals(2, DAOFactory.getInstance().retrieve(txID).getParticipants().size());
     }
 }
