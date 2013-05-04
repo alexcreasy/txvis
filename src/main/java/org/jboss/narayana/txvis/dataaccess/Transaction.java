@@ -28,6 +28,7 @@ public final class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
+    @Column(unique=true)
     public String getTransactionId() {
         return this.transactionId;
     }
@@ -36,6 +37,7 @@ public final class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
+    @Enumerated(EnumType.STRING)
     public Status getStatus() {
         return this.status;
     }

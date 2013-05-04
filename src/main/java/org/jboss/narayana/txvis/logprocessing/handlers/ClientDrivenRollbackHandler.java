@@ -27,6 +27,6 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.getInstance().retrieve(matcher.group(1)).setStatus(Status.ROLLBACK_CLIENT);
+        DAOFactory.getInstance().setOutcome(matcher.group(1), Status.ROLLBACK_CLIENT);
     }
 }

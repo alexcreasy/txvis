@@ -29,6 +29,6 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.getInstance().retrieve(matcher.group(1)).setStatus(Status.ROLLBACK_RESOURCE);
+        DAOFactory.getInstance().setOutcome(matcher.group(1), Status.ROLLBACK_RESOURCE);
     }
 }

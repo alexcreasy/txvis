@@ -3,6 +3,8 @@ package org.jboss.narayana.txvis.dataaccess;
 import org.jboss.narayana.txvis.logprocessing.handlers.AbstractHandler;
 
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -46,6 +48,18 @@ public class DataAccessObject {
             em.close();
         }
         return result;
+    }
+
+    public Collection<Transaction> retrieveAll() {
+        final String s = "FROM " + Transaction.class.getSimpleName() + " e";
+
+        EntityManager em = DAOFactory.getEntityManager();
+        try {
+            return em.createQuery(s).getResultList();
+        }
+        finally {
+            em.close();
+        }
     }
 
     public void enlistParticipant(String transactionId, String resourceId) {

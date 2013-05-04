@@ -30,7 +30,6 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.getInstance().getEnlistedParticipant(
-                matcher.group(1), matcher.group(2)).setVote(Vote.ABORT);
+        DAOFactory.getInstance().setParticipantVote(matcher.group(1), matcher.group(2), Vote.ABORT);
     }
 }
