@@ -94,6 +94,59 @@ public class DataAccessObject {
         }
     }
 
+    public void setOutcome(String transactionId, Status outcome) {
+        if (!validateTxId(transactionId))
+            throw new IllegalArgumentException("Illegal transactionID");
+        if (outcome == null)
+            throw new NullPointerException("Null outcome");
+
+        EntityManager em = DAOFactory.getEntityManager();
+        try {
+            Transaction t = retrieve(transactionId);
+            try {
+                em.getTransaction().begin();
+                t.setStatus(outcome);
+                em.merge(t);
+                em.getTransaction().commit();
+            }
+            catch (Exception e) {
+                em.getTransaction().rollback();
+                throw new RuntimeException("Unable to set transaction outcome", e);
+            }
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    public void setParticipantVote(String transactionId, String resourceId, Vote vote) {
+        if (!validateTxId(transactionId))
+            throw new IllegalArgumentException("Illegal transactionID");
+        if (resourceId.trim().isEmpty())
+            throw new IllegalArgumentException("Empty resourceID");
+        if (vote == null)
+            throw new NullPointerException("Null outcome");
+
+        EntityManager em = DAOFactory.getEntityManager();
+
+        try {
+            Participant p = getEnlistedParticipant(transactionId, resourceId);
+            try {
+                em.getTransaction().begin();
+                p.setVote(vote);
+                em.merge(p);
+                em.getTransaction().commit();
+            }
+            catch (Exception e) {
+                em.getTransaction().rollback();
+                throw new RuntimeException("Unable to set transaction outcome", e);
+            }
+        }
+        finally {
+            em.close();
+        }
+    }
+
     private boolean validateTxId(String txId) throws NullPointerException {
         return txId.matches(AbstractHandler.TX_ID);
     }
