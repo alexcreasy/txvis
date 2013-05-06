@@ -14,7 +14,7 @@ public class Participant {
     private Long id;
     private Transaction transaction;
     private String resourceId;
-    private Vote vote;
+    private Vote vote = Vote.UNKNOWN;
 
     public Participant(Transaction transaction, String resourceId) {
         this.transaction = transaction;

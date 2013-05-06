@@ -6,5 +6,5 @@ package org.jboss.narayana.txvis.dataaccess;
  * Time: 15:10
  */
 public enum Vote {
-    COMMIT, ABORT;
+    COMMIT, ABORT, UNKNOWN;
 }

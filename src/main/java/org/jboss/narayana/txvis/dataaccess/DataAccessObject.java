@@ -25,7 +25,7 @@ public class DataAccessObject {
             }
             catch (Exception e) {
                 em.getTransaction().rollback();
-                throw new RuntimeException("Unable to create transaction", e);
+                throw new RuntimeException("Unable to create transaction " + transactionId, e);
             }
         }
         finally {
@@ -48,6 +48,52 @@ public class DataAccessObject {
             em.close();
         }
         return result;
+    }
+
+    public void delete(String transactionId) {
+        if (!validateTxId(transactionId))
+            throw new IllegalArgumentException("Illegal transactionID");
+
+        EntityManager em = DAOFactory.getEntityManager();
+        Transaction t = retrieve(transactionId);
+        try {
+            try {
+                em.getTransaction().begin();
+                em.remove(em.merge(t));
+                em.getTransaction().commit();
+            }
+            catch(Exception e) {
+                em.getTransaction().rollback();
+                throw new RuntimeException("Unable to delete transaction:" + transactionId, e);
+            }
+
+        }
+        finally {
+            em.close();
+        }
+
+    }
+
+    public void deleteAll() {
+        EntityManager em = DAOFactory.getEntityManager();
+        try {
+            try {
+                em.getTransaction().begin();
+                for (Transaction t : retrieveAll()) {
+                    em.remove(em.merge(t));
+                }
+                em.getTransaction().commit();
+            }
+            catch(Exception e) {
+                em.getTransaction().rollback();
+                throw new RuntimeException("Unable to delete all transactions", e);
+            }
+
+        }
+        finally {
+            em.close();
+        }
+
     }
 
     public Collection<Transaction> retrieveAll() {
@@ -80,7 +126,8 @@ public class DataAccessObject {
             }
             catch (Exception e) {
                 em.getTransaction().rollback();
-                throw new RuntimeException("Unable to enlist participant", e);
+                throw new RuntimeException("Unable to enlist participant: " + resourceId + " in transaction: "
+                        + transactionId , e);
             }
         }
         finally {

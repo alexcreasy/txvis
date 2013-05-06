@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -61,6 +62,7 @@ public class BasicIntegrationTest {
         txmon = new LiveTestMockTransactionMonitor();
         dao = DAOFactory.getInstance();
         txUtil = new TransactionUtil();
+        DAOFactory.getInstance().deleteAll();
     }
 
     @After
@@ -84,6 +86,42 @@ public class BasicIntegrationTest {
                 assertEquals("Participant " + p.getResourceId() + " did not report the correct vote", Vote.COMMIT,
                         p.getVote());
         }
+    }
+
+    @Test
+    public void clientDrivenRollbackTest() throws Exception {
+        testBootstrap(Status.ROLLBACK_CLIENT);
+
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, DAOFactory.getInstance().retrieveAll().size());
+
+        for (Transaction t : DAOFactory.getInstance().retrieveAll()) {
+            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.ROLLBACK_CLIENT,
+                    DAOFactory.getInstance().retrieve(t.getTransactionId()).getStatus());
+        }
+    }
+
+    @Test
+    public void resourceDrivenRollbackTest() throws Exception {
+        testBootstrap(Status.ROLLBACK_RESOURCE);
+
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, DAOFactory.getInstance().retrieveAll().size());
+
+        for (Transaction t : DAOFactory.getInstance().retrieveAll()) {
+            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.ROLLBACK_RESOURCE,
+                    DAOFactory.getInstance().retrieve(t.getTransactionId()).getStatus());
+        }
+
+        for (Transaction t : DAOFactory.getInstance().retrieveAll()) {
+            int abortVotes = 0;
+            for (Participant p : t.getParticipants()) {
+                if (p.getVote().equals(Vote.ABORT))
+                    abortVotes++;
+            }
+            assertEquals("Participants of transaction: " + t.getTransactionId() +
+                    " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
+        }
+
+
     }
 
 
