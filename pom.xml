@@ -19,7 +19,7 @@
 
     <modules>
         <module>txvis-txmonitor</module>
-    <module>txvis-webui</module>
+    <module>txvis-webapp</module>
   </modules>
 
     <build>
