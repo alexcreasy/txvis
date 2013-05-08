@@ -28,7 +28,7 @@ public final class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
-    @Column(unique=true)
+    @Column(unique = true)
     public String getTransactionId() {
         return this.transactionId;
     }

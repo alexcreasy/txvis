@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
-import org.jboss.narayana.txvis.dataaccess.DAOFactory;
 import org.jboss.narayana.txvis.dataaccess.Vote;
 
 import java.util.regex.Matcher;
@@ -22,14 +21,12 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
     public static final String REGEX = "tx_uid=(" + TX_ID
             + "),.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
 
-
-
     public ResourceVoteAbortHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.getInstance().setParticipantVote(matcher.group(1), matcher.group(2), Vote.ABORT);
+        dao.setParticipantVote(matcher.group(1), matcher.group(2), Vote.ABORT);
     }
 }

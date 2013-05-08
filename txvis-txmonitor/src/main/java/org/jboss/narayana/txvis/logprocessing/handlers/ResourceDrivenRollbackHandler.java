@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
-import org.jboss.narayana.txvis.dataaccess.DAOFactory;
 import org.jboss.narayana.txvis.dataaccess.Status;
 
 import java.util.regex.Matcher;
@@ -21,14 +20,12 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
      */
     public static final String REGEX = "BasicAction::phase2Abort\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
 
-
-
     public ResourceDrivenRollbackHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.getInstance().setOutcome(matcher.group(1), Status.ROLLBACK_RESOURCE);
+       dao.setOutcome(matcher.group(1), Status.ROLLBACK_RESOURCE);
     }
 }

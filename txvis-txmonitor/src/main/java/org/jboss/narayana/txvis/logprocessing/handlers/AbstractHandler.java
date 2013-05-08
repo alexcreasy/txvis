@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
+import org.jboss.narayana.txvis.dataaccess.DataAccessObject;
+
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -14,6 +16,8 @@ public abstract class AbstractHandler implements Handler {
 
     private Pattern pattern;
 
+    protected DataAccessObject dao;
+
     public AbstractHandler(String regex) throws PatternSyntaxException {
         this.pattern = Pattern.compile(regex);
     }
@@ -26,5 +30,13 @@ public abstract class AbstractHandler implements Handler {
     @Override
     public final Pattern getPattern() {
         return this.pattern;
+    }
+
+    @Override
+    public void injectDAO(DataAccessObject dao) throws NullPointerException {
+        if (dao == null)
+            throw new NullPointerException("instance of DataAccessObject required");
+
+        this.dao = dao;
     }
 }

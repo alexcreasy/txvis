@@ -14,6 +14,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.ejb.EJB;
 import java.io.File;
 
 import static junit.framework.Assert.*;
@@ -46,23 +48,19 @@ public class DAOTest {
 
     UniqueIdGenerator idGen;
 
+    @EJB
+    DataAccessObject dao;
+
     @Before
     public void setup() throws Exception {
-        DAOFactory.initialize();
         idGen = new UniqueIdGenerator();
     }
-
-    @After
-    public void tearDown() throws Exception {
-        DAOFactory.shutdown();
-    }
-
 
     @Test
     public void createRetrieveTest() throws Exception {
         final String txID = idGen.getUniqueTxId();
-        DAOFactory.getInstance().create(txID);
-        assertNotNull(DAOFactory.getInstance().retrieve(txID));
+        dao.create(txID);
+        assertNotNull(dao.retrieve(txID));
     }
 
     @Test
@@ -71,34 +69,34 @@ public class DAOTest {
         final String ptID1 = idGen.getUniqueResourceId();
         final String ptID2 = idGen.getUniqueResourceId();
 
-        DAOFactory.getInstance().create(txID);
-        DAOFactory.getInstance().enlistParticipant(txID, ptID1);
-        DAOFactory.getInstance().enlistParticipant(txID, ptID2);
-        assertNotNull(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID1));
-        assertNotNull(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID2));
+        dao.create(txID);
+        dao.enlistParticipant(txID, ptID1);
+        dao.enlistParticipant(txID, ptID2);
+        assertNotNull(dao.getEnlistedParticipant(txID, ptID1));
+        assertNotNull(dao.getEnlistedParticipant(txID, ptID2));
 
-        assertEquals(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID1).getResourceId(), ptID1);
-        assertEquals(DAOFactory.getInstance().getEnlistedParticipant(txID, ptID2).getResourceId(), ptID2);
+        assertEquals(dao.getEnlistedParticipant(txID, ptID1).getResourceId(), ptID1);
+        assertEquals(dao.getEnlistedParticipant(txID, ptID2).getResourceId(), ptID2);
 
-        assertEquals(2, DAOFactory.getInstance().retrieve(txID).getParticipants().size());
+        assertEquals(2, dao.retrieve(txID).getParticipants().size());
     }
 
     @Test
     public void setOutcomeTest() throws Exception {
         final String txID = idGen.getUniqueTxId();
-        DAOFactory.getInstance().create(txID);
+        dao.create(txID);
 
-        DAOFactory.getInstance().setOutcome(txID, Status.COMMIT);
+        dao.setOutcome(txID, Status.COMMIT);
         assertEquals("Retrieved transaction did not report correct status", Status.COMMIT,
-                DAOFactory.getInstance().retrieve(txID).getStatus());
+                dao.retrieve(txID).getStatus());
 
-        DAOFactory.getInstance().setOutcome(txID, Status.ROLLBACK_CLIENT);
+        dao.setOutcome(txID, Status.ROLLBACK_CLIENT);
         assertEquals("Retrieved transaction did not report correct status", Status.ROLLBACK_CLIENT,
-                DAOFactory.getInstance().retrieve(txID).getStatus());
+                dao.retrieve(txID).getStatus());
 
-        DAOFactory.getInstance().setOutcome(txID, Status.ROLLBACK_RESOURCE);
+        dao.setOutcome(txID, Status.ROLLBACK_RESOURCE);
         assertEquals("Retrieved transaction did not report correct status",Status.ROLLBACK_RESOURCE,
-                DAOFactory.getInstance().retrieve(txID).getStatus());
+                dao.retrieve(txID).getStatus());
     }
 
     @Test
@@ -107,17 +105,17 @@ public class DAOTest {
         final String ptID1 = idGen.getUniqueResourceId();
         final String ptID2 = idGen.getUniqueResourceId();
 
-        DAOFactory.getInstance().create(txID);
-        DAOFactory.getInstance().enlistParticipant(txID, ptID1);
-        DAOFactory.getInstance().enlistParticipant(txID, ptID2);
+        dao.create(txID);
+        dao.enlistParticipant(txID, ptID1);
+        dao.enlistParticipant(txID, ptID2);
 
-        DAOFactory.getInstance().setParticipantVote(txID, ptID1, Vote.COMMIT);
-        DAOFactory.getInstance().setParticipantVote(txID, ptID2, Vote.ABORT);
+        dao.setParticipantVote(txID, ptID1, Vote.COMMIT);
+        dao.setParticipantVote(txID, ptID2, Vote.ABORT);
 
         assertEquals("Participant did not report correct vote", Vote.COMMIT,
-                DAOFactory.getInstance().getEnlistedParticipant(txID, ptID1).getVote());
+                dao.getEnlistedParticipant(txID, ptID1).getVote());
 
         assertEquals("Participant did not report correct vote", Vote.ABORT,
-                DAOFactory.getInstance().getEnlistedParticipant(txID, ptID2).getVote());
+                dao.getEnlistedParticipant(txID, ptID2).getVote());
     }
 }

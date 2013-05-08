@@ -25,8 +25,29 @@
       <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.jboss.as.plugins</groupId>
+          <artifactId>jboss-as-maven-plugin</artifactId>
+          <version>7.4.Final</version>
+          <type>maven-plugin</type>
+      </dependency>
   </dependencies>
-  <build>
-    <finalName>txvis-webapp</finalName>
-  </build>
+    <build>
+        <finalName>txvis</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.jboss.as.plugins</groupId>
+                <artifactId>jboss-as-maven-plugin</artifactId>
+                <version>7.4.Final</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

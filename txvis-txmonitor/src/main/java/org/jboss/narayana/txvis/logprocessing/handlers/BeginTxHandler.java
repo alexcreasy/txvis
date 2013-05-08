@@ -1,7 +1,5 @@
 package org.jboss.narayana.txvis.logprocessing.handlers;
 
-import org.jboss.narayana.txvis.dataaccess.DAOFactory;
-
 import java.util.regex.Matcher;
 
 /**
@@ -25,6 +23,6 @@ public final class BeginTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        DAOFactory.getInstance().create(matcher.group(1));
+        dao.create(matcher.group(1));
     }
 }

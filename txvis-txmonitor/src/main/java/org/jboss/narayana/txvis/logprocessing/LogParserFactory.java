@@ -1,8 +1,15 @@
 package org.jboss.narayana.txvis.logprocessing;
 
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.Configuration;
+import org.jboss.narayana.txvis.dataaccess.DataAccessObject;
 import org.jboss.narayana.txvis.logprocessing.handlers.Handler;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,22 +22,21 @@ import java.util.List;
 public class LogParserFactory {
 
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
-    private static List<Class> handlerClasses;
 
-    /**
-     *
-     * @return a LogParser
-     * @throws IllegalStateException
-     */
-    public static LogParser getInstance() throws IllegalStateException {
-        if (handlerClasses == null)
-            throw new IllegalStateException("LogParserFactory has not been initialized");
+    public static LogParser getInstance(DataAccessObject dao) throws NullPointerException, IllegalStateException {
+        if (Configuration.LOG_HANDLERS.length == 0)
+            throw new IllegalStateException("Cannot instantiate LogParser: Configuration.LOG_HANDLERS is empty");
+        if (dao == null)
+            throw new NullPointerException("DataAccessObject required");
 
-        LogParser logParser = new LogParser();
-
-        for (Class c : handlerClasses) {
+        final LogParser logParser = new LogParser();
+        // Instantiate Handler classes listed in Configuration utility class and
+        // add them to the the LogParser
+        for (Class c : Configuration.LOG_HANDLERS) {
             try {
-                logParser.addHandler((Handler) c.newInstance());
+                Handler h = (Handler) c.newInstance();
+                h.injectDAO(dao);
+                logParser.addHandler(h);
 
                 if (logger.isInfoEnabled())
                     logger.info("Successfully loaded log handler: " + c);
@@ -51,22 +57,27 @@ public class LogParserFactory {
         return logParser;
     }
 
-    /**
-     *
-     * @param handlers
-     * @throws IllegalStateException
-     */
-    public static void initialize(Collection<String> handlers) throws IllegalStateException {
-        handlerClasses = new LinkedList<Class>();
+
+    private static Collection<Class> parseHandlers(Collection<String> handlers) throws IllegalArgumentException {
+//        try {
+//            Context context = new InitialContext();
+//            dao = (DataAccessObject) context.lookup("java:global/test/DataAccessObjectBean");
+//        }
+//        catch (NamingException e) {
+//            logger.fatal("JNDI lookup of DataAccessObject failed", e);
+//            throw new IllegalStateException("JNDI lookup of DataAccessObject failed", e);
+//        }
+        Collection<Class> handlerClasses = new LinkedList<Class>();
 
         for (String s : handlers) {
             try {
                 handlerClasses.add(Class.forName(s));
             }
             catch (Throwable t) {
-                logger.fatal("Unable to load log handler class: " + s, t);
-                throw new IllegalStateException("Unable to load log handler class: " + s, t);
+                logger.error("Unable to parse log handler class: " + s, t);
+                throw new IllegalArgumentException("Unable to parse log handler class: " + s, t);
             }
         }
+        return handlerClasses;
     }
 }

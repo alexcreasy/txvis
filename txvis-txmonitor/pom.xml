@@ -10,6 +10,7 @@
     <properties>
         <arquillian.version>1.0.0.Final</arquillian.version>
         <jboss.version>8.0.0.Alpha1-SNAPSHOT</jboss.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +50,21 @@
             <version>2.0.0-alpha-5</version>
             <scope>test</scope>
         </dependency>
+     <!--  <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.annotation</groupId>
+            <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency> -->
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
             <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
@@ -66,12 +82,12 @@
             <artifactId>narayana-jta</artifactId>
             <version>5.0.0.M2</version>
         </dependency>
-        <dependency>
+   <!--     <dependency>
             <groupId>org.jboss.narayana.xts</groupId>
             <artifactId>byteman_support</artifactId>
             <scope>test</scope>
             <version>5.0.0.M2</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.jboss.spec.javax.transaction</groupId>
             <artifactId>jboss-transaction-api_1.1_spec</artifactId>

@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis;
 
+import org.jboss.narayana.txvis.logprocessing.handlers.*;
+
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 27/04/2013
@@ -17,13 +19,13 @@ public final class Configuration {
     public static final String RESOURCE_DAO_IMPLEMENTATION_CLASS
             = "org.jboss.narayana.txvis.dataaccess.ResourceDAOInMemoryImpl";
 
-    public static final String[] LOG_HANDLERS = new String[] {
-            "org.jboss.narayana.txvis.logprocessing.handlers.EnlistResourceHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteAbortHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceVoteCommitHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.BeginTxHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.CommitTxHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ClientDrivenRollbackHandler",
-            "org.jboss.narayana.txvis.logprocessing.handlers.ResourceDrivenRollbackHandler",
+    public static final Class[] LOG_HANDLERS = new Class[] {
+            EnlistResourceHandler.class,
+            ResourceVoteAbortHandler.class,
+            ResourceVoteCommitHandler.class,
+            BeginTxHandler.class,
+            CommitTxHandler.class,
+            ClientDrivenRollbackHandler.class,
+            ResourceDrivenRollbackHandler.class,
     };
 }
