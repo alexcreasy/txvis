@@ -7,9 +7,7 @@
    <persistence-unit name="org.jboss.narayana.txvis">
       <!-- If you are running in a production environment, add a managed 
          data source, the example data source is just for proofs of concept! -->
-      <jta-data-source>java:jboss/datasources/MySqlDS</jta-data-source>
-       <class>org.jboss.narayana.txvis.dataaccess.Transaction</class>
-       <class>org.jboss.narayana.txvis.dataaccess.Participant</class>
+      <jta-data-source>java:jboss/datasources/testDS</jta-data-source>
       <properties>
          <!-- Properties for Hibernate -->
           <property name="hibernate.hbm2ddl.auto" value="create-drop" />
