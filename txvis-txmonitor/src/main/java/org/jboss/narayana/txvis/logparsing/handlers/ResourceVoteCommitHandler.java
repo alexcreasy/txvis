@@ -1,6 +1,6 @@
-package org.jboss.narayana.txvis.logprocessing.handlers;
+package org.jboss.narayana.txvis.logparsing.handlers;
 
-import org.jboss.narayana.txvis.dataaccess.Vote;
+import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import java.util.regex.Matcher;
 

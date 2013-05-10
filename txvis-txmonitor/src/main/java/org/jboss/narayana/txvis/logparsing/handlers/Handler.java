@@ -1,6 +1,6 @@
-package org.jboss.narayana.txvis.logprocessing.handlers;
+package org.jboss.narayana.txvis.logparsing.handlers;
 
-import org.jboss.narayana.txvis.dataaccess.DataAccessObject;
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

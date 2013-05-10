@@ -1,18 +1,12 @@
-package org.jboss.narayana.txvis.logprocessing;
+package org.jboss.narayana.txvis.logparsing;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.Configuration;
-import org.jboss.narayana.txvis.dataaccess.DataAccessObject;
-import org.jboss.narayana.txvis.logprocessing.handlers.Handler;
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.logparsing.handlers.Handler;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

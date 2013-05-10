@@ -1,7 +1,7 @@
 package org.jboss.narayana.txvis.test.utils;
 
 import com.arjuna.ats.jta.TransactionManager;
-import org.jboss.narayana.txvis.dataaccess.Status;
+import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.transaction.RollbackException;
 import java.util.UUID;

@@ -1,4 +1,6 @@
-package org.jboss.narayana.txvis.dataaccess;
+package org.jboss.narayana.txvis.persistence.entities;
+
+import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.persistence.*;
 import java.io.Serializable;

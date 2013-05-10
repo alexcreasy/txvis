@@ -1,12 +1,11 @@
 package org.jboss.narayana.txvis;
 
 import org.apache.commons.io.input.Tailer;
-import org.jboss.narayana.txvis.dataaccess.DataAccessObject;
-import org.jboss.narayana.txvis.logprocessing.LogParser;
-import org.jboss.narayana.txvis.logprocessing.LogParserFactory;
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.logparsing.LogParser;
+import org.jboss.narayana.txvis.logparsing.LogParserFactory;
 
 import javax.ejb.EJB;
-import javax.ejb.Singleton;
 import javax.ejb.Stateful;
 import java.io.File;
 import java.util.concurrent.ExecutorService;

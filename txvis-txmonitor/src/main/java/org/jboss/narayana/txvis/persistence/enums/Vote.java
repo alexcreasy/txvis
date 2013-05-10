@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.dataaccess;
+package org.jboss.narayana.txvis.persistence.enums;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

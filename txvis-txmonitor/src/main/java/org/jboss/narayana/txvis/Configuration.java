@@ -1,6 +1,6 @@
 package org.jboss.narayana.txvis;
 
-import org.jboss.narayana.txvis.logprocessing.handlers.*;
+import org.jboss.narayana.txvis.logparsing.handlers.*;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -15,9 +15,9 @@ public final class Configuration {
     public static final int LOGFILE_POLL_INTERVAL = 500;
 
     public static final String TRANSACTION_DAO_IMPLEMENTATION_CLASS
-            = "org.jboss.narayana.txvis.dataaccess.TransactionDAOInMemoryImpl";
+            = "org.jboss.narayana.txvis.persistence.TransactionDAOInMemoryImpl";
     public static final String RESOURCE_DAO_IMPLEMENTATION_CLASS
-            = "org.jboss.narayana.txvis.dataaccess.ResourceDAOInMemoryImpl";
+            = "org.jboss.narayana.txvis.persistence.ResourceDAOInMemoryImpl";
 
     public static final Class[] LOG_HANDLERS = new Class[] {
             EnlistResourceHandler.class,

@@ -1,6 +1,10 @@
-package org.jboss.narayana.txvis.dataaccess;
+package org.jboss.narayana.txvis.persistence;
 
-import org.jboss.narayana.txvis.logprocessing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.enums.Status;
+import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
