@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
  * Time: 01:50
  */
 @Stateful
-public class TransactionMonitor {
+public class LogProcessor {
 
     @EJB
     private DataAccessObject dao;
@@ -28,13 +28,13 @@ public class TransactionMonitor {
     private LogParser logParser;
     private ExecutorService executor;
 
-    public TransactionMonitor() {
+    public LogProcessor() {
         this.logFile = new File(Configuration.LOGFILE_PATH);
     }
 
     public void setLogFile(File logFile) throws NullPointerException {
         if (logFile == null)
-            throw new NullPointerException("Null logFile passed to TransactionMonitor.setLogFile");
+            throw new NullPointerException("Null logFile passed to LogProcessor.setLogFile");
         this.logFile = logFile;
     }
 

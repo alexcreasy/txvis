@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.TransactionMonitor;
+import org.jboss.narayana.txvis.LogProcessor;
 import org.jboss.narayana.txvis.dataaccess.*;
 import org.jboss.narayana.txvis.test.utils.TransactionUtil;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -53,7 +53,7 @@ public class BasicIntegrationTest {
     private static final int OUTRO_DELAY = 5000;
 
     @EJB
-    private TransactionMonitor txmon;
+    private LogProcessor txmon;
 
     @EJB
     private DataAccessObject dao;
@@ -124,7 +124,7 @@ public class BasicIntegrationTest {
         testBootstrap(txmon, INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
     }
 
-    private void testBootstrap(TransactionMonitor txmon, int introSleepDelay, int outroSleepDelay,
+    private void testBootstrap(LogProcessor txmon, int introSleepDelay, int outroSleepDelay,
                                int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
         try {
             txmon.start();
