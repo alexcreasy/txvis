@@ -34,34 +34,25 @@ public class LogProcessor {
 
     public LogProcessor() {
         this.logFile = new File(Configuration.LOGFILE_PATH);
-    }
-
-    public void setLogFile(File logFile) throws NullPointerException {
-        if (logFile == null)
-            throw new NullPointerException("Null logFile passed to LogProcessor.setLogFile");
-        this.logFile = logFile;
-    }
-
-    public void start() {
-        this.logParser = LogParserFactory.getInstance(dao);
-        this.tailer = new Tailer(logFile, logParser,
-                Configuration.LOGFILE_POLL_INTERVAL, true);
         this.executor = Executors.newSingleThreadExecutor();
-        executor.execute(tailer);
-    }
-
-    public void stop() {
-        executor.shutdown();
-        this.tailer.stop();
     }
 
     @PostConstruct
-    public void postConstruct() {
-        start();
+    private void start() {
+
+        System.err.println("\n\n\n\n START CALLED \n\n\n\n");
+
+        this.logParser = LogParserFactory.getInstance(dao);
+
+        this.tailer = new Tailer(logFile, logParser,
+                Configuration.LOGFILE_POLL_INTERVAL, true);
+
+        executor.execute(tailer);
     }
 
     @PreDestroy
-    public void preDestroy() {
-        stop();
+    private void stop() {
+        executor.shutdown();
+        this.tailer.stop();
     }
 }

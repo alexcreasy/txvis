@@ -16,7 +16,7 @@ import java.util.Collection;
  * Date: 03/05/2013
  * Time: 15:57
  */
-@Singleton
+@Stateless
 public class DataAccessObjectBean implements DataAccessObject {
 
     @PersistenceContext(unitName = "org.jboss.narayana.txvis")

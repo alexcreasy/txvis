@@ -131,13 +131,13 @@ public class BasicIntegrationTest {
     private void testBootstrap(LogProcessor txmon, int introSleepDelay, int outroSleepDelay,
                                int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
         try {
-            txmon.start();
+            //txmon.start();
             Thread.sleep(introSleepDelay);
             txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
             Thread.sleep(outroSleepDelay);
         }
         finally {
-            txmon.stop();
+            //txmon.stop();
         }
 
     }
