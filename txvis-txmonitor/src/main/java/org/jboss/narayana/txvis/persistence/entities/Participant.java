@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.persistence.entities;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -10,7 +11,7 @@ import javax.persistence.*;
  * Time: 15:26
  */
 @Entity
-public class Participant {
+public class Participant implements Serializable {
 
     private static final long serialVersionUID = -3441505744449729394L;
     private Long id;

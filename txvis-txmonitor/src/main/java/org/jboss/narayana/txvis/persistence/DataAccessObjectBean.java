@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
+import javax.ejb.Singleton;
 import javax.ejb.Stateless;
 import javax.persistence.*;
 import java.util.Collection;
@@ -15,7 +16,7 @@ import java.util.Collection;
  * Date: 03/05/2013
  * Time: 15:57
  */
-@Stateless
+@Singleton
 public class DataAccessObjectBean implements DataAccessObject {
 
     @PersistenceContext(unitName = "org.jboss.narayana.txvis")
@@ -28,6 +29,7 @@ public class DataAccessObjectBean implements DataAccessObject {
 
         Transaction t = new Transaction(transactionId);
         em.persist(t);
+
         return t;
     }
 

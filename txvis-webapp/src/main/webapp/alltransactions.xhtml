@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+<title>TxVis</title>
+    <h:outputStylesheet library="css" name="bootstrap.min.css"  />
+</h:head>
+
+<h:body>
+   <div class="container">
+       <div class="page-header">
+           <h1>Transaction Visualization Tool</h1>
+       </div>
+
+       <h2>Transactions</h2>
+       <h:dataTable value="#{transactionModel.allTransactions}" var="transaction"
+                    styleClass="table table-striped">
+           <h:column>
+               <f:facet name="header">Transaction ID</f:facet>
+               #{transaction.transactionId}
+           </h:column>
+           <h:column>
+               <f:facet name="header">Status</f:facet>
+               #{transaction.status}
+           </h:column>
+       </h:dataTable>
+   </div>
+
+    <h:outputScript library="js" name="jquery-1.9.1.min.js" />
+    <h:outputScript library="js" name="bootstrap.min.js" />
+</h:body>
+</html>

@@ -62,8 +62,6 @@ public final class LogParser implements TailerListener {
 
         if (matcher.find()) {
             if (Thread.currentThread().getName().equals(matcher.group(1))) {
-                if (logger.isTraceEnabled())
-                    logger.trace("Filter match, dropped line " + line);
                 return true;
             }
         }

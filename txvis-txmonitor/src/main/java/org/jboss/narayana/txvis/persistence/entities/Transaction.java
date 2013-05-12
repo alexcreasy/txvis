@@ -13,7 +13,7 @@ import java.util.List;
  * Time: 14:09
  */
 @Entity
-public final class Transaction implements Serializable {
+public class Transaction implements Serializable {
 
     private static final long serialVersionUID = -189443407589350068L;
 

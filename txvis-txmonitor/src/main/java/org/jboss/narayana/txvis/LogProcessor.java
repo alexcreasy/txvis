@@ -5,7 +5,11 @@ import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.logparsing.LogParser;
 import org.jboss.narayana.txvis.logparsing.LogParserFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.Stateful;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +20,8 @@ import java.util.concurrent.Executors;
  * Date: 25/04/2013
  * Time: 01:50
  */
-@Stateful
+@Singleton
+@Startup
 public class LogProcessor {
 
     @EJB
@@ -48,5 +53,15 @@ public class LogProcessor {
     public void stop() {
         executor.shutdown();
         this.tailer.stop();
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        start();
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        stop();
     }
 }
