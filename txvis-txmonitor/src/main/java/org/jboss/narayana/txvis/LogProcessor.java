@@ -1,72 +1,44 @@
 package org.jboss.narayana.txvis;
 
 import org.apache.commons.io.input.Tailer;
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.logparsing.LogParser;
-import org.jboss.narayana.txvis.logparsing.LogParserFactory;
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.Stateful;
+import javax.ejb.Asynchronous;
+import javax.ejb.Local;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
- * Date: 25/04/2013
- * Time: 01:50
+ * Date: 13/05/2013
+ * Time: 18:37
  */
-@Singleton
-@Startup
-public class LogProcessor {
-
-    private DataAccessObject dao;
-
-    private File logFile;
-    private Tailer tailer;
-    private LogParser logParser;
-    private ExecutorService executor;
-
-    public LogProcessor() {
-        this.logFile = new File(Configuration.LOGFILE_PATH);
-        this.executor = Executors.newSingleThreadExecutor();
-    }
+@Local
+public interface LogProcessor {
+    @Asynchronous
+    void startLogging();
 
     @PostConstruct
-    private void start() {
-
-        System.err.println("\n\n\n\n START CALLED \n\n\n\n");
-
-        this.logParser = LogParserFactory.getInstance(dao);
-
-        this.tailer = new Tailer(logFile, logParser,
-                Configuration.LOGFILE_POLL_INTERVAL, true);
-
-        executor.execute(tailer);
-    }
+    void setup();
 
     @PreDestroy
-    private void stop() {
-        executor.shutdown();
-        this.tailer.stop();
-    }
+    void stop();
 
+    DataAccessObject getDao();
 
+    void setDao(DataAccessObject dao);
 
-    private static Map<String, LogProcessor> instances = new HashMap<String, LogProcessor>();
+    File getLogFile();
 
-    public LogProcessor getInstance(File file, DataAccessObject dao) {
+    void setLogFile(File logFile);
 
-    }
+    Tailer getTailer();
 
+    void setTailer(Tailer tailer);
 
+    LogParser getLogParser();
 
-
-
+    void setLogParser(LogParser logParser);
 }
