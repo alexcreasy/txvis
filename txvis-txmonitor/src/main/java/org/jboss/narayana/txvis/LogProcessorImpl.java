@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis;
 
-import com.sun.javaws.jnl.EmbeddedJNLPValidation;
 import org.apache.commons.io.input.Tailer;
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.logparsing.LogParser;
