@@ -12,6 +12,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Stateful;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,7 +26,6 @@ import java.util.concurrent.Executors;
 @Startup
 public class LogProcessor {
 
-    @EJB
     private DataAccessObject dao;
 
     private File logFile;
@@ -55,4 +56,17 @@ public class LogProcessor {
         executor.shutdown();
         this.tailer.stop();
     }
+
+
+
+    private static Map<String, LogProcessor> instances = new HashMap<String, LogProcessor>();
+
+    public LogProcessor getInstance(File file, DataAccessObject dao) {
+
+    }
+
+
+
+
+
 }
