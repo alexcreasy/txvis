@@ -15,15 +15,14 @@ import java.io.File;
  * Date: 25/04/2013
  * Time: 01:50
  */
-@Singleton
-@Startup
+@Stateful
 public class LogProcessorImpl implements LogProcessor {
 
     @EJB
     private DataAccessObject dao;
 
     private File logFile;
-    private Tailer tailer;
+    private Tailer tailer = null;
     private LogParser logParser;
 
     public LogProcessorImpl() {}
@@ -31,7 +30,7 @@ public class LogProcessorImpl implements LogProcessor {
     @Override
     @Asynchronous
     public void startLogging() {
-        this.tailer.run();
+        tailer.run();
     }
 
     @Override
@@ -39,16 +38,13 @@ public class LogProcessorImpl implements LogProcessor {
     public void setup() {
         this.logFile = new File(Configuration.LOGFILE_PATH);
         this.logParser = LogParserFactory.getInstance(dao);
-        this.tailer = new Tailer(logFile, logParser,
-                Configuration.LOGFILE_POLL_INTERVAL, true);
-
-        startLogging();
+        tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
     }
 
     @Override
     @PreDestroy
     public void stop() {
-        this.tailer.stop();
+        tailer.stop();
     }
 
 

@@ -76,6 +76,7 @@ public final class LogParser implements TailerListener {
     @Override
     public void fileNotFound() {
         logger.fatal("Log file not found: " + tailer.getFile());
+        throw new IllegalStateException("Log file not found: " + tailer.getFile());
     }
 
     @Override

@@ -82,6 +82,7 @@
             <groupId>org.jboss.narayana</groupId>
             <artifactId>txvis-txmonitor</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Import the CDI API, we use provided scope as the API is included in JBoss AS 7 -->
