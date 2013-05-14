@@ -56,8 +56,6 @@ public class BasicIntegrationTest {
     private static final int INTRO_DELAY = 500;
     private static final int OUTRO_DELAY = 5000;
 
-    @EJB
-    private LogProcessor txmon;
 
     @EJB
     private DataAccessObject dao;
@@ -125,20 +123,13 @@ public class BasicIntegrationTest {
     }
 
     private void testBootstrap(Status outcome) throws Exception {
-        testBootstrap(txmon, INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
+        testBootstrap(INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
     }
 
-    private void testBootstrap(LogProcessor txmon, int introSleepDelay, int outroSleepDelay,
+    private void testBootstrap(int introSleepDelay, int outroSleepDelay,
                                int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
-        try {
-            //txmon.start();
-            Thread.sleep(introSleepDelay);
-            txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
-            Thread.sleep(outroSleepDelay);
-        }
-        finally {
-            //txmon.stop();
-        }
-
+        Thread.sleep(introSleepDelay);
+        txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
+        Thread.sleep(outroSleepDelay);
     }
 }

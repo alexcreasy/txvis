@@ -9,9 +9,10 @@ import org.jboss.narayana.txvis.logparsing.handlers.*;
  */
 public final class Configuration {
 
-    public static final String LOGFILE_PATH =
-            System.getProperty("jboss.server.log.dir") + "/server.log";
-            //"/Users/alex/Documents/workspace/jboss-as/build/target/jboss-as-8.0.0.Alpha1-SNAPSHOT/standalone2/log/server.log";
+    public static final String LOGFILE_NAME = "server.log";
+
+    //TODO: Must modify using File class to make platform neutral
+    public static final String LOGFILE_PATH = System.getProperty("jboss.server.log.dir") + "/"  + LOGFILE_NAME;
 
     public static final int LOGFILE_POLL_INTERVAL = 500;
 
