@@ -7,6 +7,7 @@ import org.jboss.narayana.txvis.logparsing.LogParserFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.ejb.*;
 import java.io.File;
 
@@ -15,8 +16,12 @@ import java.io.File;
  * Date: 25/04/2013
  * Time: 01:50
  */
-@Stateful
+@Singleton
+@Startup
 public class LogProcessorImpl implements LogProcessor {
+
+    @Resource
+    private SessionContext sessionContext;
 
     @EJB
     private DataAccessObject dao;
@@ -39,6 +44,8 @@ public class LogProcessorImpl implements LogProcessor {
         this.logFile = new File(Configuration.LOGFILE_PATH);
         this.logParser = LogParserFactory.getInstance(dao);
         tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
+
+        sessionContext.getBusinessObject(LogProcessor.class).startLogging();
     }
 
     @Override
