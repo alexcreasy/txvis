@@ -29,7 +29,6 @@ public class DataAccessObjectBean implements DataAccessObject {
 
         Transaction t = new Transaction(transactionId);
         em.persist(t);
-
         return t;
     }
 

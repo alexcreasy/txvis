@@ -18,7 +18,8 @@ import java.io.File;
  */
 @Singleton
 @Startup
-public class LogProcessorImpl implements LogProcessor {
+@LocalBean
+public class LogMonitor {
 
     @Resource
     private SessionContext sessionContext;
@@ -30,70 +31,24 @@ public class LogProcessorImpl implements LogProcessor {
     private Tailer tailer = null;
     private LogParser logParser;
 
-    public LogProcessorImpl() {}
+    public LogMonitor() {}
 
-    @Override
     @Asynchronous
     public void startLogging() {
         tailer.run();
     }
 
-    @Override
     @PostConstruct
     public void setup() {
         this.logFile = new File(Configuration.LOGFILE_PATH);
         this.logParser = LogParserFactory.getInstance(dao);
         tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
 
-        sessionContext.getBusinessObject(LogProcessor.class).startLogging();
+        sessionContext.getBusinessObject(LogMonitor.class).startLogging();
     }
 
-    @Override
     @PreDestroy
     public void stop() {
         tailer.stop();
-    }
-
-
-    // GETTERS / SETTERS FOR CONTAINER
-
-    @Override
-    public DataAccessObject getDao() {
-        return dao;
-    }
-
-    @Override
-    public void setDao(DataAccessObject dao) {
-        this.dao = dao;
-    }
-
-    @Override
-    public File getLogFile() {
-        return logFile;
-    }
-
-    @Override
-    public void setLogFile(File logFile) {
-        this.logFile = logFile;
-    }
-
-    @Override
-    public Tailer getTailer() {
-        return tailer;
-    }
-
-    @Override
-    public void setTailer(Tailer tailer) {
-        this.tailer = tailer;
-    }
-
-    @Override
-    public LogParser getLogParser() {
-        return logParser;
-    }
-
-    @Override
-    public void setLogParser(LogParser logParser) {
-        this.logParser = logParser;
     }
 }

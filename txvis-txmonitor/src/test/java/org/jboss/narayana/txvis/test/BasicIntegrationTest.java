@@ -2,7 +2,6 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.LogProcessor;
 import org.jboss.narayana.txvis.persistence.*;
 import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
