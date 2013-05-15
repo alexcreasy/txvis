@@ -19,6 +19,7 @@ import java.io.File;
 @Singleton
 @Startup
 @LocalBean
+@DependsOn("DataAccessObjectBean")
 public class LogMonitor {
 
     @Resource
@@ -32,6 +33,7 @@ public class LogMonitor {
     private LogParser logParser;
 
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NEVER)
     public void startLogging() {
         tailer.run();
     }
