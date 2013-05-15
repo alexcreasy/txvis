@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.apache.log4j.Logger;
+
 import java.util.regex.Matcher;
 
 /**

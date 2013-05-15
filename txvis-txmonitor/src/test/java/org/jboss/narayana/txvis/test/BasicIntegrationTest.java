@@ -15,6 +15,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -85,6 +86,7 @@ public class BasicIntegrationTest {
         }
     }
 
+    @Ignore
     @Test
     public void clientDrivenRollbackTest() throws Exception {
         testBootstrap(Status.ROLLBACK_CLIENT);
@@ -97,6 +99,7 @@ public class BasicIntegrationTest {
         }
     }
 
+    @Ignore
     @Test
     public void resourceDrivenRollbackTest() throws Exception {
         testBootstrap(Status.ROLLBACK_RESOURCE);

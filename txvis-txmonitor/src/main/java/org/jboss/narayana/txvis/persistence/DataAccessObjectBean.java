@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.persistence;
 
+import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -19,11 +20,16 @@ import java.util.Collection;
 @Stateless
 public class DataAccessObjectBean implements DataAccessObject {
 
+    private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
+
     @PersistenceContext(unitName = "org.jboss.narayana.txvis")
     private EntityManager em;
 
     @Override
     public Transaction create(String transactionId) {
+        if (logger.isTraceEnabled())
+            logger.trace(this.getClass().getSimpleName() + ".create, transactionId=" + transactionId);
+
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
 

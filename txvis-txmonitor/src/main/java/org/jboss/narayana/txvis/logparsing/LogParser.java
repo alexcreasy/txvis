@@ -35,17 +35,17 @@ public final class LogParser implements TailerListener {
         /*
          * Checks that the log line was not created by the current thread, this prevents
          * an infinite loop if the persistence layer is running in the same JBoss instance
-         * that it is monitoring. This happens because the container creates its own transaction
-         * to persist to the database, the log parser will parse this transaction, which in turn
-         * creates it's own transaction when persisting the data... repeat ad infinitum.
-         *
+         * that it is monitoring.
          */
-        if(filter(line))
+        if (filter(line))
             return;
 
         for (Handler handler : handlers) {
             Matcher matcher = handler.getPattern().matcher(line);
             if (matcher.find()) {
+                if (logger.isTraceEnabled())
+                    logger.trace("LogParser.handle - line.threadID=" + line.substring(
+                            line.indexOf('(') + 1 , line.indexOf(')')));
 
                 if (logger.isDebugEnabled())
                     logger.debug(logFormat(handler, matcher));
@@ -57,15 +57,12 @@ public final class LogParser implements TailerListener {
     }
 
     private boolean filter(String line) {
-        final String threadId = "\\((pool-\\d+-thread-\\d+)\\)";
-        Matcher matcher = Pattern.compile(threadId).matcher(line);
-
-        if (matcher.find()) {
-            if (Thread.currentThread().getName().equals(matcher.group(1))) {
-                return true;
-            }
+        try {
+            return line != null && Thread.currentThread().getName().equals(line.substring(
+                    line.indexOf('(') + 1 , line.indexOf(')')));
+        } catch (StringIndexOutOfBoundsException e) {
+            return false;
         }
-        return false;
     }
 
     @Override

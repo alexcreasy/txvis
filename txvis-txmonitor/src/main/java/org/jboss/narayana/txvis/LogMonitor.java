@@ -31,8 +31,6 @@ public class LogMonitor {
     private Tailer tailer = null;
     private LogParser logParser;
 
-    public LogMonitor() {}
-
     @Asynchronous
     public void startLogging() {
         tailer.run();
@@ -43,7 +41,6 @@ public class LogMonitor {
         this.logFile = new File(Configuration.LOGFILE_PATH);
         this.logParser = LogParserFactory.getInstance(dao);
         tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-
         sessionContext.getBusinessObject(LogMonitor.class).startLogging();
     }
 
