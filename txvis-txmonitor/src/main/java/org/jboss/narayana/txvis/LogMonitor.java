@@ -23,11 +23,12 @@ import java.io.File;
 @DependsOn("DataAccessObjectBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-@Lock(LockType.READ)
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class LogMonitor {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-    private boolean running;
+
+    private volatile boolean running;
 
     @Resource
     private SessionContext sessionContext;
@@ -42,10 +43,15 @@ public class LogMonitor {
     @Asynchronous
     public void start() {
         if (!running) {
+            synchronized (LogMonitor.class) {
+                if (!running)
+                    running = true;
+                else
+                    return;
+            }
             if (logger.isInfoEnabled())
                 logger.info("Begin tailing logfile");
             tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-            running = true;
             tailer.run();
         }
     }
@@ -53,10 +59,14 @@ public class LogMonitor {
     @PreDestroy
     public void stop() {
         if (running) {
-            tailer.stop();
-            if (logger.isInfoEnabled())
-                logger.info("Stopped tailing logfile");
-            running = false;
+            synchronized (LogMonitor.class) {
+                if (running) {
+                    tailer.stop();
+                    running = false;
+                    if (logger.isInfoEnabled())
+                        logger.info("Stopped tailing logfile");
+                }
+            }
         }
     }
 
