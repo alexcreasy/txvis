@@ -37,8 +37,8 @@ public final class LogParser implements TailerListener {
          * an infinite loop if the persistence layer is running in the same JBoss instance
          * that it is monitoring.
          */
-        if (filter(line))
-            return;
+//        if (filter(line))
+//            return;
 
         for (Handler handler : handlers) {
             Matcher matcher = handler.getPattern().matcher(line);

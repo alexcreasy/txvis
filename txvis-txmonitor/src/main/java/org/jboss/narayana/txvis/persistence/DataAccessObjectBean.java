@@ -18,26 +18,16 @@ import java.util.Collection;
  * Date: 03/05/2013
  * Time: 15:57
  */
-@Stateful
+@Stateless
+@DependsOn("EMFBean")
+@TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class DataAccessObjectBean implements DataAccessObject {
 
+    @EJB
+    private EMFBean emf;
+
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
-
-    private EntityManagerFactory emf;
-
-    @PostConstruct
-    @PostActivate
-    private void setup() {
-        emf = Persistence.createEntityManagerFactory("org.jboss.narayana.txvis");
-    }
-
-    @PreDestroy
-    @PrePassivate
-    private void tearDown() {
-        emf.close();
-    }
-
 
     @Override
     public Transaction create(String transactionId) {
@@ -131,6 +121,7 @@ public class DataAccessObjectBean implements DataAccessObject {
 
         EntityManager em = null;
         try {
+            em = emf.createEntityManager();
             return em.createQuery(s).getResultList();
         } finally {
             em.close();

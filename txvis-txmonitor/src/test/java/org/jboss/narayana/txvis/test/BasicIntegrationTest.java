@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.narayana.txvis.LogMonitor;
 import org.jboss.narayana.txvis.persistence.*;
 import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -53,12 +54,15 @@ public class BasicIntegrationTest {
 
     private static final int NO_OF_TX = 1;
     private static final int NO_OF_PARTICIPANTS = 2;
-    private static final int INTRO_DELAY = 500;
-    private static final int OUTRO_DELAY = 5000;
+    private static final int INTRO_DELAY = 3000;
+    private static final int OUTRO_DELAY = 7000;
 
 
     @EJB
     private DataAccessObject dao;
+
+    @EJB
+    private LogMonitor mon;
 
     private TransactionUtil txUtil;
     
@@ -128,8 +132,10 @@ public class BasicIntegrationTest {
 
     private void testBootstrap(int introSleepDelay, int outroSleepDelay,
                                int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
+        mon.start();
         Thread.sleep(introSleepDelay);
         txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
         Thread.sleep(outroSleepDelay);
+        mon.stop();
     }
 }

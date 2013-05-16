@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis;
 
 import org.apache.commons.io.input.Tailer;
+import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.logparsing.LogParser;
 import org.jboss.narayana.txvis.logparsing.LogParserFactory;
@@ -20,8 +21,14 @@ import java.io.File;
 @Startup
 @LocalBean
 @DependsOn("DataAccessObjectBean")
+@TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Lock(LockType.READ)
 public class LogMonitor {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
+
+    private boolean running;
 
     @Resource
     private SessionContext sessionContext;
@@ -30,24 +37,38 @@ public class LogMonitor {
     private DataAccessObject dao;
 
     private File logFile;
-    private Tailer tailer = null;
+    private Tailer tailer;
     private LogParser logParser;
 
     @Asynchronous
-    public void startLogging() {
-        tailer.run();
-    }
+    public void start() {
+        if (running)
+            return;
 
-    @PostConstruct
-    public void setup() {
-        this.logFile = new File(Configuration.LOGFILE_PATH);
-        this.logParser = LogParserFactory.getInstance(dao);
+        if (logger.isInfoEnabled())
+            logger.info("Begin tailing logfile");
         tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-        sessionContext.getBusinessObject(LogMonitor.class).startLogging();
+        running = true;
+        tailer.run();
     }
 
     @PreDestroy
     public void stop() {
+        if (!running)
+            return;
+
         tailer.stop();
+        if (logger.isInfoEnabled())
+            logger.info("Stopped tailing logfile");
+        running = false;
+    }
+
+    @PostConstruct
+    private void setup() {
+        if (logger.isInfoEnabled())
+            logger.info("Initialising LogMonitor");
+        logFile = new File(Configuration.LOGFILE_PATH);
+        logParser = LogParserFactory.getInstance(dao);
+        sessionContext.getBusinessObject(LogMonitor.class).start();
     }
 }
