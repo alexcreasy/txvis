@@ -27,7 +27,6 @@ import java.io.File;
 public class LogMonitor {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-
     private boolean running;
 
     @Resource
@@ -42,25 +41,23 @@ public class LogMonitor {
 
     @Asynchronous
     public void start() {
-        if (running)
-            return;
-
-        if (logger.isInfoEnabled())
-            logger.info("Begin tailing logfile");
-        tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-        running = true;
-        tailer.run();
+        if (!running) {
+            if (logger.isInfoEnabled())
+                logger.info("Begin tailing logfile");
+            tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
+            running = true;
+            tailer.run();
+        }
     }
 
     @PreDestroy
     public void stop() {
-        if (!running)
-            return;
-
-        tailer.stop();
-        if (logger.isInfoEnabled())
-            logger.info("Stopped tailing logfile");
-        running = false;
+        if (running) {
+            tailer.stop();
+            if (logger.isInfoEnabled())
+                logger.info("Stopped tailing logfile");
+            running = false;
+        }
     }
 
     @PostConstruct

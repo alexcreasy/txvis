@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.persistence;
 
+import org.apache.log4j.Logger;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
@@ -18,8 +20,8 @@ import javax.persistence.Persistence;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class EMFBean {
 
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
     private EntityManagerFactory emf;
-
 
     public EntityManager createEntityManager() {
         return emf.createEntityManager();
@@ -28,18 +30,18 @@ public class EMFBean {
     @PostConstruct
     @PostActivate
     private void setup() {
-        System.out.println("\n\n\n\n\n\nCreate EMF\n\n\n\n\n\n");
         emf = Persistence.createEntityManagerFactory("org.jboss.narayana.txvis");
 
+        if (logger.isInfoEnabled())
+            logger.info("Initialised EMF");
     }
 
     @PreDestroy
     @PrePassivate
     private void tearDown() {
-        System.out.println("\n\n\n\n\n\nDestroy EMF\n\n\n\n\n\n");
-        emf.close();
+        if(emf.isOpen())
+            emf.close();
+        if (logger.isInfoEnabled())
+            logger.info("Shutdown EMF");
     }
-
-
-
 }
