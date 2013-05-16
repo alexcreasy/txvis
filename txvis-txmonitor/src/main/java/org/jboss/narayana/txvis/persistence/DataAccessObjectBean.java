@@ -27,7 +27,7 @@ public class DataAccessObjectBean implements DataAccessObject {
     @EJB
     private EMFBean emf;
 
-    private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Override
     public Transaction create(String transactionId) {
@@ -37,19 +37,27 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
 
-        EntityManager em = null;
-        Transaction t = null;
+        final Transaction t = new Transaction(transactionId);
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            try {
-                em.getTransaction().begin();
+            final boolean notActive = !em.getTransaction().isActive();
 
-                t = new Transaction(transactionId);
+            if (notActive)
+                em.getTransaction().begin();
+            try {
                 em.persist(t);
 
-                em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
             } catch (Throwable throwable) {
-                em.getTransaction().rollback();
+
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+
+                logger.warn("An error occured while attempting to persist Transaction record: "
+                        + transactionId, throwable);
             }
         } finally {
             em.close();
@@ -62,12 +70,13 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
 
-        final String s = "FROM " + Transaction.class.getSimpleName() + " e WHERE e.transactionId=:transactionId";
+        final String query = "FROM " + Transaction.class.getSimpleName() +
+                " e WHERE e.transactionId=:transactionId";
 
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            return (Transaction) em.createQuery(s).setParameter("transactionId", transactionId).getSingleResult();
+            return (Transaction) em.createQuery(query).setParameter("transactionId",
+                    transactionId).getSingleResult();
         } finally {
             em.close();
         }
@@ -78,17 +87,25 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
 
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            try {
+            final boolean notActive = !em.getTransaction().isActive();
+            if (notActive)
                 em.getTransaction().begin();
-
+            try {
                 em.remove(em.merge(retrieve(transactionId)));
 
-                em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
             } catch (Throwable throwable) {
-                em.getTransaction().rollback();
+
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+
+                logger.warn("An error occured while attempting to delete transaction record: "
+                        + transactionId , throwable);
             }
         } finally {
             em.close();
@@ -97,18 +114,24 @@ public class DataAccessObjectBean implements DataAccessObject {
 
     @Override
     public void deleteAll() {
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            try {
-                em.getTransaction().begin();
+            final boolean notActive = !em.getTransaction().isActive();
 
+            if (notActive)
+                em.getTransaction().begin();
+            try {
                 for (Transaction t : retrieveAll())
                     em.remove(em.merge(t));
 
-                em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
             } catch (Throwable throwable) {
-                em.getTransaction().rollback();
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+                logger.warn("An error occured while attempting to delete all transaction record: ", throwable);
             }
         } finally {
             em.close();
@@ -119,9 +142,8 @@ public class DataAccessObjectBean implements DataAccessObject {
     public Collection<Transaction> retrieveAll() {
         final String s = "FROM " + Transaction.class.getSimpleName() + " e";
 
-        EntityManager em = null;
+        EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
             return em.createQuery(s).getResultList();
         } finally {
             em.close();
@@ -131,23 +153,32 @@ public class DataAccessObjectBean implements DataAccessObject {
     @Override
     public void enlistParticipant(String transactionId, String resourceId) {
         if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
+            throw new IllegalArgumentException("Illegal transactionId");
         if (resourceId.trim().isEmpty())
-            throw new IllegalArgumentException("Empty resourceID");
+            throw new IllegalArgumentException("Empty resourceId");
 
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            try {
-                em.getTransaction().begin();
+            final boolean notActive = !em.getTransaction().isActive();
+            final Transaction t = retrieve(transactionId);
+            t.addParticipant(new Participant(t, resourceId));
 
-                Transaction t = retrieve(transactionId);
-                t.addParticipant(new Participant(t, resourceId));
+            if (notActive)
+                em.getTransaction().begin();
+            try {
                 em.merge(t);
 
-                em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
+
             } catch (Throwable throwable) {
-                em.getTransaction().rollback();
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+
+                logger.warn("An error occured while attempting to enlist resource: "
+                        + resourceId + " as participant in transaction: " + transactionId, throwable);
             }
         } finally {
             em.close();
@@ -164,12 +195,10 @@ public class DataAccessObjectBean implements DataAccessObject {
         final String s = "FROM " + Participant.class.getSimpleName()
                 + " e WHERE e.transaction.transactionId=:transactionId AND e.resourceId=:resourceId";
 
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
             return (Participant) em.createQuery(s).setParameter("transactionId", transactionId)
                     .setParameter("resourceId", resourceId).getSingleResult();
-
         } finally {
             em.close();
         }
@@ -182,19 +211,28 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (outcome == null)
             throw new NullPointerException("Null outcome");
 
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            try {
-                em.getTransaction().begin();
+            final boolean notActive = !em.getTransaction().isActive();
 
-                Transaction t = retrieve(transactionId);
-                t.setStatus(outcome);
+            final Transaction t = retrieve(transactionId);
+            t.setStatus(outcome);
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
                 em.merge(t);
 
-                em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
             } catch (Throwable throwable) {
-                em.getTransaction().rollback();
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+
+                logger.warn("An error occured while attempting to set transaction: "
+                        + transactionId + " outcome to " + outcome, throwable);
             }
         } finally {
             em.close();
@@ -210,19 +248,28 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (vote == null)
             throw new NullPointerException("Null outcome");
 
-        EntityManager em = null;
+        final EntityManager em = emf.createEntityManager();
         try {
-            em = emf.createEntityManager();
-            try {
-                em.getTransaction().begin();
+            final boolean notActive = !em.getTransaction().isActive();
 
-                Participant p = getEnlistedParticipant(transactionId, resourceId);
-                p.setVote(vote);
+            final Participant p = getEnlistedParticipant(transactionId, resourceId);
+            p.setVote(vote);
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
                 em.merge(p);
 
-                em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
             } catch (Throwable throwable) {
-                em.getTransaction().rollback();
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+
+                logger.warn("An error occured while attempting to set participant: "
+                        + resourceId + " in transaction: " + transactionId + " vote to: " + vote, throwable);
             }
         } finally {
             em.close();

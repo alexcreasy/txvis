@@ -32,8 +32,8 @@ public class EMFBean {
     private void setup() {
         emf = Persistence.createEntityManagerFactory("org.jboss.narayana.txvis");
 
-        if (logger.isInfoEnabled())
-            logger.info("Initialised EMF");
+        if (logger.isTraceEnabled())
+            logger.trace("Initialised EMF");
     }
 
     @PreDestroy
@@ -41,7 +41,7 @@ public class EMFBean {
     private void tearDown() {
         if(emf.isOpen())
             emf.close();
-        if (logger.isInfoEnabled())
-            logger.info("Shutdown EMF");
+        if (logger.isTraceEnabled())
+            logger.trace("Shutdown EMF");
     }
 }
