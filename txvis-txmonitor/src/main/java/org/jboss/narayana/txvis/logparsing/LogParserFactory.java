@@ -52,28 +52,4 @@ public class LogParserFactory {
         }
         return logParser;
     }
-
-
-    private static Collection<Class> parseHandlers(Collection<String> handlers) throws IllegalArgumentException {
-//        try {
-//            Context context = new InitialContext();
-//            dao = (DataAccessObject) context.lookup("java:global/test/DataAccessObjectBean");
-//        }
-//        catch (NamingException e) {
-//            logger.fatal("JNDI lookup of DataAccessObject failed", e);
-//            throw new IllegalStateException("JNDI lookup of DataAccessObject failed", e);
-//        }
-        Collection<Class> handlerClasses = new LinkedList<Class>();
-
-        for (String s : handlers) {
-            try {
-                handlerClasses.add(Class.forName(s));
-            }
-            catch (Throwable t) {
-                logger.error("Unable to parse log handler class: " + s, t);
-                throw new IllegalArgumentException("Unable to parse log handler class: " + s, t);
-            }
-        }
-        return handlerClasses;
-    }
 }

@@ -32,36 +32,16 @@ public final class LogParser implements TailerListener {
 
     @Override
     public void handle(String line) {
-        /*
-         * Checks that the log line was not created by the current thread, this prevents
-         * an infinite loop if the persistence layer is running in the same JBoss instance
-         * that it is monitoring.
-         */
-//        if (filter(line))
-//            return;
-
         for (Handler handler : handlers) {
             Matcher matcher = handler.getPattern().matcher(line);
-            if (matcher.find()) {
-                if (logger.isTraceEnabled())
-                    logger.trace("LogParser.handle - line.threadID=" + line.substring(
-                            line.indexOf('(') + 1 , line.indexOf(')')));
 
+            if (matcher.find()) {
                 if (logger.isDebugEnabled())
                     logger.debug(logFormat(handler, matcher));
 
                 handler.handle(matcher, line);
                 break;
             }
-        }
-    }
-
-    private boolean filter(String line) {
-        try {
-            return line != null && Thread.currentThread().getName().equals(line.substring(
-                    line.indexOf('(') + 1 , line.indexOf(')')));
-        } catch (StringIndexOutOfBoundsException e) {
-            return false;
         }
     }
 
