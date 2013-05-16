@@ -7,8 +7,9 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
-import javax.ejb.Singleton;
-import javax.ejb.Stateless;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.*;
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -17,13 +18,26 @@ import java.util.Collection;
  * Date: 03/05/2013
  * Time: 15:57
  */
-@Stateless
+@Stateful
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class DataAccessObjectBean implements DataAccessObject {
 
     private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
 
-    @PersistenceContext(unitName = "org.jboss.narayana.txvis")
-    private EntityManager em;
+    private EntityManagerFactory emf;
+
+    @PostConstruct
+    @PostActivate
+    private void setup() {
+        emf = Persistence.createEntityManagerFactory("org.jboss.narayana.txvis");
+    }
+
+    @PreDestroy
+    @PrePassivate
+    private void tearDown() {
+        emf.close();
+    }
+
 
     @Override
     public Transaction create(String transactionId) {
@@ -33,8 +47,23 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
 
-        Transaction t = new Transaction(transactionId);
-        em.persist(t);
+        EntityManager em = null;
+        Transaction t = null;
+        try {
+            em = emf.createEntityManager();
+            try {
+                em.getTransaction().begin();
+
+                t = new Transaction(transactionId);
+                em.persist(t);
+
+                em.getTransaction().commit();
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
         return t;
     }
 
@@ -45,7 +74,13 @@ public class DataAccessObjectBean implements DataAccessObject {
 
         final String s = "FROM " + Transaction.class.getSimpleName() + " e WHERE e.transactionId=:transactionId";
 
-        return (Transaction) em.createQuery(s).setParameter("transactionId", transactionId).getSingleResult();
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            return (Transaction) em.createQuery(s).setParameter("transactionId", transactionId).getSingleResult();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -53,20 +88,53 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
 
-        em.remove(em.merge(retrieve(transactionId)));
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            try {
+                em.getTransaction().begin();
+
+                em.remove(em.merge(retrieve(transactionId)));
+
+                em.getTransaction().commit();
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
     }
 
     @Override
     public void deleteAll() {
-        for (Transaction t : retrieveAll())
-            em.remove(em.merge(t));
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            try {
+                em.getTransaction().begin();
+
+                for (Transaction t : retrieveAll())
+                    em.remove(em.merge(t));
+
+                em.getTransaction().commit();
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
     }
 
     @Override
     public Collection<Transaction> retrieveAll() {
         final String s = "FROM " + Transaction.class.getSimpleName() + " e";
 
-        return em.createQuery(s).getResultList();
+        EntityManager em = null;
+        try {
+            return em.createQuery(s).getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -76,9 +144,23 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (resourceId.trim().isEmpty())
             throw new IllegalArgumentException("Empty resourceID");
 
-            Transaction t = retrieve(transactionId);
-            t.addParticipant(new Participant(t, resourceId));
-            em.merge(t);
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            try {
+                em.getTransaction().begin();
+
+                Transaction t = retrieve(transactionId);
+                t.addParticipant(new Participant(t, resourceId));
+                em.merge(t);
+
+                em.getTransaction().commit();
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -91,8 +173,15 @@ public class DataAccessObjectBean implements DataAccessObject {
         final String s = "FROM " + Participant.class.getSimpleName()
                 + " e WHERE e.transaction.transactionId=:transactionId AND e.resourceId=:resourceId";
 
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
             return (Participant) em.createQuery(s).setParameter("transactionId", transactionId)
                     .setParameter("resourceId", resourceId).getSingleResult();
+
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -102,9 +191,23 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (outcome == null)
             throw new NullPointerException("Null outcome");
 
-            Transaction t = retrieve(transactionId);
-            t.setStatus(outcome);
-            em.merge(t);
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            try {
+                em.getTransaction().begin();
+
+                Transaction t = retrieve(transactionId);
+                t.setStatus(outcome);
+                em.merge(t);
+
+                em.getTransaction().commit();
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -116,9 +219,23 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (vote == null)
             throw new NullPointerException("Null outcome");
 
-        Participant p = getEnlistedParticipant(transactionId, resourceId);
-        p.setVote(vote);
-        em.merge(p);
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            try {
+                em.getTransaction().begin();
+
+                Participant p = getEnlistedParticipant(transactionId, resourceId);
+                p.setVote(vote);
+                em.merge(p);
+
+                em.getTransaction().commit();
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
     }
 
     private boolean validateTxId(String txId) throws NullPointerException {

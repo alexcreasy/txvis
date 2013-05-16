@@ -18,7 +18,6 @@ public final class BeginTxHandler extends AbstractHandler {
      * 1: The Transaction ID
      */
     public static final String REGEX = "BasicAction::Begin\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
-    private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
 
     public BeginTxHandler() {
         super(REGEX);
@@ -26,7 +25,6 @@ public final class BeginTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        logger.trace(this.getClass().getSimpleName() + ": " + line);
         dao.create(matcher.group(1));
     }
 }

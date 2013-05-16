@@ -11,6 +11,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,6 +22,7 @@ import java.io.File;
  * Date: 15/05/2013
  * Time: 16:13
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class CreateTxTest {
 
@@ -45,7 +47,7 @@ public class CreateTxTest {
 
     @Test
     public void test1() throws Exception {
-        new TransactionUtil().createTx(1, 3, Status.COMMIT);
+        new TransactionUtil().createTx(1, 2, Status.COMMIT);
         Assert.assertTrue(true);
     }
 }

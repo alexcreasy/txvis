@@ -20,6 +20,7 @@ import java.io.File;
 @Startup
 @LocalBean
 @DependsOn("DataAccessObjectBean")
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class LogMonitor {
 
     @Resource
@@ -33,7 +34,6 @@ public class LogMonitor {
     private LogParser logParser;
 
     @Asynchronous
-    @TransactionAttribute(TransactionAttributeType.NEVER)
     public void startLogging() {
         tailer.run();
     }
