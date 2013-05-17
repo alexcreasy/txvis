@@ -51,10 +51,10 @@ public class BasicIntegrationTest {
         return archive;
     }
 
-    private static final int NO_OF_TX = 3;
-    private static final int NO_OF_PARTICIPANTS = 5;
-    private static final int INTRO_DELAY = 3000;
-    private static final int OUTRO_DELAY = 7000;
+    private static final int NO_OF_TX = 2;
+    private static final int NO_OF_PARTICIPANTS = 3;
+    private static final int INTRO_DELAY = 300;
+    private static final int OUTRO_DELAY = 1200;
 
 
     @EJB

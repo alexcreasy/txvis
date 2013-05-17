@@ -27,4 +27,6 @@ public final class Configuration {
             ClientDrivenRollbackHandler.class,
             ResourceDrivenRollbackHandler.class,
     };
+
+    public static final String PERSISTENCE_CONTEXT = "org.jboss.narayana.txvis";
 }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  */
 public final class LogParser implements TailerListener {
 
-    private static final Logger logger = Logger.getLogger("org.jboss.narayana.txvis");
+    private static final Logger logger = Logger.getLogger(LogParser.class.getName());
     private final List<Handler> handlers = new LinkedList<Handler>();
     private Tailer tailer;
 
@@ -33,7 +33,7 @@ public final class LogParser implements TailerListener {
     @Override
     public void handle(String line) {
         for (Handler handler : handlers) {
-            Matcher matcher = handler.getPattern().matcher(line);
+            final Matcher matcher = handler.getPattern().matcher(line);
 
             if (matcher.find()) {
                 if (logger.isDebugEnabled())
@@ -57,16 +57,18 @@ public final class LogParser implements TailerListener {
     }
 
     @Override
-    public void fileRotated() {}
+    public void fileRotated() {
+        if (logger.isInfoEnabled())
+            logger.info("Log file has been rotated");
+    }
 
     @Override
     public void handle(Exception ex) {
-        logger.error("Exception thrown while parsing logfile", ex);
+        logger.error("Exception caught: ", ex);
     }
 
-
     private String logFormat(Handler handler, Matcher matcher) {
-        StringBuilder sb =
+        final StringBuilder sb =
                 new StringBuilder(this + " Parser match: handler=").append(handler.getClass().getSimpleName());
 
         for (int i = 1; i <= matcher.groupCount(); i++)

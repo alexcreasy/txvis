@@ -31,11 +31,12 @@ public class DataAccessObjectBean implements DataAccessObject {
 
     @Override
     public Transaction create(String transactionId) {
-        if (logger.isTraceEnabled())
-            logger.trace(this.getClass().getSimpleName() + ".create, transactionId=" + transactionId);
-
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
+
+        if (logger.isTraceEnabled())
+            logger.trace(this.getClass().getSimpleName() +
+                    ".create, transactionId=" + transactionId);
 
         final Transaction t = new Transaction(transactionId);
         final EntityManager em = emf.createEntityManager();
@@ -46,11 +47,10 @@ public class DataAccessObjectBean implements DataAccessObject {
                 em.getTransaction().begin();
             try {
                 em.persist(t);
-
                 if (notActive)
                     em.getTransaction().commit();
-            } catch (Throwable throwable) {
 
+            } catch (Throwable throwable) {
                 if (notActive)
                     em.getTransaction().rollback();
                 else
@@ -90,15 +90,15 @@ public class DataAccessObjectBean implements DataAccessObject {
         final EntityManager em = emf.createEntityManager();
         try {
             final boolean notActive = !em.getTransaction().isActive();
+
             if (notActive)
                 em.getTransaction().begin();
             try {
                 em.remove(em.merge(retrieve(transactionId)));
-
                 if (notActive)
                     em.getTransaction().commit();
-            } catch (Throwable throwable) {
 
+            } catch (Throwable throwable) {
                 if (notActive)
                     em.getTransaction().rollback();
                 else
@@ -123,9 +123,9 @@ public class DataAccessObjectBean implements DataAccessObject {
             try {
                 for (Transaction t : retrieveAll())
                     em.remove(em.merge(t));
-
                 if (notActive)
                     em.getTransaction().commit();
+
             } catch (Throwable throwable) {
                 if (notActive)
                     em.getTransaction().rollback();
@@ -167,7 +167,6 @@ public class DataAccessObjectBean implements DataAccessObject {
                 em.getTransaction().begin();
             try {
                 em.merge(t);
-
                 if (notActive)
                     em.getTransaction().commit();
 
@@ -222,9 +221,9 @@ public class DataAccessObjectBean implements DataAccessObject {
                 em.getTransaction().begin();
             try {
                 em.merge(t);
-
                 if (notActive)
                     em.getTransaction().commit();
+
             } catch (Throwable throwable) {
                 if (notActive)
                     em.getTransaction().rollback();
@@ -246,7 +245,8 @@ public class DataAccessObjectBean implements DataAccessObject {
         if (resourceId.trim().isEmpty())
             throw new IllegalArgumentException("Empty resourceID");
         if (vote == null)
-            throw new NullPointerException("Null outcome");
+            throw new NullPointerException("Null vote");
+
 
         final EntityManager em = emf.createEntityManager();
         try {
@@ -259,9 +259,9 @@ public class DataAccessObjectBean implements DataAccessObject {
                 em.getTransaction().begin();
             try {
                 em.merge(p);
-
                 if (notActive)
                     em.getTransaction().commit();
+
             } catch (Throwable throwable) {
                 if (notActive)
                     em.getTransaction().rollback();

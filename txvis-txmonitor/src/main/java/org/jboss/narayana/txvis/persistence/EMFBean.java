@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.Configuration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,10 +31,10 @@ public class EMFBean {
     @PostConstruct
     @PostActivate
     private void setup() {
-        emf = Persistence.createEntityManagerFactory("org.jboss.narayana.txvis");
+        emf = Persistence.createEntityManagerFactory(Configuration.PERSISTENCE_CONTEXT);
 
         if (logger.isTraceEnabled())
-            logger.trace("Initialised EMF");
+            logger.trace("Initialised EMFBean with persistence context: " + Configuration.PERSISTENCE_CONTEXT);
     }
 
     @PreDestroy
@@ -42,6 +43,6 @@ public class EMFBean {
         if(emf.isOpen())
             emf.close();
         if (logger.isTraceEnabled())
-            logger.trace("Shutdown EMF");
+            logger.trace("Shutdown EMFBean with persistence context: " + Configuration.PERSISTENCE_CONTEXT);
     }
 }
