@@ -16,7 +16,6 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,8 +51,8 @@ public class BasicIntegrationTest {
         return archive;
     }
 
-    private static final int NO_OF_TX = 1;
-    private static final int NO_OF_PARTICIPANTS = 2;
+    private static final int NO_OF_TX = 3;
+    private static final int NO_OF_PARTICIPANTS = 5;
     private static final int INTRO_DELAY = 3000;
     private static final int OUTRO_DELAY = 7000;
 
@@ -74,7 +73,7 @@ public class BasicIntegrationTest {
 
     @Test
     public void clientDrivenCommitTest() throws Exception {
-        testBootstrap(Status.COMMIT);
+        createAndLogTransactions(Status.COMMIT);
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll().size());
 
@@ -92,7 +91,7 @@ public class BasicIntegrationTest {
 
     @Test
     public void clientDrivenRollbackTest() throws Exception {
-        testBootstrap(Status.ROLLBACK_CLIENT);
+        createAndLogTransactions(Status.ROLLBACK_CLIENT);
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll().size());
 
@@ -104,13 +103,13 @@ public class BasicIntegrationTest {
 
     @Test
     public void resourceDrivenRollbackTest() throws Exception {
-        testBootstrap(Status.ROLLBACK_RESOURCE);
+        createAndLogTransactions(Status.ROLLBACK_RESOURCE);
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll().size());
 
         for (Transaction t : dao.retrieveAll()) {
-            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.ROLLBACK_RESOURCE,
-                    dao.retrieve(t.getTransactionId()).getStatus());
+            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status",
+                    Status.ROLLBACK_RESOURCE, dao.retrieve(t.getTransactionId()).getStatus());
         }
 
         for (Transaction t : dao.retrieveAll()) {
@@ -122,20 +121,21 @@ public class BasicIntegrationTest {
             assertEquals("Participants of transaction: " + t.getTransactionId() +
                     " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
         }
-
-
     }
 
-    private void testBootstrap(Status outcome) throws Exception {
-        testBootstrap(INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
+    private void createAndLogTransactions(Status outcome) throws Exception {
+        createAndLogTransactions(INTRO_DELAY, OUTRO_DELAY, NO_OF_TX, NO_OF_PARTICIPANTS, outcome);
     }
 
-    private void testBootstrap(int introSleepDelay, int outroSleepDelay,
-                               int noOfTx, int noOfParticipantsPerTx, Status outcome) throws Exception {
+    private void createAndLogTransactions(int introSleepDelay, int outroSleepDelay, int noOfTx,
+                                          int noOfParticipantsPerTx, Status outcome) throws Exception {
         mon.start();
-        Thread.sleep(introSleepDelay);
-        txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
-        Thread.sleep(outroSleepDelay);
-        mon.stop();
+        try {
+            Thread.sleep(introSleepDelay);
+            txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
+            Thread.sleep(outroSleepDelay);
+        } finally {
+            mon.stop();
+        }
     }
 }
