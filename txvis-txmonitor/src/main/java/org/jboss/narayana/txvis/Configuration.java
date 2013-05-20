@@ -19,7 +19,7 @@ public final class Configuration {
     public static final int LOGFILE_POLL_INTERVAL = 500;
 
     public static final Class[] LOG_HANDLERS = new Class[] {
-            EnlistResourceHandler.class,
+            EnlistXAResourceHandler.class,
             ResourceVoteAbortHandler.class,
             ResourceVoteCommitHandler.class,
             BeginTxHandler.class,

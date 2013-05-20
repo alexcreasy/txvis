@@ -107,7 +107,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Import the EJB spec, required to import the beans created by the -->
+        <!-- Import the EJB spec, required to import the beans -->
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>
             <artifactId>jboss-ejb-api_3.1_spec</artifactId>

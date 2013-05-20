@@ -22,7 +22,6 @@ import java.io.File;
  * Date: 15/05/2013
  * Time: 16:13
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class CreateTxTest {
 
@@ -35,10 +34,9 @@ public class CreateTxTest {
                 .loadPomFromFile("pom.xml").resolve("commons-io:commons-io:2.4")
                 .withTransitivity().asFile();
 
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
+        WebArchive archive = ShrinkWrap.create(WebArchive.class, "CreateTxTest.war")
                 .addPackages(true, "org.jboss.narayana.txvis.test.utils", "org.jboss.narayana.txvis.persistence.enums")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
                 .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));
 

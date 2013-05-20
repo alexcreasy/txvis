@@ -45,6 +45,7 @@ public class BasicIntegrationTest {
                 .addPackages(true, "org.jboss.narayana.txvis")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
+                .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
                 .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));
 
@@ -54,7 +55,7 @@ public class BasicIntegrationTest {
     private static final int NO_OF_TX = 2;
     private static final int NO_OF_PARTICIPANTS = 3;
     private static final int INTRO_DELAY = 300;
-    private static final int OUTRO_DELAY = 1200;
+    private static final int OUTRO_DELAY = 3000;
 
 
     @EJB

@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
  * Date: 28/04/2013
  * Time: 22:43
  */
-public class EnlistResourceHandler extends AbstractHandler {
+public class EnlistXAResourceHandler extends AbstractHandler {
 
     /**
      * RegEx pattern for parsing a participant resource enlist
@@ -17,9 +17,9 @@ public class EnlistResourceHandler extends AbstractHandler {
      * 1: The Transaction ID
      * 2: The Resource ID
      */
-    public static final String REGEX = "XAResourceRecord.XAResourceRecord.*tx_uid=(" + TX_ID + "),.*eis name >,\\s([^\\s]+)\\s\\)";
+    public static final String REGEX = "XAResourceRecord.XAResourceRecord.+tx_uid=(" + TX_ID + "),.+eis name[^>]+>,\\s([^\\s]+)\\s\\)";
 
-    public EnlistResourceHandler() {
+    public EnlistXAResourceHandler() {
         super(REGEX);
     }
 

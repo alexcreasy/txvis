@@ -39,8 +39,8 @@ public class DAOTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addPackages(true, "org.jboss.narayana.txvis.persistence", "org.jboss.narayana.txvis.test.utils")
-                //.addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
+                .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
                 .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));
 

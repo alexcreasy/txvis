@@ -7,8 +7,7 @@
    <persistence-unit name="org.jboss.narayana.txvis" transaction-type="RESOURCE_LOCAL">
       <!-- If you are running in a production environment, add a managed 
          data source, the example data source is just for proofs of concept! -->
-      <!--<jta-data-source>java:jboss/datasources/testDS</jta-data-source>-->
-      <non-jta-data-source>java:jboss/datasources/txvis</non-jta-data-source>
+      <non-jta-data-source>java:jboss/datasources/txvisTestDS</non-jta-data-source>
        <class>org.jboss.narayana.txvis.persistence.entities.Transaction</class>
        <class>org.jboss.narayana.txvis.persistence.entities.Participant</class>
       <properties>

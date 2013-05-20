@@ -142,7 +142,7 @@ public class DataAccessObjectBean implements DataAccessObject {
     public Collection<Transaction> retrieveAll() {
         final String s = "FROM " + Transaction.class.getSimpleName() + " e";
 
-        EntityManager em = emf.createEntityManager();
+        final EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(s).getResultList();
         } finally {

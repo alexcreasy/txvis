@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Model;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -17,7 +18,7 @@ import java.util.Collection;
 @Model
 public class TransactionModel implements Serializable {
 
-    @EJB
+    @Inject
     private DataAccessObject dao;
 
     private Collection<Transaction> allTransactions;
