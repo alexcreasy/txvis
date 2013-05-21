@@ -17,7 +17,7 @@ public final class CommitTxHandler extends AbstractHandler {
      * 0: The whole matched portion of the log entry
      * 1: The Transaction ID
      */
-    public static final String REGEX = "\\)\\sFileSystemStore.remove_committed\\((" + TX_ID + "),";
+    public static final String REGEX = "FileSystemStore.remove_committed\\((" + TX_ID + "),";
 
     public CommitTxHandler() {
         super(REGEX);

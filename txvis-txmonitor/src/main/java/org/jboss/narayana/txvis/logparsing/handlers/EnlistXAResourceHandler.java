@@ -17,8 +17,14 @@ public class EnlistXAResourceHandler extends AbstractHandler {
      * 1: The Transaction ID
      * 2: The Resource ID
      */
-    public static final String REGEX = "XAResourceRecord.XAResourceRecord.+tx_uid=(" + TX_ID + "),.+eis name[^>]+>,\\s([^\\s]+)\\s\\)";
 
+    public static final String REGEX = "XAResourceRecord\\.XAResourceRecord.+tx_uid=(" + TX_ID
+            + "),.+eis name[^>]+>,\\s.*?(" + XA_RESOURCE_ID + ")";
+
+
+    /**
+     *  "XAResourceRecord\.XAResourceRecord.+tx_uid=((?:-?[0-9a-fA-F^:]+:){4}-?[0-9a-fA-F]+),.+eis name[^>]+>,\s.*((?:[a-zA-Z0-9]+\.)+[a-zA-Z0-9]+@[0-9a-f]+)"
+     */
     public EnlistXAResourceHandler() {
         super(REGEX);
     }

@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.logparsing;
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.logparsing.handlers.Handler;
 
 import java.util.LinkedList;
@@ -36,7 +37,6 @@ public final class LogParser implements TailerListener {
             final Matcher matcher = handler.getPattern().matcher(line);
 
             if (matcher.find()) {
-                logger.trace("Match: " + line);
                 if (logger.isDebugEnabled())
                     logger.debug(logFormat(handler, matcher));
 

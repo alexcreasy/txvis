@@ -12,7 +12,8 @@ import java.util.regex.PatternSyntaxException;
  */
 public abstract class AbstractHandler implements Handler {
 
-    public static final String TX_ID = "(?:-?[0-9a-fA-F^:]+:){4}-?[0-9a-fA-F]+";
+    public static final String TX_ID = "(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+";
+    public static final String XA_RESOURCE_ID = "(?:\\w+\\.)+\\w+@[0-9a-f]+";
 
     private Pattern pattern;
 
@@ -36,7 +37,6 @@ public abstract class AbstractHandler implements Handler {
     public void injectDAO(DataAccessObject dao) throws NullPointerException {
         if (dao == null)
             throw new NullPointerException("instance of DataAccessObject required");
-
         this.dao = dao;
     }
 }
