@@ -12,8 +12,27 @@ import java.util.regex.PatternSyntaxException;
  */
 public abstract class AbstractHandler implements Handler {
 
-    public static final String TX_ID = "(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+";
-    public static final String XA_RESOURCE_ID = "(?:\\w+\\.)+\\w+@[0-9a-f]+";
+    /**
+     *
+     */
+    public static final String TX_ID_GROUPNAME = "TXID";
+    /**
+     *
+     */
+    public static final String TX_ID_PATTERN =
+            "(?<" + TX_ID_GROUPNAME + ">(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+)";
+    /**
+     *
+     */
+    public static final String XA_RESOURCE_ID_GROUPNAME = "XARESOURCEID";
+    /**
+     *
+     */
+    public static final String XA_RESOURCE_ID_PATTERN =
+            "(?<" + XA_RESOURCE_ID_GROUPNAME + ">(?:\\w+\\.)+\\w+@[0-9a-f]+)";
+
+
+
 
     private final Pattern pattern;
 

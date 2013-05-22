@@ -17,7 +17,7 @@ public final class CommitTxHandler extends AbstractHandler {
      * 0: The whole matched portion of the log entry
      * 1: The Transaction ID
      */
-    public static final String REGEX = "FileSystemStore.remove_committed\\((" + TX_ID + "),";
+    public static final String REGEX = "FileSystemStore.remove_committed\\(" + TX_ID_PATTERN + ",";
 
     public CommitTxHandler() {
         super(REGEX);
@@ -25,7 +25,7 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.setOutcome(matcher.group(1), Status.COMMIT);
+        dao.setOutcome(matcher.group(TX_ID_GROUPNAME), Status.COMMIT);
     }
 
 

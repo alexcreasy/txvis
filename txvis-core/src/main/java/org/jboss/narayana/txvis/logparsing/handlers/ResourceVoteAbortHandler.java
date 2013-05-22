@@ -18,8 +18,8 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
      * Group 1: Transaction ID
      * Group 2: Resource ID
      */
-    public static final String REGEX = "tx_uid=(" + TX_ID
-            + "),.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
+    public static final String REGEX = "tx_uid=" + TX_ID_PATTERN
+            + ",.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
 
     public ResourceVoteAbortHandler() {
         super(REGEX);
@@ -27,6 +27,6 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.setParticipantVote(matcher.group(1), matcher.group(2), Vote.ABORT);
+        dao.setParticipantVote(matcher.group(TX_ID_GROUPNAME), matcher.group(2), Vote.ABORT);
     }
 }

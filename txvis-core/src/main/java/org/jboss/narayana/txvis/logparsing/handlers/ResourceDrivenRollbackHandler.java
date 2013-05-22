@@ -18,7 +18,7 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
      * Group 0: Whole matched part of string
      * Group 1: Transaction ID
      */
-    public static final String REGEX = "BasicAction::phase2Abort\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
+    public static final String REGEX = "BasicAction::phase2Abort\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
 
     public ResourceDrivenRollbackHandler() {
         super(REGEX);
@@ -26,6 +26,6 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-       dao.setOutcome(matcher.group(1), Status.ROLLBACK_RESOURCE);
+       dao.setOutcome(matcher.group(TX_ID_GROUPNAME), Status.ROLLBACK_RESOURCE);
     }
 }

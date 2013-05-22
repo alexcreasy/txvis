@@ -24,7 +24,7 @@ import java.io.File;
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-public class LogMonitor {
+public class LogMonitorBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -43,7 +43,7 @@ public class LogMonitor {
     @Asynchronous
     public void start() {
         if (!running) {
-            synchronized (LogMonitor.class) {
+            synchronized (LogMonitorBean.class) {
                 if (!running)
                     running = true;
                 else
@@ -59,7 +59,7 @@ public class LogMonitor {
     @PreDestroy
     public void stop() {
         if (running) {
-            synchronized (LogMonitor.class) {
+            synchronized (LogMonitorBean.class) {
                 if (running) {
                     tailer.stop();
                     running = false;
@@ -73,11 +73,11 @@ public class LogMonitor {
     @PostConstruct
     private void setup() {
         if (logger.isInfoEnabled())
-            logger.info("Initialising LogMonitor");
+            logger.info("Initialising LogMonitorBean");
         logFile = new File(Configuration.LOGFILE_PATH);
         logParser = LogParserFactory.getInstance(dao);
 
         // Make proxied call to self to start asynchronous logparsing.
-        sessionContext.getBusinessObject(LogMonitor.class).start();
+        sessionContext.getBusinessObject(LogMonitorBean.class).start();
     }
 }

@@ -18,7 +18,7 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
      * 0: The whole matched portion of the log entry
      * 1: The Transaction ID
      */
-    public static final String REGEX = "BasicAction::Abort\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
+    public static final String REGEX = "BasicAction::Abort\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
 
     public ClientDrivenRollbackHandler() {
         super(REGEX);
@@ -26,6 +26,6 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-       dao.setOutcome(matcher.group(1), Status.ROLLBACK_CLIENT);
+       dao.setOutcome(matcher.group(TX_ID_GROUPNAME), Status.ROLLBACK_CLIENT);
     }
 }

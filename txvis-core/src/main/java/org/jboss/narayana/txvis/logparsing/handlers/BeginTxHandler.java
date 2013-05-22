@@ -15,7 +15,7 @@ public final class BeginTxHandler extends AbstractHandler {
      * 0: The whole matched portion of the log entry
      * 1: The Transaction ID
      */
-    public static final String REGEX = "BasicAction::Begin\\(\\)\\sfor\\saction-id\\s(" + TX_ID + ")";
+    public static final String REGEX = "BasicAction::Begin\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
 
     public BeginTxHandler() {
         super(REGEX);
@@ -23,6 +23,6 @@ public final class BeginTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.create(matcher.group(1));
+        dao.create(matcher.group(TX_ID_GROUPNAME));
     }
 }

@@ -7,8 +7,6 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import javax.persistence.*;
 import java.util.Collection;
@@ -277,7 +275,7 @@ public class DataAccessObjectBean implements DataAccessObject {
     }
 
     private boolean validateTxId(String txId) throws NullPointerException {
-        return txId.matches(AbstractHandler.TX_ID);
+        return txId.matches(AbstractHandler.TX_ID_PATTERN);
     }
 
 }
