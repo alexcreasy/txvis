@@ -15,7 +15,7 @@ public abstract class AbstractHandler implements Handler {
     public static final String TX_ID = "(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+";
     public static final String XA_RESOURCE_ID = "(?:\\w+\\.)+\\w+@[0-9a-f]+";
 
-    private Pattern pattern;
+    private final Pattern pattern;
 
     protected DataAccessObject dao;
 

@@ -37,17 +37,9 @@ public class LogParserFactory {
                 if (logger.isInfoEnabled())
                     logger.info("Successfully loaded log handler: " + c);
 
-            } catch (InstantiationException e) {
+            } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
                 logger.fatal("Unable to load log handler: " + c, e);
                 throw new IllegalStateException(e);
-
-            } catch (IllegalAccessException e) {
-                logger.fatal("Unable to load log handler: " + c, e);
-                throw new IllegalStateException(e);
-
-            } catch (ClassCastException e) {
-                logger.fatal("Unable to load log handler: " + c + " is not an instance of" + Handler.class, e);
-                throw new IllegalStateException(c + " is not an instance of " + Handler.class, e);
             }
         }
         return logParser;

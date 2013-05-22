@@ -76,6 +76,8 @@ public class LogMonitor {
             logger.info("Initialising LogMonitor");
         logFile = new File(Configuration.LOGFILE_PATH);
         logParser = LogParserFactory.getInstance(dao);
+
+        // Make proxied call to self to start asynchronous logparsing.
         sessionContext.getBusinessObject(LogMonitor.class).start();
     }
 }
