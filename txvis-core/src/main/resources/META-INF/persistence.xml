@@ -8,6 +8,7 @@
         <non-jta-data-source>java:jboss/datasources/txvisDS</non-jta-data-source>
         <class>org.jboss.narayana.txvis.persistence.entities.Transaction</class>
         <class>org.jboss.narayana.txvis.persistence.entities.Participant</class>
+        <class>org.jboss.narayana.txvis.persistence.entities.Event</class>
             <properties>
                 <!-- Properties for Hibernate -->
                 <property name="hibernate.hbm2ddl.auto" value="create" />
