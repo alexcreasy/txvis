@@ -11,11 +11,8 @@
     </parent>
 
     <groupId>org.jboss.narayana</groupId>
-    <artifactId>txvis-txmonitor</artifactId>
+    <artifactId>txvis-core</artifactId>
     <properties>
-        <!--<arquillian.version>1.0.0.Final</arquillian.version>-->
-        <!--<jboss.version>8.0.0.Alpha1-SNAPSHOT</jboss.version>-->
-        <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
     </properties>
 
     <dependencyManagement>
@@ -52,12 +49,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- <dependency>
-            <groupId>org.jboss.spec.javax.annotation</groupId>
-            <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            <scope>provided</scope>
-        </dependency> -->
-
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>
             <artifactId>jboss-ejb-api_3.1_spec</artifactId>
@@ -83,13 +74,6 @@
             <artifactId>narayana-jta</artifactId>
             <version>5.0.0.M2</version>
         </dependency>
-
-        <!--     <dependency>
-            <groupId>org.jboss.narayana.xts</groupId>
-            <artifactId>byteman_support</artifactId>
-            <scope>test</scope>
-            <version>5.0.0.M2</version>
-        </dependency> -->
 
         <dependency>
             <groupId>org.jboss.spec.javax.transaction</groupId>

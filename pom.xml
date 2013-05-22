@@ -11,7 +11,7 @@
 
 
     <modules>
-        <module>txvis-txmonitor</module>
+        <module>txvis-core</module>
         <module>txvis-webapp</module>
         <module>txvis-ear</module>
     </modules>
@@ -45,7 +45,7 @@
                 to repeat ourselves in every module -->
             <dependency>
                 <groupId>org.jboss.narayana</groupId>
-                <artifactId>txvis-txmonitor</artifactId>
+                <artifactId>txvis-core</artifactId>
                 <version>${project.version}</version>
                 <type>ejb</type>
             </dependency>

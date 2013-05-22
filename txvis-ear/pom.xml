@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.narayana</groupId>
-            <artifactId>txvis-txmonitor</artifactId>
+            <artifactId>txvis-core</artifactId>
             <type>ejb</type>
         </dependency>
     </dependencies>
