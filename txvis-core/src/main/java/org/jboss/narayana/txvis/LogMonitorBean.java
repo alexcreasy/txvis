@@ -23,12 +23,9 @@ import java.io.File;
 @DependsOn("DataAccessObjectBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class LogMonitorBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-
-    private volatile boolean running;
 
     @Resource
     private SessionContext sessionContext;
@@ -39,45 +36,38 @@ public class LogMonitorBean {
     private File logFile;
     private Tailer tailer;
     private LogParser logParser;
+    private Thread thread;
 
-    @Asynchronous
-    public void start() {
-        if (!running) {
-            synchronized (LogMonitorBean.class) {
-                if (!running)
-                    running = true;
-                else
-                    return;
-            }
-            if (logger.isInfoEnabled())
-                logger.info("Begin tailing logfile");
-            tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-            tailer.run();
+
+    public void startLogMonitoring() {
+
+        try {
+            thread.start();
+
+        } catch (Exception e) {
+            tailer.stop();
+            logger.fatal("Unhandled exception, stopping logfile monitor", e);
         }
+
+
     }
 
     @PreDestroy
     public void stop() {
-        if (running) {
-            synchronized (LogMonitorBean.class) {
-                if (running) {
-                    tailer.stop();
-                    running = false;
-                    if (logger.isInfoEnabled())
-                        logger.info("Stopped tailing logfile");
-                }
-            }
-        }
+        tailer.stop();
+        tailer = null;
     }
 
     @PostConstruct
     private void setup() {
         if (logger.isInfoEnabled())
-            logger.info("Initialising LogMonitorBean");
+            logger.info("Initialising LogMonitor");
         logFile = new File(Configuration.LOGFILE_PATH);
         logParser = LogParserFactory.getInstance(dao);
-
-        // Make proxied call to self to start asynchronous logparsing.
-        sessionContext.getBusinessObject(LogMonitorBean.class).start();
+        tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
+        thread = new Thread(tailer);
+        thread.setDaemon(true);
+        startLogMonitoring();
+        //sessionContext.getBusinessObject(LogMonitor.class).startLogMonitoring();
     }
 }

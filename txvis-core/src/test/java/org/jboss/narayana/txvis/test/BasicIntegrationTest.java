@@ -130,7 +130,7 @@ public class BasicIntegrationTest {
 
     private void createAndLogTransactions(int introSleepDelay, int outroSleepDelay, int noOfTx,
                                           int noOfParticipantsPerTx, Status outcome) throws Exception {
-        mon.start();
+        mon.startLogMonitoring();
         try {
             Thread.sleep(introSleepDelay);
             txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);

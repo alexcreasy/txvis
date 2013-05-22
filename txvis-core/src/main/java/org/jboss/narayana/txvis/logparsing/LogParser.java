@@ -48,6 +48,9 @@ public final class LogParser implements TailerListener {
 
     @Override
     public void init(Tailer tailer) {
+        if (this.tailer != null)
+            throw new RuntimeException("Multiple tailers attempting to use LogParser");
+
         this.tailer = tailer;
     }
 
@@ -66,6 +69,7 @@ public final class LogParser implements TailerListener {
     @Override
     public void handle(Exception ex) {
         logger.error("Exception caught: ", ex);
+        throw new RuntimeException("Unhandled Exception ", ex);
     }
 
     private String logFormat(Handler handler, Matcher matcher) {
