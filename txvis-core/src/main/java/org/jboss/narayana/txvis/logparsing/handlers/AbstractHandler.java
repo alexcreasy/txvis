@@ -12,10 +12,30 @@ import java.util.regex.PatternSyntaxException;
  */
 public abstract class AbstractHandler implements Handler {
 
+    /*
+     * Constants can be used as building blocks
+     * for regular expressions in implementation
+     * classes.
+     */
+
+    /**
+     * The back reference group name used to retrieve the log4j
+     * timestamp TIMESTAMP_PATTERN - retrieve the timestamp by
+     * calling <code>matcher.group(TIMESTAMP_GROUPNAME)</code>
+     */
+    public static final String TIMESTAMP_GROUPNAME = "TIMESTAMP";
+
+    /**
+     *
+     */
+    public static final String TIMESTAMP_PATTEN =
+            "^(?<" + TIMESTAMP_GROUPNAME + ">\\d{2}:\\d{2}:\\d{2},\\d{3})";
+
     /**
      *
      */
     public static final String TX_ID_GROUPNAME = "TXID";
+
     /**
      *
      */
@@ -25,6 +45,7 @@ public abstract class AbstractHandler implements Handler {
      *
      */
     public static final String XA_RESOURCE_ID_GROUPNAME = "XARESOURCEID";
+
     /**
      *
      */
