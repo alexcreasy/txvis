@@ -33,7 +33,6 @@ public class Event implements Serializable {
         return id;
     }
 
-    @Temporal(TemporalType.TIMESTAMP)
     public Timestamp getTimestamp() {
         return timestamp;
     }
@@ -51,21 +50,21 @@ public class Event implements Serializable {
     /*
      * Methods for container
      */
-    public Event() {}
+    protected Event() {}
 
-    private void setId(Long id) {
+    protected void setId(Long id) {
         this.id = id;
     }
 
-    private void setTimestamp(Timestamp timestamp) {
+    protected void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
-    private void setTransaction(Transaction transaction) {
+    protected void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
 
-    private void setEventType(EventType eventType) {
+    protected void setEventType(EventType eventType) {
         this.eventType = eventType;
     }
 }

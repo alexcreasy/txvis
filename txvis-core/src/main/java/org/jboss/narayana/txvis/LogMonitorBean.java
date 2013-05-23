@@ -36,26 +36,29 @@ public class LogMonitorBean {
     private File logFile;
     private Tailer tailer;
     private LogParser logParser;
-    private Thread thread;
 
 
     public void startLogMonitoring() {
+        if (tailer == null) {
+            try {
+                tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
+                Thread thread = new Thread(tailer);
+                thread.setDaemon(true);
+                thread.start();
 
-        try {
-            thread.start();
-
-        } catch (Exception e) {
-            tailer.stop();
-            logger.fatal("Unhandled exception, stopping logfile monitor", e);
+            } catch (Exception e) {
+                tailer.stop();
+                logger.fatal("Unhandled exception, stopping logfile monitor", e);
+            }
         }
-
-
     }
 
     @PreDestroy
     public void stop() {
-        tailer.stop();
-        tailer = null;
+        if (tailer != null) {
+            tailer.stop();
+            tailer = null;
+        }
     }
 
     @PostConstruct
@@ -64,9 +67,6 @@ public class LogMonitorBean {
             logger.info("Initialising LogMonitor");
         logFile = new File(Configuration.LOGFILE_PATH);
         logParser = LogParserFactory.getInstance(dao);
-        tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-        thread = new Thread(tailer);
-        thread.setDaemon(true);
         startLogMonitoring();
         //sessionContext.getBusinessObject(LogMonitor.class).startLogMonitoring();
     }

@@ -17,7 +17,7 @@ public final class Utils {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(dateTime.substring(0, 2)));
         c.set(Calendar.MINUTE, Integer.parseInt(dateTime.substring(3, 5)));
-        c.set(Calendar.SECOND, Integer.parseInt(dateTime.substring(7, 9)));
+        c.set(Calendar.SECOND, Integer.parseInt(dateTime.substring(6, 8)));
         c.set(Calendar.MILLISECOND, Integer.parseInt(dateTime.substring(9)));
 
         return new Timestamp(c.getTimeInMillis());

@@ -9,6 +9,7 @@ import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.text.MessageFormat;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -19,7 +20,7 @@ import javax.persistence.Persistence;
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class EMFBean {
+public class EntityManagerProviderBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private EntityManagerFactory emf;
@@ -34,7 +35,9 @@ public class EMFBean {
         emf = Persistence.createEntityManagerFactory(Configuration.PERSISTENCE_CONTEXT);
 
         if (logger.isTraceEnabled())
-            logger.trace("Initialised EMFBean with persistence context: " + Configuration.PERSISTENCE_CONTEXT);
+            logger.trace(MessageFormat.format(
+                    "Initialised EntityManagerProviderBean with persistence context: {0}",
+                    Configuration.PERSISTENCE_CONTEXT));
     }
 
     @PreDestroy
@@ -43,6 +46,8 @@ public class EMFBean {
         if(emf.isOpen())
             emf.close();
         if (logger.isTraceEnabled())
-            logger.trace("Shutdown EMFBean with persistence context: " + Configuration.PERSISTENCE_CONTEXT);
+            logger.trace(MessageFormat.format(
+                    "Shutdown EntityManagerProviderBean with persistence context: {0}",
+                    Configuration.PERSISTENCE_CONTEXT));
     }
 }

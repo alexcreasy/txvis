@@ -48,8 +48,8 @@ public final class LogParser implements TailerListener {
 
     @Override
     public void init(Tailer tailer) {
-        if (this.tailer != null)
-            throw new RuntimeException("Multiple tailers attempting to use LogParser");
+//        if (this.tailer != null)
+//            throw new RuntimeException("Multiple tailers attempting to use LogParser");
 
         this.tailer = tailer;
     }

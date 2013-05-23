@@ -9,7 +9,9 @@ import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
 import javax.persistence.*;
+import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -17,15 +19,171 @@ import java.util.Collection;
  * Time: 15:57
  */
 @Stateless
-@DependsOn("EMFBean")
+@DependsOn("EntityManagerProviderBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class DataAccessObjectBean implements DataAccessObject {
 
     @EJB
-    private EMFBean emf;
+    private EntityManagerProviderBean emf;
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
+
+    @Override
+    public <E> void create(E entity) {
+        final EntityManager em = emf.createEntityManager();
+
+        try {
+            final boolean notActive = !em.getTransaction().isActive();
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
+                em.persist(entity);
+                if (notActive)
+                    em.getTransaction().commit();
+
+            } catch (Throwable throwable) {
+                em.getTransaction().rollback();
+
+                logger.warn(MessageFormat.format(
+                        "An error occured while attempting to persist entity: {0}",
+                        em.getClass().getSimpleName()), throwable);
+            }
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public <E, K> E retrieve(Class<E> entityClass, K primaryKey) {
+        final EntityManager em = emf.createEntityManager();
+        try {
+            return em.find(entityClass, primaryKey);
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E> List<E> retrieveAll(Class<E> entityClass) {
+        final String s = "FROM " + entityClass.getSimpleName() + " e";
+
+        final EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(s).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E, V> E retrieveByField(Class<E> entityClass, String field, V value) {
+        final String query = "FROM " + entityClass.getSimpleName() + " e WHERE e." + field + "=:value";
+
+        final EntityManager em = emf.createEntityManager();
+        try {
+            return (E) em.createQuery(query).setParameter("entityClass",
+                    entityClass.getSimpleName()).setParameter("field", field)
+                    .setParameter("vale", value).getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public <E> void update(E entity) {
+        final EntityManager em = emf.createEntityManager();
+        try {
+            final boolean notActive = !em.getTransaction().isActive();
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
+                em.merge(entity);
+                if (notActive)
+                    em.getTransaction().commit();
+
+            } catch (Throwable throwable) {
+                    em.getTransaction().rollback();
+
+                logger.warn(MessageFormat.format(
+                        "An error occured while attempting to update entity: {0}",
+                        entity.getClass().getSimpleName()), throwable);
+            }
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public <E> void delete(E entity) {
+        final EntityManager em = emf.createEntityManager();
+        try {
+            final boolean notActive = !em.getTransaction().isActive();
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
+                em.remove(em.merge(entity));
+                if (notActive)
+                    em.getTransaction().commit();
+
+            } catch (Throwable throwable) {
+                    em.getTransaction().rollback();
+
+                logger.warn(MessageFormat.format(
+                        "An error occured while attempting to delete entity: {0}",
+                        entity.getClass().getSimpleName()), throwable);
+            }
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public <E> void deleteAll(Class<E> entityClass) {
+        final EntityManager em = emf.createEntityManager();
+        try {
+            final boolean notActive = !em.getTransaction().isActive();
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
+                for (E e : retrieveAll(entityClass))
+                    em.remove(em.merge(e));
+
+                if (notActive)
+                    em.getTransaction().commit();
+
+            } catch (Throwable throwable) {
+                if (notActive)
+                    em.getTransaction().rollback();
+
+                logger.warn(MessageFormat.format(
+                        "An error occured while attempting to delete all entities: {0}",
+                        entityClass.getSimpleName()), throwable);
+            }
+        } finally {
+            em.close();
+        }
+    }
+
+
+
+
+
+
+
+
+    /*
+     *
+     *
+     *
+     *
+     */
 
     @Override
     public Transaction create(String transactionId) {
@@ -63,6 +221,8 @@ public class DataAccessObjectBean implements DataAccessObject {
         return t;
     }
 
+
+
     @Override
     public Transaction retrieve(String transactionId) {
         if (!validateTxId(transactionId))
@@ -75,6 +235,36 @@ public class DataAccessObjectBean implements DataAccessObject {
         try {
             return (Transaction) em.createQuery(query).setParameter("transactionId",
                     transactionId).getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public void update(Transaction transaction) {
+        if (transaction == null)
+            throw new NullPointerException("transaction cannot be null");
+
+        final EntityManager em = emf.createEntityManager();
+        try {
+            final boolean notActive = !em.getTransaction().isActive();
+
+            if (notActive)
+                em.getTransaction().begin();
+            try {
+                em.persist(em.merge(transaction));
+                if (notActive)
+                    em.getTransaction().commit();
+
+            } catch (Throwable throwable) {
+                if (notActive)
+                    em.getTransaction().rollback();
+                else
+                    em.getTransaction().setRollbackOnly();
+
+                logger.warn("An error occured while attempting to update Transaction record: "
+                        + transaction.getTransactionId(), throwable);
+            }
         } finally {
             em.close();
         }
@@ -112,6 +302,7 @@ public class DataAccessObjectBean implements DataAccessObject {
 
     @Override
     public void deleteAll() {
+
         final EntityManager em = emf.createEntityManager();
         try {
             final boolean notActive = !em.getTransaction().isActive();
@@ -194,6 +385,7 @@ public class DataAccessObjectBean implements DataAccessObject {
 
         final EntityManager em = emf.createEntityManager();
         try {
+
             return (Participant) em.createQuery(s).setParameter("transactionId", transactionId)
                     .setParameter("resourceId", resourceId).getSingleResult();
         } finally {
@@ -273,6 +465,8 @@ public class DataAccessObjectBean implements DataAccessObject {
             em.close();
         }
     }
+
+
 
     private boolean validateTxId(String txId) throws NullPointerException {
         return txId.matches(AbstractHandler.TX_ID_PATTERN);

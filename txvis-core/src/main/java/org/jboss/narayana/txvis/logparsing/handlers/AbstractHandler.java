@@ -55,6 +55,8 @@ public abstract class AbstractHandler implements Handler {
 
 
 
+
+
     private final Pattern pattern;
 
     protected DataAccessObject dao;
@@ -73,7 +75,6 @@ public abstract class AbstractHandler implements Handler {
         return this.pattern;
     }
 
-    @Override
     public void injectDAO(DataAccessObject dao) throws NullPointerException {
         if (dao == null)
             throw new NullPointerException("instance of DataAccessObject required");

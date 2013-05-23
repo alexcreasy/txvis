@@ -3,6 +3,9 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.*;
+import org.jboss.narayana.txvis.persistence.entities.Event;
+import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.test.utils.UniqueIdGenerator;
@@ -17,6 +20,7 @@ import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
 import java.io.File;
+import java.sql.Timestamp;
 
 import static junit.framework.Assert.*;
 
@@ -118,5 +122,19 @@ public class DAOTest {
 
         assertEquals("Participant did not report correct vote", Vote.ABORT,
                 dao.getEnlistedParticipant(txID, ptID2).getVote());
+    }
+
+
+    @Test
+    public void createTest() throws Exception {
+        dao.deleteAll(Transaction.class);
+
+        Transaction t = new Transaction(idGen.getUniqueTxId());
+        t.addEvent(new Event(t, new Timestamp(System.currentTimeMillis()), EventType.BEGIN));
+        dao.create(t);
+
+
+        assertEquals("Event not cascaded", 1, dao.retrieveAll(Event.class).size());
+        assertEquals("Event not bound", 1, dao.retrieveAll(Transaction.class).get(0).getEvents().size());
     }
 }

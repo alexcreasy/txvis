@@ -13,18 +13,19 @@ import java.io.Serializable;
 @Entity
 public class Participant implements Serializable {
 
-    private static final long serialVersionUID = -3441505744449729394L;
     private Long id;
     private Transaction transaction;
     private String resourceId;
     private Vote vote = Vote.UNKNOWN;
+
+
+    protected Participant() {}
 
     public Participant(Transaction transaction, String resourceId) {
         this.transaction = transaction;
         this.resourceId = resourceId;
     }
 
-    public Participant() {}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

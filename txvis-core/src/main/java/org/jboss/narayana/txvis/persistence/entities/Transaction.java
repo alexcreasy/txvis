@@ -1,11 +1,12 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -15,19 +16,27 @@ import java.util.List;
 @Entity
 public class Transaction implements Serializable {
 
-    private static final long serialVersionUID = -189443407589350068L;
-
     private Long id;
-
     private String transactionId;
     private Status status = Status.IN_FLIGHT;
-    private List<Participant> participants = new LinkedList<Participant>();
+    private Collection<Participant> participants = new HashSet<>();
+    private Collection<Event> events = new LinkedList<>();
 
-
-    public Transaction() {}
+    protected Transaction() {}
 
     public Transaction(String transactionId) {
         this.transactionId = transactionId;
+    }
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long getId() {
+        return id;
+    }
+
+    protected void setId(Long id) {
+        this.id = id;
     }
 
     @Column(unique = true)
@@ -35,7 +44,7 @@ public class Transaction implements Serializable {
         return this.transactionId;
     }
 
-    private void setTransactionId(String transactionId) {
+    protected void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
     }
 
@@ -48,17 +57,32 @@ public class Transaction implements Serializable {
         this.status = status;
     }
 
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    public Collection<Participant> getParticipants() {
+        return this.participants;
+    }
+
+    protected void setParticipants(Collection<Participant> participants) {
+        this.participants = participants;
+    }
+
     public void addParticipant(Participant participant) {
         this.participants.add(participant);
     }
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    public List<Participant> getParticipants() {
-        return this.participants;
+    @Fetch(value = FetchMode.SUBSELECT)
+    public Collection<Event> getEvents() {
+        return events;
     }
 
-    private void setParticipants(List<Participant> participants) {
-        this.participants = participants;
+    protected void setEvents(Collection<Event> events) {
+        this.events = events;
+    }
+
+    public void addEvent(Event event) {
+        this.events.add(event);
     }
 
     @Override
@@ -70,18 +94,5 @@ public class Transaction implements Serializable {
             result.append("\n\t").append(p);
         }
         return result.toString();
-    }
-
-    /*
-     * Private getters / setters for JPA
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long getId() {
-        return id;
-    }
-
-    private void setId(Long id) {
-        this.id = id;
     }
 }
