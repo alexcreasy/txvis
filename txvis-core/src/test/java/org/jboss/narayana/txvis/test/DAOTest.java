@@ -125,16 +125,55 @@ public class DAOTest {
     }
 
 
-    @Test
-    public void createTest() throws Exception {
-        dao.deleteAll(Transaction.class);
+//    @Test
+//    public void createTest() throws Exception {
+//        dao.deleteAll(Transaction.class);
+//
+//        Transaction t = new Transaction(idGen.getUniqueTxId());
+//        t.addEvent(new Event(t, new Timestamp(System.currentTimeMillis()), EventType.BEGIN));
+//        dao.create(t);
+//
+//
+//        assertEquals("Event not cascaded", 1, dao.retrieveAll(Event.class).size());
+//        assertEquals("Event not bound", 1, dao.retrieveAll(Transaction.class).get(0).getEvents().size());
+//    }
 
-        Transaction t = new Transaction(idGen.getUniqueTxId());
-        t.addEvent(new Event(t, new Timestamp(System.currentTimeMillis()), EventType.BEGIN));
+    @Test
+    public void createAndRetrieveTest() throws Exception {
+        final String txUID = idGen.getUniqueTxId();
+        Transaction t = new Transaction(txUID);
         dao.create(t);
 
+        assertNotNull("Entity did not contain an ID after attempting to persist", t.getId());
 
-        assertEquals("Event not cascaded", 1, dao.retrieveAll(Event.class).size());
-        assertEquals("Event not bound", 1, dao.retrieveAll(Transaction.class).get(0).getEvents().size());
+        assertNotNull("Unable to retrieve persisted Entity",
+                dao.retrieve(Transaction.class, t.getId()));
+    }
+
+    @Test
+    public void retrieveTransactionByTxUIDTest() throws Exception {
+        final String txUID = idGen.getUniqueTxId();
+        Transaction t = new Transaction(txUID);
+        dao.create(t);
+
+        assertEquals("Transaction ID did not match", txUID,
+                dao.retrieveTransactionByTxUID(txUID).getTransactionId());
+    }
+
+    @Test
+    public void UpdateTest() throws Exception {
+        final String txUID = idGen.getUniqueTxId();
+
+        Transaction t = new Transaction(txUID);
+        dao.create(t);
+
+        t = dao.retrieveTransactionByTxUID(txUID);
+        t.setStatus(Status.COMMIT);
+        dao.update(t);
+
+
+        t = dao.retrieveTransactionByTxUID(txUID);
+        assertEquals("Retrieved transaction entity did not report correct status",
+                Status.COMMIT, t.getStatus());
     }
 }

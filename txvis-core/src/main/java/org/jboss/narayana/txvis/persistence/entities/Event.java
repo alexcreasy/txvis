@@ -5,6 +5,7 @@ import org.jboss.narayana.txvis.persistence.enums.EventType;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

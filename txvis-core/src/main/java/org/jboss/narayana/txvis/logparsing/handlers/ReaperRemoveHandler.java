@@ -1,5 +1,9 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.jboss.narayana.txvis.Utils;
+import org.jboss.narayana.txvis.persistence.entities.Event;
+import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import java.util.regex.Matcher;
@@ -31,7 +35,10 @@ public class ReaperRemoveHandler extends AbstractHandler {
         switch(matcher.group("ACTIONSTATUS")) {
 
             case "COMMITTED":
-                dao.setOutcome(matcher.group(TX_ID_GROUPNAME), Status.COMMIT);
+                Transaction t = dao.retrieveTransactionByTxUID(TX_ID_GROUPNAME);
+                t.setStatus(Status.COMMIT);
+                t.addEvent(new Event(t, Utils.parseTimestamp(TIMESTAMP_GROUPNAME), EventType.COMMIT));
+                dao.update(t);
                 break;
             default:
                 break;

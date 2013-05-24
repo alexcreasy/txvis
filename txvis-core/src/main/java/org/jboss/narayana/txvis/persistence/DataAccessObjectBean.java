@@ -85,9 +85,7 @@ public class DataAccessObjectBean implements DataAccessObject {
 
         final EntityManager em = emf.createEntityManager();
         try {
-            return (E) em.createQuery(query).setParameter("entityClass",
-                    entityClass.getSimpleName()).setParameter("field", field)
-                    .setParameter("vale", value).getSingleResult();
+            return (E) em.createQuery(query).setParameter("value", value).getSingleResult();
         } finally {
             em.close();
         }
@@ -169,6 +167,11 @@ public class DataAccessObjectBean implements DataAccessObject {
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public Transaction retrieveTransactionByTxUID(String TxUID) {
+        return retrieveByField(Transaction.class, "transactionId", TxUID);
     }
 
 

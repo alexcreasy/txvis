@@ -31,7 +31,7 @@ public class Transaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long getId() {
+    public Long getId() {
         return id;
     }
 

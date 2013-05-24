@@ -53,4 +53,6 @@ public interface DataAccessObject {
     <E> void deleteAll(Class<E> entityClass);
 
     <E> void create(E entity);
+
+    Transaction retrieveTransactionByTxUID(String TxUID);
 }
