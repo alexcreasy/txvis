@@ -28,6 +28,6 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.setParticipantVote(matcher.group(TX_ID_GROUPNAME), matcher.group(1), Vote.COMMIT);
+        dao.setParticipantVote(matcher.group(TX_ID), matcher.group(1), Vote.COMMIT);
     }
 }

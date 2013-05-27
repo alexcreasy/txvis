@@ -30,9 +30,9 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID_GROUPNAME));
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID));
         t.setStatus(Status.ROLLBACK_CLIENT);
-        t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME))));
+        t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
         dao.update(t);
     }
 }

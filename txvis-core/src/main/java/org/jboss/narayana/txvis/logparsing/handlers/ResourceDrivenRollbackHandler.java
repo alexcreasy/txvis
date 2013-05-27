@@ -15,7 +15,6 @@ import java.util.regex.Matcher;
  */
 public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
-   // 20:28:03,915 TRACE [com.arjuna.ats.arjuna] (pool-1-thread-1) BasicAction::phase2Abort() for action-id 0:ffff05974e0a:7540f300:517c26a8:1c
     /**
      * RegEx for parsing an resource abort vote
      *
@@ -31,10 +30,9 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-       //dao.setOutcome(matcher.group(TX_ID_GROUPNAME), Status.ROLLBACK_RESOURCE);
-       Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID_GROUPNAME));
+       Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID));
        t.setStatus(Status.ROLLBACK_RESOURCE);
-       t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME))));
+       t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
        dao.update(t);
     }
 }

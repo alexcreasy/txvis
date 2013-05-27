@@ -27,6 +27,6 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.setParticipantVote(matcher.group(TX_ID_GROUPNAME), matcher.group(2), Vote.ABORT);
+        dao.setParticipantVote(matcher.group(TX_ID), matcher.group(2), Vote.ABORT);
     }
 }

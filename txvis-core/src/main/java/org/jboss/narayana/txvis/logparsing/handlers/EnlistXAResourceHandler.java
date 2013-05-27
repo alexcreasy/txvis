@@ -22,16 +22,13 @@ public class EnlistXAResourceHandler extends AbstractHandler {
             + ",.+eis name[^>]+>,\\s.*?" + XA_RESOURCE_ID_PATTERN;
 
 
-    /**
-     *  "XAResourceRecord\.XAResourceRecord.+tx_uid=((?:-?[0-9a-fA-F^:]+:){4}-?[0-9a-fA-F]+),.+eis name[^>]+>,\s.*((?:[a-zA-Z0-9]+\.)+[a-zA-Z0-9]+@[0-9a-f]+)"
-     */
     public EnlistXAResourceHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.enlistParticipant(matcher.group(TX_ID_GROUPNAME), matcher.group(2));
+        dao.enlistParticipant(matcher.group(TX_ID), matcher.group(2));
     }
 
 }
