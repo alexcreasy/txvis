@@ -2,10 +2,12 @@ package org.jboss.narayana.txvis.persistence.entities;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -24,7 +26,11 @@ public class Transaction implements Serializable {
 
     protected Transaction() {}
 
-    public Transaction(String transactionId) {
+    public Transaction(String transactionId) throws IllegalArgumentException {
+        if (!transactionId.matches(AbstractHandler.TX_ID_PATTERN))
+            throw new IllegalArgumentException(MessageFormat.format
+                    ("Illegal transactionId: {0}", transactionId));
+
         this.transactionId = transactionId;
     }
 

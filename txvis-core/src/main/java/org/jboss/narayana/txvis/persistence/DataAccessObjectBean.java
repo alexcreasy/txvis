@@ -60,6 +60,10 @@ public class DataAccessObjectBean implements DataAccessObject {
         final EntityManager em = emf.createEntityManager();
         try {
             return em.find(entityClass, primaryKey);
+        } catch (NoResultException e) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "Could not retrieve Entity: {0} with primaryKey={1}",
+                    entityClass.getSimpleName(), primaryKey),e);
         } finally {
             em.close();
         }
@@ -81,11 +85,17 @@ public class DataAccessObjectBean implements DataAccessObject {
     @Override
     @SuppressWarnings("unchecked")
     public <E, V> E retrieveByField(Class<E> entityClass, String field, V value) {
-        final String query = "FROM " + entityClass.getSimpleName() + " e WHERE e." + field + "=:value";
+        final String query = MessageFormat.format(
+                "FROM {0} e WHERE e.{1}=:value", entityClass.getSimpleName(), field);
 
         final EntityManager em = emf.createEntityManager();
         try {
             return (E) em.createQuery(query).setParameter("value", value).getSingleResult();
+
+        } catch (NoResultException | NonUniqueResultException | NoSuchEntityException e) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "Could not retrieveByField: entityClass={0}, field={1}, value={2}",
+                    entityClass.getSimpleName(), field, value), e);
         } finally {
             em.close();
         }

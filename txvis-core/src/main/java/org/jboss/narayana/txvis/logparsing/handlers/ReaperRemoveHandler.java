@@ -23,7 +23,8 @@ import java.util.regex.Matcher;
 public class ReaperRemoveHandler extends AbstractHandler {
 
     public static final String REGEX =
-            "TransactionReaper::remove.*?BasicAction:\\s" + TX_ID_PATTERN + ".*?ActionStatus\\.(?<ACTIONSTATUS>[A-Z]+)";
+            TIMESTAMP_GROUPNAME + "TransactionReaper::remove.*?BasicAction:\\s" +
+                    TX_ID_PATTERN + ".*?ActionStatus\\.(?<ACTIONSTATUS>[A-Z]+)";
 
     public ReaperRemoveHandler() {
         super(REGEX);
@@ -35,10 +36,12 @@ public class ReaperRemoveHandler extends AbstractHandler {
         switch(matcher.group("ACTIONSTATUS")) {
 
             case "COMMITTED":
-                Transaction t = dao.retrieveTransactionByTxUID(TX_ID_GROUPNAME);
+                Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID_GROUPNAME));
                 t.setStatus(Status.COMMIT);
-                t.addEvent(new Event(t, Utils.parseTimestamp(TIMESTAMP_GROUPNAME), EventType.COMMIT));
+                t.addEvent(new Event(t, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME)), EventType.COMMIT));
                 dao.update(t);
+                break;
+            case "ABORT":
                 break;
             default:
                 break;

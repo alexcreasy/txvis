@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
 
 import java.util.regex.Pattern;
@@ -11,6 +12,8 @@ import java.util.regex.PatternSyntaxException;
  * Time: 13:56
  */
 public abstract class AbstractHandler implements Handler {
+
+    protected static final Logger logger = Logger.getLogger(Handler.class.getName());
 
     /*
      * Constants can be used as building blocks
@@ -80,4 +83,6 @@ public abstract class AbstractHandler implements Handler {
             throw new NullPointerException("instance of DataAccessObject required");
         this.dao = dao;
     }
+
+
 }

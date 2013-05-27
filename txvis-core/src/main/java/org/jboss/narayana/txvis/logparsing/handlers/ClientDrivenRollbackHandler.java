@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import java.util.regex.Matcher;
@@ -26,6 +27,8 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-       dao.setOutcome(matcher.group(TX_ID_GROUPNAME), Status.ROLLBACK_CLIENT);
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID_GROUPNAME));
+        t.setStatus(Status.ROLLBACK_CLIENT);
+        dao.update(t);
     }
 }

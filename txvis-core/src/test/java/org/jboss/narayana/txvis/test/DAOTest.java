@@ -124,20 +124,6 @@ public class DAOTest {
                 dao.getEnlistedParticipant(txID, ptID2).getVote());
     }
 
-
-//    @Test
-//    public void createTest() throws Exception {
-//        dao.deleteAll(Transaction.class);
-//
-//        Transaction t = new Transaction(idGen.getUniqueTxId());
-//        t.addEvent(new Event(t, new Timestamp(System.currentTimeMillis()), EventType.BEGIN));
-//        dao.create(t);
-//
-//
-//        assertEquals("Event not cascaded", 1, dao.retrieveAll(Event.class).size());
-//        assertEquals("Event not bound", 1, dao.retrieveAll(Transaction.class).get(0).getEvents().size());
-//    }
-
     @Test
     public void createAndRetrieveTest() throws Exception {
         final String txUID = idGen.getUniqueTxId();

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public final class LogParser implements TailerListener {
 
     private static final Logger logger = Logger.getLogger(LogParser.class.getName());
-    private final List<Handler> handlers = new LinkedList<Handler>();
+    private final List<Handler> handlers = new LinkedList<>();
     private Tailer tailer;
 
     // Enforce package-private constructor
