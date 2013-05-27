@@ -38,7 +38,7 @@ public class ReaperRemoveHandler extends AbstractHandler {
             case "COMMITTED":
                 Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID_GROUPNAME));
                 t.setStatus(Status.COMMIT);
-                t.addEvent(new Event(t, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME)), EventType.COMMIT));
+                t.addEvent(new Event(EventType.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME))));
                 dao.update(t);
                 break;
             case "ABORT":

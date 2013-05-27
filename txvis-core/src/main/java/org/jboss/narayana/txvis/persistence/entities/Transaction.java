@@ -79,6 +79,7 @@ public class Transaction implements Serializable {
     }
 
     public void addEvent(Event event) {
+        event.setTransaction(this);
         this.events.put(event.getEventType(), event);
     }
 

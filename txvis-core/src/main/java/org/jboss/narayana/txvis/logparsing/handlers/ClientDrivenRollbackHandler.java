@@ -1,6 +1,9 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.jboss.narayana.txvis.Utils;
+import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import java.util.regex.Matcher;
@@ -19,7 +22,7 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
      * 0: The whole matched portion of the log entry
      * 1: The Transaction ID
      */
-    public static final String REGEX = "BasicAction::Abort\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
+    public static final String REGEX =  TIMESTAMP_PATTEN + ".*?BasicAction::Abort\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
 
     public ClientDrivenRollbackHandler() {
         super(REGEX);
@@ -29,6 +32,7 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
     public void handle(Matcher matcher, String line) {
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID_GROUPNAME));
         t.setStatus(Status.ROLLBACK_CLIENT);
+        t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME))));
         dao.update(t);
     }
 }

@@ -26,11 +26,15 @@ public class Event implements Serializable {
 
     protected Event() {}
 
-    public Event(Transaction transaction, Timestamp timestamp,
-                 EventType eventType) {
+    public Event(Transaction transaction, EventType eventType, Timestamp timestamp) {
         this.transaction = transaction;
         this.timestamp = timestamp;
         this.eventType = eventType;
+    }
+
+    public Event(EventType eventType, Timestamp timestamp) {
+        this.eventType = eventType;
+        this.timestamp = timestamp;
     }
 
     public Long getId() {
@@ -47,5 +51,9 @@ public class Event implements Serializable {
 
     public Transaction getTransaction() {
         return transaction;
+    }
+
+    void setTransaction(Transaction t) {
+        this.transaction = transaction;
     }
 }

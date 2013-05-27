@@ -30,7 +30,8 @@ public final class BeginTxHandler extends AbstractHandler {
     @Override
     public void handle(Matcher matcher, String line) {
         Transaction t = new Transaction(matcher.group(TX_ID_GROUPNAME));
-        t.addEvent(new Event(t, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME)), EventType.BEGIN));
+        //t.addEvent(new Event(t, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME)), EventType.BEGIN));
+        t.addEvent(new Event(EventType.BEGIN, Utils.parseTimestamp(matcher.group(TIMESTAMP_GROUPNAME))));
         dao.create(t);
     }
 }
