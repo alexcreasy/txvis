@@ -1,8 +1,7 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.persistence.*;
@@ -18,11 +17,23 @@ import java.util.*;
 @Entity
 public class Transaction implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
     private String transactionId;
+
+    @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
-    private Collection<Participant> participants = new HashSet<>();
-    private Collection<Event> events = new LinkedList<>();
+
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Collection<ParticipantRecord> participantRecords = new HashSet<>();
+
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @MapKey(name="eventType")
+    private Map<EventType, Event> events = new HashMap<>();
+
 
     protected Transaction() {}
 
@@ -34,27 +45,14 @@ public class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
 
-    protected void setId(Long id) {
-        this.id = id;
-    }
-
-    @Column(unique = true)
     public String getTransactionId() {
         return this.transactionId;
     }
 
-    protected void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    @Enumerated(EnumType.STRING)
     public Status getStatus() {
         return this.status;
     }
@@ -63,32 +61,25 @@ public class Transaction implements Serializable {
         this.status = status;
     }
 
-    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    public Collection<Participant> getParticipants() {
-        return this.participants;
+    //@OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    //@Fetch(value = FetchMode.SUBSELECT)
+    public Collection<ParticipantRecord> getParticipantRecords() {
+        return this.participantRecords;
     }
 
-    protected void setParticipants(Collection<Participant> participants) {
-        this.participants = participants;
+    public void addParticipant(ParticipantRecord participantRecord) {
+        this.participantRecords.add(participantRecord);
     }
 
-    public void addParticipant(Participant participant) {
-        this.participants.add(participant);
-    }
-
-    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    public Collection<Event> getEvents() {
+//    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @MapKey(name="eventType")
+    //@Fetch(value = FetchMode.SUBSELECT)
+    public Map<EventType, Event> getEvents() {
         return events;
     }
 
-    protected void setEvents(Collection<Event> events) {
-        this.events = events;
-    }
-
     public void addEvent(Event event) {
-        this.events.add(event);
+        this.events.put(event.getEventType(), event);
     }
 
     @Override
@@ -96,7 +87,7 @@ public class Transaction implements Serializable {
         StringBuilder result = new StringBuilder();
         result.append("Tx ID: ").append(transactionId);
 
-        for (Participant p : participants) {
+        for (ParticipantRecord p : participantRecords) {
             result.append("\n\t").append(p);
         }
         return result.toString();

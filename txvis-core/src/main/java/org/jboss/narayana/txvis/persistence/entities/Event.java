@@ -15,11 +15,16 @@ import java.util.Date;
 @Entity
 public class Event implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne
     private Transaction transaction;
     private Timestamp timestamp;
+    @Enumerated(EnumType.STRING)
     private EventType eventType;
 
+    protected Event() {}
 
     public Event(Transaction transaction, Timestamp timestamp,
                  EventType eventType) {
@@ -28,8 +33,6 @@ public class Event implements Serializable {
         this.eventType = eventType;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
@@ -37,35 +40,12 @@ public class Event implements Serializable {
     public Timestamp getTimestamp() {
         return timestamp;
     }
-    @Enumerated(EnumType.STRING)
+
     public EventType getEventType() {
         return eventType;
     }
 
-    @ManyToOne
     public Transaction getTransaction() {
         return transaction;
-    }
-
-
-    /*
-     * Methods for container
-     */
-    protected Event() {}
-
-    protected void setId(Long id) {
-        this.id = id;
-    }
-
-    protected void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    protected void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
-    }
-
-    protected void setEventType(EventType eventType) {
-        this.eventType = eventType;
     }
 }

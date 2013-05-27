@@ -4,7 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.LogMonitorBean;
 import org.jboss.narayana.txvis.persistence.*;
-import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
@@ -84,8 +84,8 @@ public class BasicIntegrationTest {
         }
 
         for (Transaction t : dao.retrieveAll()) {
-            for (Participant p : t.getParticipants())
-                assertEquals("Participant " + p.getResourceId() + " did not report the correct vote", Vote.COMMIT,
+            for (ParticipantRecord p : t.getParticipantRecords())
+                assertEquals("ParticipantRecord " + p.getResourceId() + " did not report the correct vote", Vote.COMMIT,
                         p.getVote());
         }
     }
@@ -115,7 +115,7 @@ public class BasicIntegrationTest {
 
         for (Transaction t : dao.retrieveAll()) {
             int abortVotes = 0;
-            for (Participant p : t.getParticipants()) {
+            for (ParticipantRecord p : t.getParticipantRecords()) {
                 if (p.getVote().equals(Vote.ABORT))
                     abortVotes++;
             }

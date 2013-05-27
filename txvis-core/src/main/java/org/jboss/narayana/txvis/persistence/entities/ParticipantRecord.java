@@ -11,50 +11,37 @@ import java.io.Serializable;
  * Time: 15:26
  */
 @Entity
-public class Participant implements Serializable {
+public class ParticipantRecord implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne
     private Transaction transaction;
     private String resourceId;
+    @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
 
 
-    protected Participant() {}
+    protected ParticipantRecord() {}
 
-    public Participant(Transaction transaction, String resourceId) {
+    public ParticipantRecord(Transaction transaction, String resourceId) {
         this.transaction = transaction;
         this.resourceId = resourceId;
     }
 
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return this.id;
     }
 
-    private void setId(Long id) {
-        this.id = id;
-    }
-
-    @ManyToOne
     public Transaction getTransaction() {
         return this.transaction;
-    }
-
-    private void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
     }
 
     public String getResourceId() {
         return this.resourceId;
     }
 
-    private void setResourceId(String resourceId) {
-        this.resourceId = resourceId;
-    }
-
-    @Enumerated(EnumType.STRING)
     public Vote getVote() {
         return this.vote;
     }

@@ -1,12 +1,11 @@
 package org.jboss.narayana.txvis.persistence;
 
-import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.Local;
-import javax.persistence.Entity;
 import java.util.Collection;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public interface DataAccessObject {
 
     void enlistParticipant(String transactionId, String resourceId);
 
-    Participant getEnlistedParticipant(String transactionId, String resourceId);
+    ParticipantRecord getEnlistedParticipant(String transactionId, String resourceId);
 
     void setOutcome(String transactionId, Status outcome);
 

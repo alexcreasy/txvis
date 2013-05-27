@@ -3,9 +3,7 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.*;
-import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.test.utils.UniqueIdGenerator;
@@ -20,7 +18,6 @@ import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
 import java.io.File;
-import java.sql.Timestamp;
 
 import static junit.framework.Assert.*;
 
@@ -83,7 +80,7 @@ public class DAOTest {
         assertEquals(dao.getEnlistedParticipant(txID, ptID1).getResourceId(), ptID1);
         assertEquals(dao.getEnlistedParticipant(txID, ptID2).getResourceId(), ptID2);
 
-        assertEquals(2, dao.retrieve(txID).getParticipants().size());
+        assertEquals(2, dao.retrieve(txID).getParticipantRecords().size());
     }
 
     @Test
@@ -117,10 +114,10 @@ public class DAOTest {
         dao.setParticipantVote(txID, ptID1, Vote.COMMIT);
         dao.setParticipantVote(txID, ptID2, Vote.ABORT);
 
-        assertEquals("Participant did not report correct vote", Vote.COMMIT,
+        assertEquals("ParticipantRecord did not report correct vote", Vote.COMMIT,
                 dao.getEnlistedParticipant(txID, ptID1).getVote());
 
-        assertEquals("Participant did not report correct vote", Vote.ABORT,
+        assertEquals("ParticipantRecord did not report correct vote", Vote.ABORT,
                 dao.getEnlistedParticipant(txID, ptID2).getVote());
     }
 

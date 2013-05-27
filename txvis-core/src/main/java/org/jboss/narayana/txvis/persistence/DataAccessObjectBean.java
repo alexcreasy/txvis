@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
-import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
@@ -363,7 +363,7 @@ public class DataAccessObjectBean implements DataAccessObject {
         try {
             final boolean notActive = !em.getTransaction().isActive();
             final Transaction t = retrieve(transactionId);
-            t.addParticipant(new Participant(t, resourceId));
+            t.addParticipant(new ParticipantRecord(t, resourceId));
 
             if (notActive)
                 em.getTransaction().begin();
@@ -387,19 +387,19 @@ public class DataAccessObjectBean implements DataAccessObject {
     }
 
     @Override
-    public Participant getEnlistedParticipant(String transactionId, String resourceId) {
+    public ParticipantRecord getEnlistedParticipant(String transactionId, String resourceId) {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
         if (resourceId.trim().isEmpty())
             throw new IllegalArgumentException("Empty resourceID");
 
-        final String s = "FROM " + Participant.class.getSimpleName()
+        final String s = "FROM " + ParticipantRecord.class.getSimpleName()
                 + " e WHERE e.transaction.transactionId=:transactionId AND e.resourceId=:resourceId";
 
         final EntityManager em = emf.createEntityManager();
         try {
 
-            return (Participant) em.createQuery(s).setParameter("transactionId", transactionId)
+            return (ParticipantRecord) em.createQuery(s).setParameter("transactionId", transactionId)
                     .setParameter("resourceId", resourceId).getSingleResult();
         } finally {
             em.close();
@@ -455,7 +455,7 @@ public class DataAccessObjectBean implements DataAccessObject {
         try {
             final boolean notActive = !em.getTransaction().isActive();
 
-            final Participant p = getEnlistedParticipant(transactionId, resourceId);
+            final ParticipantRecord p = getEnlistedParticipant(transactionId, resourceId);
             p.setVote(vote);
 
             if (notActive)
