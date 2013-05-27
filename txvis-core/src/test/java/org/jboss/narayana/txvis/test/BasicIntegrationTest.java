@@ -4,6 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.LogMonitorBean;
 import org.jboss.narayana.txvis.persistence.*;
+import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -69,21 +70,21 @@ public class BasicIntegrationTest {
     @Before
     public void setup() throws Exception {
         txUtil = new TransactionUtil();
-        dao.deleteAll();
+        dao.deleteAll(Transaction.class);
     }
 
     @Test
     public void clientDrivenCommitTest() throws Exception {
         createAndLogTransactions(Status.COMMIT);
 
-        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll().size());
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
 
-        for (Transaction t : dao.retrieveAll()) {
+        for (Transaction t : dao.retrieveAll(Transaction.class)) {
             assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.COMMIT,
                     dao.retrieve(t.getTransactionId()).getStatus());
         }
 
-        for (Transaction t : dao.retrieveAll()) {
+        for (Transaction t : dao.retrieveAll(Transaction.class)) {
             for (ParticipantRecord p : t.getParticipantRecords())
                 assertEquals("ParticipantRecord " + p.getResourceId() + " did not report the correct vote", Vote.COMMIT,
                         p.getVote());
@@ -94,9 +95,9 @@ public class BasicIntegrationTest {
     public void clientDrivenRollbackTest() throws Exception {
         createAndLogTransactions(Status.ROLLBACK_CLIENT);
 
-        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll().size());
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
 
-        for (Transaction t : dao.retrieveAll()) {
+        for (Transaction t : dao.retrieveAll(Transaction.class)) {
             assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.ROLLBACK_CLIENT,
                     dao.retrieve(t.getTransactionId()).getStatus());
         }
@@ -106,14 +107,14 @@ public class BasicIntegrationTest {
     public void resourceDrivenRollbackTest() throws Exception {
         createAndLogTransactions(Status.ROLLBACK_RESOURCE);
 
-        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll().size());
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
 
-        for (Transaction t : dao.retrieveAll()) {
+        for (Transaction t : dao.retrieveAll(Transaction.class)) {
             assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status",
                     Status.ROLLBACK_RESOURCE, dao.retrieve(t.getTransactionId()).getStatus());
         }
 
-        for (Transaction t : dao.retrieveAll()) {
+        for (Transaction t : dao.retrieveAll(Transaction.class)) {
             int abortVotes = 0;
             for (ParticipantRecord p : t.getParticipantRecords()) {
                 if (p.getVote().equals(Vote.ABORT))
