@@ -18,8 +18,8 @@ public class EnlistXAResourceHandler extends AbstractHandler {
      * 2: The Resource ID
      */
 
-    public static final String REGEX = "XAResourceRecord\\.XAResourceRecord.+tx_uid=" + TX_ID_PATTERN
-            + ",.+eis name[^>]+>,\\s.*?" + XA_RESOURCE_ID_PATTERN;
+    public static final String REGEX = "XAResourceRecord\\.XAResourceRecord.+tx_uid=" + PATTERN_TXID
+            + ",.+eis name[^>]+>,\\s.*?" + PATTERN_RESOURCEID;
 
 
     public EnlistXAResourceHandler() {
@@ -28,7 +28,7 @@ public class EnlistXAResourceHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.enlistParticipant(matcher.group(TX_ID), matcher.group(2));
+        dao.enlistParticipant(matcher.group(TXID), matcher.group(2));
     }
 
 }

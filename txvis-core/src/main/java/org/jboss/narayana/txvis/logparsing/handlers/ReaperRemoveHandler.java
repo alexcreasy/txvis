@@ -24,7 +24,7 @@ public class ReaperRemoveHandler extends AbstractHandler {
 
     public static final String REGEX =
             TIMESTAMP + "TransactionReaper::remove.*?BasicAction:\\s" +
-                    TX_ID_PATTERN + ".*?ActionStatus\\.(?<ACTIONSTATUS>[A-Z]+)";
+                    PATTERN_TXID + ".*?ActionStatus\\.(?<ACTIONSTATUS>[A-Z]+)";
 
     public ReaperRemoveHandler() {
         super(REGEX);
@@ -36,7 +36,7 @@ public class ReaperRemoveHandler extends AbstractHandler {
         switch(matcher.group("ACTIONSTATUS")) {
 
             case "COMMITTED":
-                Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID));
+                Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
                 t.setStatus(Status.COMMIT);
                 t.addEvent(new Event(EventType.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
                 dao.update(t);

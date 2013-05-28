@@ -38,7 +38,7 @@ public class Transaction implements Serializable {
     protected Transaction() {}
 
     public Transaction(String transactionId) throws IllegalArgumentException {
-        if (!transactionId.matches(AbstractHandler.TX_ID_PATTERN))
+        if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
             throw new IllegalArgumentException(MessageFormat.format
                     ("Illegal transactionId: {0}", transactionId));
 

@@ -482,7 +482,7 @@ public class DataAccessObjectBean implements DataAccessObject {
 
 
     private boolean validateTxId(String txId) throws NullPointerException {
-        return txId.matches(AbstractHandler.TX_ID_PATTERN);
+        return txId.matches(AbstractHandler.PATTERN_TXID);
     }
 
 }

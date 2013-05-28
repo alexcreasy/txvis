@@ -31,29 +31,29 @@ public abstract class AbstractHandler implements Handler {
     /**
      *
      */
-    public static final String TIMESTAMP_PATTEN =
+    public static final String PATTERN_TIMESTAMP =
             "^(?<" + TIMESTAMP + ">\\d{2}:\\d{2}:\\d{2},\\d{3})";
 
     /**
      *
      */
-    public static final String TX_ID = "TXID";
+    public static final String TXID = "TXID";
 
     /**
      *
      */
-    public static final String TX_ID_PATTERN =
-            "(?<" + TX_ID + ">(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+)";
+    public static final String PATTERN_TXID =
+            "(?<" + TXID + ">(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+)";
     /**
      *
      */
-    public static final String XA_RESOURCE_ID = "XARESOURCEID";
+    public static final String RESOURCEID = "XARESOURCEID";
 
     /**
      *
      */
-    public static final String XA_RESOURCE_ID_PATTERN =
-            "(?<" + XA_RESOURCE_ID + ">(?:\\w+\\.)+\\w+@[0-9a-f]+)";
+    public static final String PATTERN_RESOURCEID =
+            "(?<" + RESOURCEID + ">(?:\\w+\\.)+\\w+@[0-9a-f]+)";
 
 
 

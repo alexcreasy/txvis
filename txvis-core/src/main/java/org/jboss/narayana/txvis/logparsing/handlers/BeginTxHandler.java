@@ -21,7 +21,7 @@ public final class BeginTxHandler extends AbstractHandler {
      * 1: The Transaction ID
      */
     public static final String REGEX =
-            TIMESTAMP_PATTEN + ".*?BasicAction::Begin\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
+            PATTERN_TIMESTAMP + ".*?BasicAction::Begin\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
 
     public BeginTxHandler() {
         super(REGEX);
@@ -29,7 +29,7 @@ public final class BeginTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        Transaction t = new Transaction(matcher.group(TX_ID));
+        Transaction t = new Transaction(matcher.group(TXID));
         //t.addEvent(new Event(t, Utils.parseTimestamp(matcher.group(TIMESTAMP)), EventType.BEGIN));
         t.addEvent(new Event(EventType.BEGIN, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
         dao.create(t);

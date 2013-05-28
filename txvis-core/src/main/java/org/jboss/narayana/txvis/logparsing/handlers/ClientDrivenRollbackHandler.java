@@ -22,7 +22,7 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
      * 0: The whole matched portion of the log entry
      * 1: The Transaction ID
      */
-    public static final String REGEX =  TIMESTAMP_PATTEN + ".*?BasicAction::Abort\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
+    public static final String REGEX =  PATTERN_TIMESTAMP + ".*?BasicAction::Abort\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
 
     public ClientDrivenRollbackHandler() {
         super(REGEX);
@@ -30,7 +30,7 @@ public class ClientDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID));
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
         t.setStatus(Status.ROLLBACK_CLIENT);
         t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
         dao.update(t);

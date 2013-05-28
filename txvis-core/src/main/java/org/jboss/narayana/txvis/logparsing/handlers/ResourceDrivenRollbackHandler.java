@@ -21,8 +21,8 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
      * Group 0: Whole matched part of string
      * Group 1: Transaction ID
      */
-    public static final String REGEX = TIMESTAMP_PATTEN +
-            ".*?BasicAction::phase2Abort\\(\\)\\sfor\\saction-id\\s" + TX_ID_PATTERN;
+    public static final String REGEX = PATTERN_TIMESTAMP +
+            ".*?BasicAction::phase2Abort\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
 
     public ResourceDrivenRollbackHandler() {
         super(REGEX);
@@ -30,7 +30,7 @@ public class ResourceDrivenRollbackHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-       Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TX_ID));
+       Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
        t.setStatus(Status.ROLLBACK_RESOURCE);
        t.addEvent(new Event(EventType.ABORT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
        dao.update(t);

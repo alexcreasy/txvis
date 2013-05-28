@@ -20,7 +20,7 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
      */
     public static final String REGEX =
             "XAResourceRecord.topLevelPrepare\\sfor\\sXAResourceRecord\\s<\\sresource:([^,]+).*tx_uid="
-            + TX_ID_PATTERN + ",.*TwoPhaseOutcome.FINISH_OK";
+            + PATTERN_TXID + ",.*TwoPhaseOutcome.FINISH_OK";
 
     public ResourceVoteCommitHandler() {
         super(REGEX);
@@ -28,6 +28,6 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        dao.setParticipantVote(matcher.group(TX_ID), matcher.group(1), Vote.COMMIT);
+        dao.setParticipantVote(matcher.group(TXID), matcher.group(1), Vote.COMMIT);
     }
 }
