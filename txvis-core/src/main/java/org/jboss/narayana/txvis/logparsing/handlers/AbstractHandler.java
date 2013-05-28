@@ -83,6 +83,4 @@ public abstract class AbstractHandler implements Handler {
             throw new NullPointerException("instance of DataAccessObject required");
         this.dao = dao;
     }
-
-
 }
