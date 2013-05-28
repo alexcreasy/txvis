@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
+import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
 /**
@@ -23,7 +24,7 @@ import java.util.regex.Matcher;
 public class ReaperRemoveHandler extends AbstractHandler {
 
     public static final String REGEX =
-            TIMESTAMP + "TransactionReaper::remove.*?BasicAction:\\s" +
+            TIMESTAMP + ".*?TransactionReaper::remove.*?BasicAction:\\s" +
                     PATTERN_TXID + ".*?ActionStatus\\.(?<ACTIONSTATUS>[A-Z]+)";
 
     public ReaperRemoveHandler() {
@@ -32,13 +33,14 @@ public class ReaperRemoveHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
+        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
 
         switch(matcher.group("ACTIONSTATUS")) {
-
             case "COMMITTED":
                 Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
                 t.setStatus(Status.COMMIT);
-                t.addEvent(new Event(EventType.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
+                t.addEvent(new Event(EventType.COMMIT, timestamp));
+                t.setEndTime(timestamp);
                 dao.update(t);
                 break;
             case "ABORT":

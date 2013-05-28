@@ -1,11 +1,14 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -27,21 +30,23 @@ public class Transaction implements Serializable {
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
 
+    private Long startTime;
+
+    private Long endTime;
+
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @MapKey(name="eventType")
-    private Map<EventType, Event> events = new HashMap<>();
-
+    @Fetch(value = FetchMode.SUBSELECT)
+    private Collection<Event> events = new HashSet<>();
 
     protected Transaction() {}
 
     public Transaction(String transactionId) throws IllegalArgumentException {
         if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
-            throw new IllegalArgumentException(MessageFormat.format
-                    ("Illegal transactionId: {0}", transactionId));
-
+            throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
         this.transactionId = transactionId;
     }
 
@@ -61,8 +66,22 @@ public class Transaction implements Serializable {
         this.status = status;
     }
 
-    //@OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    //@Fetch(value = FetchMode.SUBSELECT)
+    public Timestamp getStartTime() {
+        return new Timestamp(startTime);
+    }
+
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime.getTime();
+    }
+
+    public Timestamp getEndTime() {
+        return new Timestamp(endTime);
+    }
+
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime.getTime();
+    }
+
     public Collection<ParticipantRecord> getParticipantRecords() {
         return this.participantRecords;
     }
@@ -71,16 +90,19 @@ public class Transaction implements Serializable {
         this.participantRecords.add(participantRecord);
     }
 
-//    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @MapKey(name="eventType")
-    //@Fetch(value = FetchMode.SUBSELECT)
-    public Map<EventType, Event> getEvents() {
+    public Collection<Event> getEvents() {
         return events;
     }
 
     public void addEvent(Event event) {
+        this.events.add(event);
         event.setTransaction(this);
-        this.events.put(event.getEventType(), event);
+    }
+
+    public long getDuration() {
+        return status.equals(Status.IN_FLIGHT)
+                ? System.currentTimeMillis() - startTime
+                : endTime - startTime;
     }
 
     @Override

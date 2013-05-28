@@ -2,11 +2,13 @@ package org.jboss.narayana.txvis.webapp.models;
 
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -15,7 +17,7 @@ import java.util.Collection;
  * Date: 08/05/2013
  * Time: 16:13
  */
-@Model
+@Named
 public class TransactionModel implements Serializable {
 
     @Inject
@@ -32,14 +34,8 @@ public class TransactionModel implements Serializable {
         return allTransactions;
     }
 
-    public Transaction getTransaction(String transactionId) {
-        return dao.retrieve(transactionId);
+    public Status[] getStatuses() {
+        return Status.values();
     }
-
-    private void setTransactions(Collection<Transaction> allTransactions) {
-        this.allTransactions = allTransactions;
-    }
-
-
 
 }

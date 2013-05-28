@@ -43,7 +43,7 @@ public abstract class AbstractHandler implements Handler {
      *
      */
     public static final String PATTERN_TXID =
-            "(?<" + TXID + ">(?:-?[0-9a-f^:]+:){4}-?[0-9a-f]+)";
+            "(?<" + TXID + ">(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
     /**
      *
      */
@@ -80,7 +80,7 @@ public abstract class AbstractHandler implements Handler {
 
     public void injectDAO(DataAccessObject dao) throws NullPointerException {
         if (dao == null)
-            throw new NullPointerException("instance of DataAccessObject required");
+            throw new NullPointerException("Method called with null parameter: dao");
         this.dao = dao;
     }
 }

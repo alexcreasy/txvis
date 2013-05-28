@@ -27,7 +27,7 @@ public final class LogParser implements TailerListener {
 
     void addHandler(Handler lineHandler) throws NullPointerException {
         if (lineHandler == null)
-            throw new NullPointerException("null param lineHandler");
+            throw new NullPointerException("Method called with null parameter: lineHandler");
         handlers.add(lineHandler);
     }
 
@@ -48,9 +48,6 @@ public final class LogParser implements TailerListener {
 
     @Override
     public void init(Tailer tailer) {
-//        if (this.tailer != null)
-//            throw new RuntimeException("Multiple tailers attempting to use LogParser");
-
         this.tailer = tailer;
     }
 

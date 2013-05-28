@@ -54,4 +54,7 @@ public interface DataAccessObject {
     <E> void create(E entity);
 
     Transaction retrieveTransactionByTxUID(String TxUID);
+
+    @SuppressWarnings("unchecked")
+    List<Transaction> retrieveTransactionsWithStatus(Status status);
 }

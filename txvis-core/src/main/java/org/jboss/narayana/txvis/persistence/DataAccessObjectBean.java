@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -179,10 +180,42 @@ public class DataAccessObjectBean implements DataAccessObject {
         }
     }
 
+
+
+
+
+
+
+
     @Override
     public Transaction retrieveTransactionByTxUID(String TxUID) {
         return retrieveByField(Transaction.class, "transactionId", TxUID);
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Transaction> retrieveTransactionsWithStatus(Status status) {
+        final String s = "FROM " + Transaction.class.getSimpleName() + " e WHERE status=:status";
+
+        final EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(s).setParameter("status", status).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -53,7 +53,7 @@ public class Event implements Serializable {
         return transaction;
     }
 
-    void setTransaction(Transaction t) {
+    public void setTransaction(Transaction t) {
         this.transaction = transaction;
     }
 }

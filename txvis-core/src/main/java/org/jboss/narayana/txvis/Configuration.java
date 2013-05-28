@@ -19,14 +19,15 @@ public final class Configuration {
     public static final int LOGFILE_POLL_INTERVAL = 500;
 
     public static final Class[] LOG_HANDLERS = new Class[] {
+            BasicActionHandler.class,
 //            EnlistXAResourceHandler.class,
 //            ResourceVoteAbortHandler.class,
 //            ResourceVoteCommitHandler.class,
-            BeginTxHandler.class,
+//            BeginTxHandler.class,
             CommitTxHandler.class,
-            ClientDrivenRollbackHandler.class,
-            ResourceDrivenRollbackHandler.class,
-            ReaperRemoveHandler.class,
+//            ClientDrivenRollbackHandler.class,
+//            ResourceDrivenRollbackHandler.class,
+//            ReaperRemoveHandler.class,
     };
 
     public static final String PERSISTENCE_CONTEXT = "org.jboss.narayana.txvis";

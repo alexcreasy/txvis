@@ -26,7 +26,7 @@ public class LogParserFactory {
             throw new IllegalStateException("Cannot instantiate LogParser: Configuration.LOG_HANDLERS is empty");
 
         if (dao == null)
-            throw new NullPointerException("DataAccessObject required");
+            throw new NullPointerException("Method called with null parameter: dao");
 
         final LogParser logParser = new LogParser();
 

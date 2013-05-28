@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
+import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
 /**
@@ -30,9 +31,11 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
+        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
         t.setStatus(Status.COMMIT);
-        t.addEvent(new Event(EventType.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP))));
+        t.addEvent(new Event(EventType.COMMIT, timestamp));
+        t.setEndTime(timestamp);
         dao.update(t);
     }
 

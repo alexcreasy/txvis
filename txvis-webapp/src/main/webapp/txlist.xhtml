@@ -14,19 +14,28 @@
        <div class="page-header">
            <h1>Transaction Visualization Tool</h1>
        </div>
+       <h:form>
+           <div>
 
-       <h2>Transactions</h2>
-       <h:dataTable value="#{transactionModel.allTransactions}" var="transaction"
-                    styleClass="table table-striped">
-           <h:column>
-               <f:facet name="header">Transaction ID</f:facet>
-               #{transaction.transactionId}
-           </h:column>
-           <h:column>
-               <f:facet name="header">Status</f:facet>
-               #{transaction.status}
-           </h:column>
-       </h:dataTable>
+           </div>
+           <div>
+               <h:dataTable value="#{transactionModel.allTransactions}" var="transaction"
+                            styleClass="table table-striped">
+                   <h:column>
+                       <f:facet name="header">Transaction ID</f:facet>
+                       #{transaction.transactionId}
+                   </h:column>
+                   <h:column>
+                       <f:facet name="header">Status</f:facet>
+                       #{transaction.status}
+                   </h:column>
+                   <h:column>
+                       <f:facet name="header">Duration</f:facet>
+                       #{transaction.duration}
+                   </h:column>
+               </h:dataTable>
+           </div>
+       </h:form>
    </div>
 
     <h:outputScript library="js" name="jquery-1.9.1.min.js" />

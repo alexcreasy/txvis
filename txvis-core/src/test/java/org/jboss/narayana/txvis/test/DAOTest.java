@@ -159,4 +159,46 @@ public class DAOTest {
         assertEquals("Retrieved transaction entity did not report correct status",
                 Status.COMMIT, t.getStatus());
     }
+
+    @Test
+    public void retrieveAllTest() throws Exception {
+
+    }
+
+    @Test
+    public void deleteTest() throws Exception {
+
+    }
+
+    @Test
+    public void deleteAllTest() throws Exception {
+
+    }
+
+
+    @Test
+    public void retrieveTransactionsWithStatusTest() throws Exception {
+        dao.deleteAll(Transaction.class);
+        final String[] txUIDs = new String[4];
+
+        final Transaction[] txs = new Transaction[4];
+
+        for (int i = 0; i < txUIDs.length; i++) {
+            txUIDs[i] = idGen.getUniqueTxId();
+            txs[i] = new Transaction(txUIDs[i]);
+        }
+
+        txs[0].setStatus(Status.COMMIT);
+        txs[1].setStatus(Status.COMMIT);
+        txs[2].setStatus(Status.ROLLBACK_RESOURCE);
+        txs[3].setStatus(Status.ROLLBACK_RESOURCE);
+
+        for (int i = 0; i < txs.length; i++)
+            dao.create(txs[i]);
+
+        assertEquals("Incorrect number of Transaction objects with Status.COMMIT", 2,
+                dao.retrieveTransactionsWithStatus(Status.COMMIT).size());
+        assertEquals("Incorrect number of Transaction objects with Status.ROLLBACK_RESOURCE", 2,
+                dao.retrieveTransactionsWithStatus(Status.ROLLBACK_RESOURCE).size());
+    }
 }
