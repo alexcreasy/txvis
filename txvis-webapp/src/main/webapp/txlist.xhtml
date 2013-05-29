@@ -14,12 +14,18 @@
        <div class="page-header">
            <h1>Transaction Visualization Tool</h1>
        </div>
-       <h:form>
+       <h:form class="form-inline">
            <div>
-
+               <h4>Filter</h4>
+               <h:outputLabel for="filterByStatus" value="By Status:" />
+               <h:selectOneMenu id="filterByStatus" value="#{transactionListBean.filterByStatus}" >
+                   <f:selectItem itemLabel="ALL" itemValue="" />
+                   <f:selectItems value="#{transactionListBean.statuses}" />
+               </h:selectOneMenu>
+               <h:commandButton value="Filter" action="result" />
            </div>
            <div>
-               <h:dataTable value="#{transactionListBean.allTransactions}" var="transaction"
+               <h:dataTable value="#{transactionListBean.transactionsList}" var="transaction"
                             styleClass="table table-striped">
                    <h:column>
                        <f:facet name="header">Transaction ID</f:facet>

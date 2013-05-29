@@ -9,6 +9,7 @@ import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.io.Serializable;
 import java.text.MessageFormat;
 
 /**
@@ -20,7 +21,7 @@ import java.text.MessageFormat;
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class EntityManagerProviderBean {
+public class EntityManagerProviderBean implements Serializable {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private EntityManagerFactory emf;

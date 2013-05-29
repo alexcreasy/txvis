@@ -24,7 +24,7 @@ public class BasicActionHandler extends AbstractHandler {
 
 
     public static final String REGEX =
-            PATTERN_TIMESTAMP + ".*?BasicAction::(?<BASICACTION>Begin|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
+            PATTERN_TIMESTAMP + ".*?BasicAction::(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
 
     public BasicActionHandler() {
         super(REGEX);
@@ -35,6 +35,8 @@ public class BasicActionHandler extends AbstractHandler {
         switch (matcher.group("BASICACTION")) {
             case "Begin":
                 begin(matcher);
+                break;
+            case "End":
                 break;
             case "Abort":
                 abort(matcher);

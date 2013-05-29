@@ -9,6 +9,7 @@ import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Map;
 @DependsOn("EntityManagerProviderBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class DataAccessObjectBean implements DataAccessObject {
+public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @EJB
     private EntityManagerProviderBean emf;

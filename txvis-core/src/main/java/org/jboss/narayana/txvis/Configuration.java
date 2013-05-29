@@ -27,7 +27,7 @@ public final class Configuration {
             CommitTxHandler.class,
 //            ClientDrivenRollbackHandler.class,
 //            ResourceDrivenRollbackHandler.class,
-//            ReaperRemoveHandler.class,
+            ReaperHandler.class,
     };
 
     public static final String PERSISTENCE_CONTEXT = "org.jboss.narayana.txvis";
