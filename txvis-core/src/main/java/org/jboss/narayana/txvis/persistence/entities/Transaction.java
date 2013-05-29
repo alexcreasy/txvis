@@ -44,7 +44,8 @@ public class Transaction implements Serializable {
 
     protected Transaction() {}
 
-    public Transaction(String transactionId) throws IllegalArgumentException {
+    public Transaction(String transactionId) throws NullPointerException,
+            IllegalArgumentException {
         if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
             throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
         this.transactionId = transactionId;
@@ -83,7 +84,7 @@ public class Transaction implements Serializable {
     }
 
     public Collection<ParticipantRecord> getParticipantRecords() {
-        return this.participantRecords;
+        return Collections.unmodifiableCollection(participantRecords);
     }
 
     public void addParticipant(ParticipantRecord participantRecord) {
@@ -91,7 +92,7 @@ public class Transaction implements Serializable {
     }
 
     public Collection<Event> getEvents() {
-        return events;
+        return Collections.unmodifiableCollection(events);
     }
 
     public void addEvent(Event event) {

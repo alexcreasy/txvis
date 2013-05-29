@@ -77,8 +77,8 @@ public class DAOTest {
         assertNotNull(dao.getEnlistedParticipant(txID, ptID1));
         assertNotNull(dao.getEnlistedParticipant(txID, ptID2));
 
-        assertEquals(dao.getEnlistedParticipant(txID, ptID1).getResourceId(), ptID1);
-        assertEquals(dao.getEnlistedParticipant(txID, ptID2).getResourceId(), ptID2);
+        assertEquals(dao.getEnlistedParticipant(txID, ptID1).getResourceRecordId(), ptID1);
+        assertEquals(dao.getEnlistedParticipant(txID, ptID2).getResourceRecordId(), ptID2);
 
         assertEquals(2, dao.retrieve(txID).getParticipantRecords().size());
     }

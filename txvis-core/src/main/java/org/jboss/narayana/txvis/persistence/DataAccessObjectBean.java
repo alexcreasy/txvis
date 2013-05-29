@@ -420,20 +420,20 @@ public class DataAccessObjectBean implements DataAccessObject {
     }
 
     @Override
-    public ParticipantRecord getEnlistedParticipant(String transactionId, String resourceId) {
+    public ParticipantRecord getEnlistedParticipant(String transactionId, String resourceRecordId) {
         if (!validateTxId(transactionId))
             throw new IllegalArgumentException("Illegal transactionID");
-        if (resourceId.trim().isEmpty())
+        if (resourceRecordId.trim().isEmpty())
             throw new IllegalArgumentException("Empty resourceID");
 
         final String s = "FROM " + ParticipantRecord.class.getSimpleName()
-                + " e WHERE e.transaction.transactionId=:transactionId AND e.resourceId=:resourceId";
+                + " e WHERE e.transaction.transactionId=:transactionId AND e.resourceRecordId=:resourceRecordId";
 
         final EntityManager em = emf.createEntityManager();
         try {
 
             return (ParticipantRecord) em.createQuery(s).setParameter("transactionId", transactionId)
-                    .setParameter("resourceId", resourceId).getSingleResult();
+                    .setParameter("resourceRecordId", resourceRecordId).getSingleResult();
         } finally {
             em.close();
         }

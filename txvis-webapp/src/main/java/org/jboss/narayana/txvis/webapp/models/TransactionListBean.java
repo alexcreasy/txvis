@@ -18,7 +18,7 @@ import java.util.Collection;
  * Time: 16:13
  */
 @Named
-public class TransactionModel implements Serializable {
+public class TransactionListBean implements Serializable {
 
     @Inject
     private DataAccessObject dao;

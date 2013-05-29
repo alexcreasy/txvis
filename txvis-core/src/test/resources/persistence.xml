@@ -9,6 +9,7 @@
          data source, the example data source is just for proofs of concept! -->
       <non-jta-data-source>java:jboss/datasources/txvisTestDS</non-jta-data-source>
        <class>org.jboss.narayana.txvis.persistence.entities.Transaction</class>
+       <class>org.jboss.narayana.txvis.persistence.entities.Participant</class>
        <class>org.jboss.narayana.txvis.persistence.entities.ParticipantRecord</class>
        <class>org.jboss.narayana.txvis.persistence.entities.Event</class>
       <properties>
