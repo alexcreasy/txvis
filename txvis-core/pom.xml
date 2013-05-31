@@ -127,6 +127,14 @@
             <version>1.2.17</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5-SNAPSHOT</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/etc/lib/commons-io-2.5-SNAPSHOT.jar</systemPath>-->
+        </dependency>
+
     </dependencies>
 
     <build>

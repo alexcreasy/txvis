@@ -18,11 +18,11 @@ import java.io.File;
  * Time: 01:50
  */
 @Singleton
-@Startup
 @LocalBean
 @DependsOn("DataAccessObjectBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Lock(LockType.READ)
 public class LogMonitorBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
@@ -37,23 +37,20 @@ public class LogMonitorBean {
     private Tailer tailer;
     private LogParser logParser;
 
-
-    public void startLogMonitoring() {
+    @Asynchronous
+    public void start() {
         if (tailer == null) {
             try {
                 tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
-                Thread thread = new Thread(tailer);
-                thread.setDaemon(true);
-                thread.start();
+                tailer.run();
 
             } catch (Exception e) {
-                tailer.stop();
                 logger.fatal("Unhandled exception, stopping logfile monitor", e);
+                sessionContext.getBusinessObject(LogMonitorBean.class).stop();
             }
         }
     }
 
-    @PreDestroy
     public void stop() {
         if (tailer != null) {
             tailer.stop();
@@ -61,13 +58,21 @@ public class LogMonitorBean {
         }
     }
 
-    @PostConstruct
-    private void setup() {
-        if (logger.isInfoEnabled())
-            logger.info("Initialising LogMonitor");
-        logFile = new File(Configuration.LOGFILE_PATH);
+    public void setFile(File file) {
+        if (file == null)
+            throw new NullPointerException("Method called with null parameter: file");
+
+        // Check that the log monitor is not currently running before
+        // changing file name
+        if (tailer != null)
+            throw new IllegalStateException("Cannot call setFile while LogMonitor is running");
+
+        logFile = file;
         logParser = LogParserFactory.getInstance(dao);
-        startLogMonitoring();
-        //sessionContext.getBusinessObject(LogMonitor.class).startLogMonitoring();
     }
+
+    public boolean isRunning() {
+        return tailer != null;
+    }
+
 }
