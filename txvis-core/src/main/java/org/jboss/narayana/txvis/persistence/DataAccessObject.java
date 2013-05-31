@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.Local;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 
@@ -57,4 +58,6 @@ public interface DataAccessObject {
 
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);
+
+    void createParticipantRecord(String txUID, String XAResourceRecordId, Timestamp timestamp);
 }

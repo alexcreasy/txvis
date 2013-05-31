@@ -20,11 +20,9 @@ import java.util.regex.Matcher;
  */
 public class BasicActionHandler extends AbstractHandler {
 
-    //
-
-
-    public static final String REGEX =
-            PATTERN_TIMESTAMP + ".*?BasicAction::(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
+    public static final String REGEX = PATTERN_TIMESTAMP +
+            ".*?BasicAction::(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"
+            + PATTERN_TXID;
 
     public BasicActionHandler() {
         super(REGEX);

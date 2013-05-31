@@ -31,15 +31,15 @@ public class ParticipantRecord implements Serializable {
 
     protected ParticipantRecord() {}
 
-    public ParticipantRecord(Transaction transaction, String resourceId) throws
+    public ParticipantRecord(Transaction transaction, String resourceRecordId) throws
             NullPointerException, IllegalArgumentException {
         if (transaction == null)
             throw new NullPointerException("Method called with null parameter: transaction");
-        if (resourceId.trim().isEmpty())
-            throw new IllegalArgumentException("Method called with empty String parameter: resourceId");
+        if (resourceRecordId.trim().isEmpty())
+            throw new IllegalArgumentException("Method called with empty String parameter: resourceRecordId");
 
         this.transaction = transaction;
-        this.resourceRecordId = resourceId;
+        this.resourceRecordId = resourceRecordId;
     }
 
 

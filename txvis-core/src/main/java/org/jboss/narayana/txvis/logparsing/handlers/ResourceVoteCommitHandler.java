@@ -11,13 +11,6 @@ import java.util.regex.Matcher;
  */
 public class ResourceVoteCommitHandler extends AbstractHandler {
 
-    /**
-     * RegEx for parsing a resource vote commit
-     *
-     * Group 0: Whole matched part of string
-     * Group 1: Resource ID
-     * Group 2: Transaction ID
-     */
     public static final String REGEX =
             "XAResourceRecord.topLevelPrepare\\sfor\\sXAResourceRecord\\s<\\sresource:([^,]+).*tx_uid="
             + PATTERN_TXID + ",.*TwoPhaseOutcome.FINISH_OK";

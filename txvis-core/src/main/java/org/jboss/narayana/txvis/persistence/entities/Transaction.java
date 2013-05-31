@@ -18,6 +18,10 @@ import java.util.*;
  * Time: 14:09
  */
 @Entity
+@NamedQuery(
+        name="getTransactionByTxUID",
+        query="FROM Transaction t WHERE t.transactionId=:transactionId"
+)
 public class Transaction implements Serializable {
 
     @Id

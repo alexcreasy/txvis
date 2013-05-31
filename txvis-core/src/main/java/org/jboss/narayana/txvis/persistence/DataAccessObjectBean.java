@@ -10,6 +10,7 @@ import org.jboss.narayana.txvis.persistence.enums.Vote;
 import javax.ejb.*;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
@@ -189,8 +190,8 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
 
     @Override
-    public Transaction retrieveTransactionByTxUID(String TxUID) {
-        return retrieveByField(Transaction.class, "transactionId", TxUID);
+    public Transaction retrieveTransactionByTxUID(String txUID) {
+        return retrieveByField(Transaction.class, "transactionId", txUID);
     }
 
     @SuppressWarnings("unchecked")
@@ -204,6 +205,14 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } finally {
             em.close();
         }
+    }
+
+    @Override
+    public void createParticipantRecord(String txUID, String XAResourceRecordId, Timestamp timestamp) {
+        final Transaction t = retrieveTransactionByTxUID(txUID);
+        final ParticipantRecord pr = new ParticipantRecord(t, XAResourceRecordId);
+        t.addParticipant(pr);
+        update(t);
     }
 
 

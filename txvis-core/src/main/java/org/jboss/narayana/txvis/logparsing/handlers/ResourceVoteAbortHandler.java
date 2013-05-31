@@ -11,13 +11,6 @@ import java.util.regex.Matcher;
  */
 public class ResourceVoteAbortHandler extends AbstractHandler {
 
-    /**
-     * RegEx for parsing a resource driven rollback
-     *
-     * Group 0: Whole matched part of string
-     * Group 1: Transaction ID
-     * Group 2: Resource ID
-     */
     public static final String REGEX = "tx_uid=" + PATTERN_TXID
             + ",.*eis\\sname\\s>\\s\\(([^\\s^)]+)\\)\\sfailed\\swith\\sexception";
 

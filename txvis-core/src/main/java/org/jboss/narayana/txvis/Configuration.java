@@ -20,7 +20,7 @@ public final class Configuration {
 
     public static final Class[] LOG_HANDLERS = new Class[] {
             BasicActionHandler.class,
-//            EnlistXAResourceHandler.class,
+            XAResourceRecordHandler.class,
 //            ResourceVoteAbortHandler.class,
 //            ResourceVoteCommitHandler.class,
 //            BeginTxHandler.class,

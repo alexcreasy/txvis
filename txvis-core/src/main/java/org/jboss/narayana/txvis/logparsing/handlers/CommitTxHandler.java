@@ -16,12 +16,6 @@ import java.util.regex.Matcher;
  */
 public final class CommitTxHandler extends AbstractHandler {
 
-    /**
-     * RegEx pattern for parsing a successful commit log entry.
-     * RegEx Groups:
-     * 0: The whole matched portion of the log entry
-     * 1: The Transaction ID
-     */
     public static final String REGEX = PATTERN_TIMESTAMP +
             ".*?FileSystemStore.remove_committed\\(" + PATTERN_TXID + ",";
 
