@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.*;
+import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
@@ -18,6 +19,8 @@ import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
 import java.io.File;
+import java.sql.Timestamp;
+import java.util.Collection;
 
 import static junit.framework.Assert.*;
 
@@ -200,5 +203,28 @@ public class DAOTest {
                 dao.retrieveTransactionsWithStatus(Status.COMMIT).size());
         assertEquals("Incorrect number of Transaction objects with Status.ROLLBACK_RESOURCE", 2,
                 dao.retrieveTransactionsWithStatus(Status.ROLLBACK_RESOURCE).size());
+    }
+
+    @Test
+    public void createParticipantRecordTest() throws Exception {
+        final String txUID = idGen.getUniqueTxId();
+        Transaction t = new Transaction(txUID);
+        dao.create(t);
+
+        final String recordId = idGen.getUniqueResourceId();
+        dao.createParticipantRecord(txUID, recordId, new Timestamp(System.currentTimeMillis()));
+
+        t = dao.retrieve(t.getClass(), t.getId());
+
+        Collection<ParticipantRecord> records = t.getParticipantRecords();
+
+        assertEquals("ParticipantRecord not created", 1, records.size());
+
+        for (ParticipantRecord pr : records) {
+            assertEquals("Created ParticipantRecord did not report the correct ResourceRecordID",
+                    recordId,pr.getResourceRecordId());
+            assertEquals("Created ParticipantRecord did not report the correct parent TransactionID",
+                    t.getTransactionId(), pr.getTransaction().getTransactionId());
+        }
     }
 }
