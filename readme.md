@@ -14,7 +14,7 @@ The following dependencies must be satisfied before running the tool.
 
 ### MySQL
 
-A local MySQL server is required running on localhost with the default port of 3306 and needs to be configured with the following database and users:
+A local MySQL server is required running on `localhost` with the default port of `3306` and needs to be configured with the following database and users:
 
 A user: `txvis` with password: `d8mmANpFJVQUXMtb` which has ALL privileges on a database called `txvis`.
 
