@@ -1,5 +1,5 @@
 TxVis: Transaction Profiling and Visualisation Tool
-====================
+===================================================
 
 About
 -----
@@ -8,12 +8,12 @@ TxVis is a prototype transaction profiling and visualisation tool for WildFly / 
 TxVis is currently in an early prototype stage and only a small subset of planned features are available and the tool may not be stable.
 
 Dependencies
----------------------
+------------
 
 The following dependencies must be satisfied before running the tool. 
 
-MySQL
------
+### MySQL
+
 A local MySQL server is required running on localhost with the default port of 3306 and needs to be configured with the following database and users:
 
 A user: `txvis` with password: `d8mmANpFJVQUXMtb` which has ALL privileges on a database called `txvis`.
@@ -35,12 +35,12 @@ In order for MySQL to work with JBoss you will need to install the Connector/J M
 		</driver>
 This should be placed inside the `<datasources><drivers>` tags.
 
-Maven
------
+### Maven
+
 Maven 3+ should be installed and present in your OS's PATH environment variable.
 
-commons-io-2.5-SNAPSHOT.jar
-----------------------------
+### commons-io-2.5-SNAPSHOT.jar
+
 The commons-io 2.5-SNAPSHOT release is required as it contains a bug fix that is essential to the correct running of this tool. The snapshot release is not available from a central maven repository so a compiled jar is included in the [project root]/etc/lib directory. 
 
 This should be installed into your local maven repository using the shell script `installdeps.sh` available in the [project root]/etc/ directory: 
