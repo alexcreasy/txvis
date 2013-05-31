@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.test.utils;
 
+import java.text.MessageFormat;
 import java.util.Random;
 
 /**
@@ -17,17 +18,13 @@ public class UniqueIdGenerator {
     private static final String RESOURCE_ID_BASE = "org.jboss.narayana.txvis.test@8aff";
     private int resourceCounter = 0;
 
+    private static final String JNDI_NAME_BASE = "java:jboss/fakejndiname/fakeresource";
+    private int jndiCounter = 0;
+
 
     public UniqueIdGenerator() {
-        final StringBuilder sb = new StringBuilder("0:ffff05974e0a:");
-
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 8; j++)
-                sb.append(HEX_CHARS.charAt(new Random().nextInt(16)));
-            sb.append(":");
-        }
-        this.txIdBase = sb.toString();
-
+        this.txIdBase = MessageFormat.format("0:{0}:{1}:{2}:", randomHexString(12),
+                randomHexString(8), randomHexString(8));
     }
 
     public String getUniqueTxId() {
@@ -36,5 +33,17 @@ public class UniqueIdGenerator {
 
     public String getUniqueResourceId() {
         return RESOURCE_ID_BASE + resourceCounter++;
+    }
+
+    public String getUniqueJndiName() {
+        return JNDI_NAME_BASE + jndiCounter++;
+    }
+
+    private String randomHexString(int length) {
+        StringBuilder sb = new StringBuilder();
+        Random rand = new Random();
+        for (int i = 0; i < length; i ++)
+            sb.append(HEX_CHARS.charAt(rand.nextInt(16)));
+        return sb.toString();
     }
 }
