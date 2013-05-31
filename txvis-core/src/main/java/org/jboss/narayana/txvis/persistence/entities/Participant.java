@@ -20,9 +20,41 @@ public class Participant {
     @OneToMany(mappedBy = "participant")
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
-    private String resourceName;
+    private String jndiName;
+    private String productName;
+    private String productVersion;
 
     protected Participant() {}
+
+    public Participant(String jndiName, String productName, String productVersion)
+            throws IllegalArgumentException, NullPointerException {
+        if (jndiName.trim().isEmpty())
+            throw new IllegalArgumentException("Method called with empty parameter: jndiName");
+        this.jndiName = jndiName;
+
+        this.productName = productName != null ? productName : "Unknown";
+        this.productVersion = productVersion != null ? productVersion : "Unknown";
+    }
+
+    public String getJndiName() {
+        return jndiName;
+    }
+
+    public String getProductVersion() {
+        return productVersion;
+    }
+
+    public void setProductVersion(String productVersion) {
+        this.productVersion = productVersion;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 
     public void addParticipantRecord(ParticipantRecord p) {
         if (p == null)
@@ -33,6 +65,4 @@ public class Participant {
     public Collection<ParticipantRecord> getParticipantRecords() {
         return Collections.unmodifiableCollection(participantRecords);
     }
-
-
 }
