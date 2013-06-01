@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,13 +12,13 @@ import java.util.HashSet;
  * Time: 22:29
  */
 @Entity
-public class Participant {
+public class Participant implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "participant")
+    @OneToMany(mappedBy = "participant", fetch = FetchType.EAGER)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
     private String jndiName;
@@ -34,6 +35,10 @@ public class Participant {
 
         this.productName = productName != null ? productName : "Unknown";
         this.productVersion = productVersion != null ? productVersion : "Unknown";
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getJndiName() {
@@ -56,7 +61,7 @@ public class Participant {
         this.productName = productName;
     }
 
-    public void addParticipantRecord(ParticipantRecord p) {
+    void addParticipantRecord(ParticipantRecord p) {
         if (p == null)
             throw new NullPointerException("Method called with null parameter: p");
         participantRecords.add(p);

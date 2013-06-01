@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.*;
+import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -62,69 +63,6 @@ public class DAOTest {
     }
 
     @Test
-    public void createRetrieveTest() throws Exception {
-        final String txID = idGen.getUniqueTxId();
-        dao.create(txID);
-        assertNotNull(dao.retrieve(txID));
-    }
-
-    @Test
-    public void enlistGetEnlistedTest() throws Exception {
-        final String txID = idGen.getUniqueTxId();
-        final String ptID1 = idGen.getUniqueResourceId();
-        final String ptID2 = idGen.getUniqueResourceId();
-
-        dao.create(txID);
-        dao.enlistParticipant(txID, ptID1);
-        dao.enlistParticipant(txID, ptID2);
-        assertNotNull(dao.getEnlistedParticipant(txID, ptID1));
-        assertNotNull(dao.getEnlistedParticipant(txID, ptID2));
-
-        assertEquals(dao.getEnlistedParticipant(txID, ptID1).getResourceRecordId(), ptID1);
-        assertEquals(dao.getEnlistedParticipant(txID, ptID2).getResourceRecordId(), ptID2);
-
-        assertEquals(2, dao.retrieve(txID).getParticipantRecords().size());
-    }
-
-    @Test
-    public void setOutcomeTest() throws Exception {
-        final String txID = idGen.getUniqueTxId();
-        dao.create(txID);
-
-        dao.setOutcome(txID, Status.COMMIT);
-        assertEquals("Retrieved transaction did not report correct status", Status.COMMIT,
-                dao.retrieve(txID).getStatus());
-
-        dao.setOutcome(txID, Status.ROLLBACK_CLIENT);
-        assertEquals("Retrieved transaction did not report correct status", Status.ROLLBACK_CLIENT,
-                dao.retrieve(txID).getStatus());
-
-        dao.setOutcome(txID, Status.ROLLBACK_RESOURCE);
-        assertEquals("Retrieved transaction did not report correct status",Status.ROLLBACK_RESOURCE,
-                dao.retrieve(txID).getStatus());
-    }
-
-    @Test
-    public void setParticipantVoteTest() throws Exception {
-        final String txID = idGen.getUniqueTxId();
-        final String ptID1 = idGen.getUniqueResourceId();
-        final String ptID2 = idGen.getUniqueResourceId();
-
-        dao.create(txID);
-        dao.enlistParticipant(txID, ptID1);
-        dao.enlistParticipant(txID, ptID2);
-
-        dao.setParticipantVote(txID, ptID1, Vote.COMMIT);
-        dao.setParticipantVote(txID, ptID2, Vote.ABORT);
-
-        assertEquals("ParticipantRecord did not report correct vote", Vote.COMMIT,
-                dao.getEnlistedParticipant(txID, ptID1).getVote());
-
-        assertEquals("ParticipantRecord did not report correct vote", Vote.ABORT,
-                dao.getEnlistedParticipant(txID, ptID2).getVote());
-    }
-
-    @Test
     public void createAndRetrieveTest() throws Exception {
         final String txUID = idGen.getUniqueTxId();
         Transaction t = new Transaction(txUID);
@@ -178,7 +116,6 @@ public class DAOTest {
 
     }
 
-
     @Test
     public void retrieveTransactionsWithStatusTest() throws Exception {
         dao.deleteAll(Transaction.class);
@@ -206,25 +143,23 @@ public class DAOTest {
     }
 
     @Test
-    public void createParticipantRecordTest() throws Exception {
+    public void enlistRMasTxParticipantTest() throws Exception {
         final String txUID = idGen.getUniqueTxId();
-        Transaction t = new Transaction(txUID);
-        dao.create(t);
+        Transaction tx = new Transaction(txUID);
+        dao.create(tx);
 
-        final String recordId = idGen.getUniqueResourceId();
-        dao.createParticipantRecord(txUID, recordId, new Timestamp(System.currentTimeMillis()));
+        final String jndiName = idGen.getUniqueJndiName();
+        Participant rm = new Participant(jndiName, null, null);
+        dao.create(rm);
 
-        t = dao.retrieve(t.getClass(), t.getId());
+        dao.enlistRMasTxParticipant(tx, rm, new Timestamp(System.currentTimeMillis()));
 
-        Collection<ParticipantRecord> records = t.getParticipantRecords();
+        tx = dao.retrieve(Transaction.class, tx.getId());
+        assertEquals("", 1, tx.getParticipantRecords().size());
 
-        assertEquals("ParticipantRecord not created", 1, records.size());
-
-        for (ParticipantRecord pr : records) {
-            assertEquals("Created ParticipantRecord did not report the correct ResourceRecordID",
-                    recordId,pr.getResourceRecordId());
-            assertEquals("Created ParticipantRecord did not report the correct parent TransactionID",
-                    t.getTransactionId(), pr.getTransaction().getTransactionId());
-        }
+        rm = dao.retrieve(Participant.class, rm.getId());
+        assertEquals("", 1, rm.getParticipantRecords().size());
     }
+
+
 }

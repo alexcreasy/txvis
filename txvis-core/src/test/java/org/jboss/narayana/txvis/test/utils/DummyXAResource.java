@@ -73,4 +73,12 @@ public class DummyXAResource implements XAResource {
     public void start(Xid xid, int i) throws XAException {
         System.out.println(resourceName + ":start:" + xid + ":" + i);
     }
+
+    @Override
+    public String toString() {
+
+        return null;
+    }
+
+
 }

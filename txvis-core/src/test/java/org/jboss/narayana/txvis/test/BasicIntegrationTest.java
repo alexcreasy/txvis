@@ -80,12 +80,12 @@ public class BasicIntegrationTest {
 
         for (Transaction t : dao.retrieveAll(Transaction.class)) {
             assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.COMMIT,
-                    dao.retrieve(t.getTransactionId()).getStatus());
+                    dao.retrieveTransactionByTxUID(t.getTransactionId()).getStatus());
         }
 
         for (Transaction t : dao.retrieveAll(Transaction.class)) {
             for (ParticipantRecord p : t.getParticipantRecords())
-                assertEquals("ParticipantRecord " + p.getResourceRecordId() + " did not report the correct vote", Vote.COMMIT,
+                assertEquals("ParticipantRecord did not report the correct vote", Vote.COMMIT,
                         p.getVote());
         }
     }
@@ -98,7 +98,7 @@ public class BasicIntegrationTest {
 
         for (Transaction t : dao.retrieveAll(Transaction.class)) {
             assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.ROLLBACK_CLIENT,
-                    dao.retrieve(t.getTransactionId()).getStatus());
+                    dao.retrieveTransactionByTxUID(t.getTransactionId()).getStatus());
         }
     }
 
@@ -110,7 +110,7 @@ public class BasicIntegrationTest {
 
         for (Transaction t : dao.retrieveAll(Transaction.class)) {
             assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status",
-                    Status.ROLLBACK_RESOURCE, dao.retrieve(t.getTransactionId()).getStatus());
+                    Status.ROLLBACK_RESOURCE, dao.retrieveTransactionByTxUID(t.getTransactionId()).getStatus());
         }
 
         for (Transaction t : dao.retrieveAll(Transaction.class)) {

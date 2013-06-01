@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -14,7 +15,6 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -194,6 +194,15 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         return retrieveByField(Transaction.class, "transactionId", txUID);
     }
 
+    @Override
+    public Participant retrieveResourceManagerByJndiName(String jndiName) {
+        try {
+            return retrieveByField(Participant.class, "jndiName", jndiName);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public List<Transaction> retrieveTransactionsWithStatus(Status status) {
@@ -208,320 +217,25 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     }
 
     @Override
-    public void createParticipantRecord(String txUID, String XAResourceRecordId, Timestamp timestamp) {
-        final Transaction t = retrieveTransactionByTxUID(txUID);
-        final ParticipantRecord pr = new ParticipantRecord(t, XAResourceRecordId);
-        t.addParticipant(pr);
-        update(t);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-     *
-     *
-     *
-     *
-     */
-
-    @Override
-    public Transaction create(String transactionId) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
-
-        if (logger.isTraceEnabled())
-            logger.trace(this.getClass().getSimpleName() +
-                    ".create, transactionId=" + transactionId);
-
-        final Transaction t = new Transaction(transactionId);
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
-
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.persist(t);
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
-
-                logger.warn("An error occured while attempting to persist Transaction record: "
-                        + transactionId, throwable);
-            }
-        } finally {
-            em.close();
-        }
-        return t;
-    }
-
-
-
-    @Override
-    public Transaction retrieve(String transactionId) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
-
-        final String query = "FROM " + Transaction.class.getSimpleName() +
-                " e WHERE e.transactionId=:transactionId";
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            return (Transaction) em.createQuery(query).setParameter("transactionId",
-                    transactionId).getSingleResult();
-        } finally {
-            em.close();
-        }
+    public void enlistRMasTxParticipant(String transactionXID, Participant rm, Timestamp timestamp) {
+        enlistRMasTxParticipant(retrieveTransactionByTxUID(transactionXID), rm, timestamp);
     }
 
     @Override
-    public void update(Transaction transaction) {
-        if (transaction == null)
-            throw new NullPointerException("transaction cannot be null");
+    public void enlistRMasTxParticipant(Transaction tx, Participant rm, Timestamp timestamp) {
+        if (tx == null)
+            throw new NullPointerException("Method called with null parameter: tx");
 
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
+        if (rm == null)
+            throw new NullPointerException("Method called with null parameter: rm");
 
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.persist(em.merge(transaction));
-                if (notActive)
-                    em.getTransaction().commit();
+        if (timestamp == null)
+            throw new NullPointerException("Method called with null parameter: timestamp");
 
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
 
-                logger.warn("An error occured while attempting to update Transaction record: "
-                        + transaction.getTransactionId(), throwable);
-            }
-        } finally {
-            em.close();
-        }
+        ParticipantRecord pr = new ParticipantRecord(tx, rm);
+        update(pr);
     }
-
-    @Override
-    public void delete(String transactionId) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
-
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.remove(em.merge(retrieve(transactionId)));
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
-
-                logger.warn("An error occured while attempting to delete transaction record: "
-                        + transactionId , throwable);
-            }
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public void deleteAll() {
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
-
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                for (Transaction t : retrieveAll())
-                    em.remove(em.merge(t));
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
-                logger.warn("An error occured while attempting to delete all transaction record: ", throwable);
-            }
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public Collection<Transaction> retrieveAll() {
-        final String s = "FROM " + Transaction.class.getSimpleName() + " e";
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            return em.createQuery(s).getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public void enlistParticipant(String transactionId, String resourceId) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionId");
-        if (resourceId.trim().isEmpty())
-            throw new IllegalArgumentException("Empty resourceId");
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
-            final Transaction t = retrieve(transactionId);
-            t.addParticipant(new ParticipantRecord(t, resourceId));
-
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.merge(t);
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
-
-                logger.warn("An error occured while attempting to enlist resource: "
-                        + resourceId + " as participant in transaction: " + transactionId, throwable);
-            }
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public ParticipantRecord getEnlistedParticipant(String transactionId, String resourceRecordId) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
-        if (resourceRecordId.trim().isEmpty())
-            throw new IllegalArgumentException("Empty resourceID");
-
-        final String s = "FROM " + ParticipantRecord.class.getSimpleName()
-                + " e WHERE e.transaction.transactionId=:transactionId AND e.resourceRecordId=:resourceRecordId";
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-
-            return (ParticipantRecord) em.createQuery(s).setParameter("transactionId", transactionId)
-                    .setParameter("resourceRecordId", resourceRecordId).getSingleResult();
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public void setOutcome(String transactionId, Status outcome) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
-        if (outcome == null)
-            throw new NullPointerException("Null outcome");
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
-
-            final Transaction t = retrieve(transactionId);
-            t.setStatus(outcome);
-
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.merge(t);
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
-
-                logger.warn("An error occured while attempting to set transaction: "
-                        + transactionId + " outcome to " + outcome, throwable);
-            }
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public void setParticipantVote(String transactionId, String resourceId, Vote vote) {
-        if (!validateTxId(transactionId))
-            throw new IllegalArgumentException("Illegal transactionID");
-        if (resourceId.trim().isEmpty())
-            throw new IllegalArgumentException("Empty resourceID");
-        if (vote == null)
-            throw new NullPointerException("Null vote");
-
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            final boolean notActive = !em.getTransaction().isActive();
-
-            final ParticipantRecord p = getEnlistedParticipant(transactionId, resourceId);
-            p.setVote(vote);
-
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.merge(p);
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-                else
-                    em.getTransaction().setRollbackOnly();
-
-                logger.warn("An error occured while attempting to set participant: "
-                        + resourceId + " in transaction: " + transactionId + " vote to: " + vote, throwable);
-            }
-        } finally {
-            em.close();
-        }
-    }
-
 
 
     private boolean validateTxId(String txId) throws NullPointerException {

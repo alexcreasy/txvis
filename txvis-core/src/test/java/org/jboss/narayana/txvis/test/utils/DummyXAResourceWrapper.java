@@ -1,7 +1,5 @@
 package org.jboss.narayana.txvis.test.utils;
 
-import org.jboss.tm.XAResourceWrapper;
-
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -11,32 +9,30 @@ import javax.transaction.xa.Xid;
  * Date: 31/05/2013
  * Time: 18:27
  */
-public class DummyXAResourceWrapper implements XAResourceWrapper {
+public class DummyXAResourceWrapper implements XAResource {
 
     private XAResource xaResource;
     private String jndiName;
+    private String productName = "Dummy Product";
+    private String productVersion = "1.0.0";
 
     public DummyXAResourceWrapper(XAResource xaResource, String jndiName) {
         this.xaResource = xaResource;
         this.jndiName = jndiName;
     }
 
-    @Override
     public XAResource getResource() {
         return xaResource;
     }
 
-    @Override
     public String getProductName() {
-        return "Dummy Product";
+        return productName;
     }
 
-    @Override
     public String getProductVersion() {
-        return "1.0.0";
+        return productVersion;
     }
 
-    @Override
     public String getJndiName() {
         return jndiName;
     }
@@ -89,5 +85,17 @@ public class DummyXAResourceWrapper implements XAResourceWrapper {
     @Override
     public void start(Xid xid, int i) throws XAException {
         xaResource.start(xid, i);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("XAResourceWrapperImpl@").append(Integer.toHexString(System.identityHashCode(this)));
+        sb.append("[xaResource=").append(getResource());
+        sb.append(" productName=").append(getProductName());
+        sb.append(" productVersion=").append(getProductVersion());
+        sb.append(" jndiName=").append(getJndiName());
+        sb.append("]");
+        return sb.toString();
     }
 }

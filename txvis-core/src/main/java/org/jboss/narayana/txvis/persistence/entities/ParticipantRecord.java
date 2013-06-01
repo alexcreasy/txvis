@@ -17,13 +17,11 @@ public class ParticipantRecord implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     private Transaction transaction;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     private Participant participant;
-
-    private String resourceRecordId;
 
     @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
@@ -31,17 +29,21 @@ public class ParticipantRecord implements Serializable {
 
     protected ParticipantRecord() {}
 
-    public ParticipantRecord(Transaction transaction, String resourceRecordId) throws
-            NullPointerException, IllegalArgumentException {
+    public ParticipantRecord(Transaction transaction, Participant participant) throws
+            NullPointerException{
+
         if (transaction == null)
             throw new NullPointerException("Method called with null parameter: transaction");
-        if (resourceRecordId.trim().isEmpty())
-            throw new IllegalArgumentException("Method called with empty String parameter: resourceRecordId");
+
+        if (participant == null)
+            throw new NullPointerException("Method called with null parameter: participant");
 
         this.transaction = transaction;
-        this.resourceRecordId = resourceRecordId;
-    }
+        this.participant = participant;
 
+        transaction.addParticipantRecord(this);
+        participant.addParticipantRecord(this);
+    }
 
     public Long getId() {
         return this.id;
@@ -51,8 +53,8 @@ public class ParticipantRecord implements Serializable {
         return this.transaction;
     }
 
-    public String getResourceRecordId() {
-        return this.resourceRecordId;
+    public Participant getParticipant() {
+        return this.participant;
     }
 
     public Vote getVote() {

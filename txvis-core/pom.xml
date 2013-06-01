@@ -13,7 +13,21 @@
     <groupId>org.jboss.narayana</groupId>
     <artifactId>txvis-core</artifactId>
     <properties>
+        <version.org.jboss.jboss-transaction-spi>7.0.1.Final</version.org.jboss.jboss-transaction-spi>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>jboss-releases-repository</id>
+            <name>JBoss Release Repository</name>
+            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>jboss-snapshots-repository</id>
+            <name>JBoss Snapshot Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -72,8 +86,8 @@
         <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jboss-transaction-spi</artifactId>
-            <version>7.0.0.Final</version>
-            <scope>provided</scope>
+            <version>${version.org.jboss.jboss-transaction-spi}</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.jboss.logging</groupId>

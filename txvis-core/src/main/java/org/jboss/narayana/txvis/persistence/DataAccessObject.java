@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.persistence;
 
+import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -17,25 +18,8 @@ import java.util.List;
  */
 @Local
 public interface DataAccessObject {
-    Transaction create(String transactionId);
 
-    Transaction retrieve(String transactionId);
-
-    void delete(String transactionId);
-
-    void deleteAll();
-
-    Collection<Transaction> retrieveAll();
-
-    void enlistParticipant(String transactionId, String resourceId);
-
-    ParticipantRecord getEnlistedParticipant(String transactionId, String resourceId);
-
-    void setOutcome(String transactionId, Status outcome);
-
-    void setParticipantVote(String transactionId, String resourceId, Vote vote);
-
-    void update(Transaction transaction);
+    <E> void create(E entity);
 
     <E, K> E retrieve(Class<E> entityClass, K primaryKey);
 
@@ -49,15 +33,16 @@ public interface DataAccessObject {
 
     <E> void delete(E entity);
 
-
     <E> void deleteAll(Class<E> entityClass);
-
-    <E> void create(E entity);
 
     Transaction retrieveTransactionByTxUID(String TxUID);
 
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);
 
-    void createParticipantRecord(String txUID, String XAResourceRecordId, Timestamp timestamp);
+    Participant retrieveResourceManagerByJndiName(String jndiName);
+
+    void enlistRMasTxParticipant(Transaction tx, Participant rm, Timestamp timestamp);
+
+    void enlistRMasTxParticipant(String transactionXID, Participant rm, Timestamp timestamp);
 }

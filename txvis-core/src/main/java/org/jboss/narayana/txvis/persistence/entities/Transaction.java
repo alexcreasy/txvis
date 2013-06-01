@@ -18,10 +18,6 @@ import java.util.*;
  * Time: 14:09
  */
 @Entity
-@NamedQuery(
-        name="getTransactionByTxUID",
-        query="FROM Transaction t WHERE t.transactionId=:transactionId"
-)
 public class Transaction implements Serializable {
 
     @Id
@@ -38,7 +34,7 @@ public class Transaction implements Serializable {
 
     private Long endTime;
 
-    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
@@ -91,7 +87,7 @@ public class Transaction implements Serializable {
         return Collections.unmodifiableCollection(participantRecords);
     }
 
-    public void addParticipant(ParticipantRecord participantRecord) {
+    void addParticipantRecord(ParticipantRecord participantRecord) {
         this.participantRecords.add(participantRecord);
     }
 

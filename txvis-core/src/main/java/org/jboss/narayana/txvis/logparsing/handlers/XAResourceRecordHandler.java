@@ -1,6 +1,8 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.jboss.narayana.txvis.Utils;
+import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import java.util.regex.Matcher;
@@ -13,8 +15,8 @@ import java.util.regex.Matcher;
 public class XAResourceRecordHandler extends AbstractHandler {
 
     public static final String REGEX =
-            PATTERN_TIMESTAMP + ".*?XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).+?tx_uid="
-            + PATTERN_TXID + ".*?(?<XARESOURCERECORDID>XAResourceRecord@[a-f0-9]+)";
+            PATTERN_TIMESTAMP + ".*?XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?tx_uid="
+            + PATTERN_TXID + ".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\sjndiName=(?<JNDINAME>java:[\\w/]+)";
 
 
     public XAResourceRecordHandler() {
@@ -26,14 +28,21 @@ public class XAResourceRecordHandler extends AbstractHandler {
 
         switch (matcher.group("RECORDACTION")) {
             case "XAResourceRecord":
-                dao.createParticipantRecord(matcher.group(TXID),
-                        matcher.group("XARESOURCERECORDID"),
-                        Utils.parseTimestamp(matcher.group(TIMESTAMP)));
+                enlistResourceManger(matcher);
                 break;
             case "topLevelPrepare":
-                dao.setParticipantVote(matcher.group(TXID),
-                        matcher.group("XARESOURCERECORDID"), Vote.COMMIT);
                 break;
         }
+    }
+
+
+    void enlistResourceManger(Matcher matcher) {
+        Participant rm = dao.retrieveResourceManagerByJndiName(matcher.group("JNDINAME"));
+
+        if (rm == null)
+            rm = new Participant(matcher.group("JNDINAME"),
+                    matcher.group("PRODUCTNAME"), matcher.group("PRODUCTVERSION"));
+
+         dao.enlistRMasTxParticipant(matcher.group(TXID), rm, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }
