@@ -2,8 +2,6 @@ package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.jboss.narayana.txvis.Utils;
 import org.jboss.narayana.txvis.persistence.entities.Participant;
-import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import java.util.regex.Matcher;
 
@@ -45,6 +43,6 @@ public class XAResourceRecordHandler extends AbstractHandler {
             rm = new Participant(matcher.group("JNDINAME"),
                     matcher.group("PRODUCTNAME"), matcher.group("PRODUCTVERSION"));
 
-         dao.enlistRMasTxParticipant(matcher.group(TXID), rm, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
+         dao.createParticipantRecord(matcher.group(TXID), rm, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

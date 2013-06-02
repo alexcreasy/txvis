@@ -92,6 +92,8 @@ public class DummyXAResourceWrapper implements XAResource {
         StringBuilder sb = new StringBuilder();
         sb.append("XAResourceWrapperImpl@").append(Integer.toHexString(System.identityHashCode(this)));
         sb.append("[xaResource=").append(getResource());
+        sb.append(" pad=").append("false");
+        sb.append(" overrideRmValue=").append("false");
         sb.append(" productName=").append(getProductName());
         sb.append(" productVersion=").append(getProductVersion());
         sb.append(" jndiName=").append(getJndiName());

@@ -29,7 +29,6 @@ public class LogParserFactory {
             throw new NullPointerException("Method called with null parameter: dao");
 
         final LogParser logParser = new LogParser();
-
         // Instantiate Handler classes listed in Configuration utility class and
         // add them to the the LogParser
         for (Class c : Configuration.LOG_HANDLERS) {
@@ -39,10 +38,12 @@ public class LogParserFactory {
                 logParser.addHandler(h);
 
                 if (logger.isInfoEnabled())
-                    logger.info("Successfully loaded log handler: " + c);
+                    logger.info(
+                            "Successfully loaded log handler: " + c.getSimpleName()
+                                    + "regex={" + h.getPattern() + "}, ");
 
             } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
-                logger.fatal(MessageFormat.format("Unable to load log handler: {0}", c), e);
+                logger.fatal("Unable to load log handler: " + c, e);
                 throw new IllegalStateException(e);
             }
         }

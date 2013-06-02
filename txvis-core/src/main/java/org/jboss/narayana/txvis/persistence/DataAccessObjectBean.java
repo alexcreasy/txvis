@@ -6,14 +6,12 @@ import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -87,7 +85,8 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <E, V> E retrieveByField(Class<E> entityClass, String field, V value) {
+    public <E, V> E retrieveByField(Class<E> entityClass, String field, V value)
+            throws NoResultException, NonUniqueResultException, NoSuchEntityException {
         final String query = MessageFormat.format(
                 "FROM {0} e WHERE e.{1}=:value", entityClass.getSimpleName(), field);
 
@@ -95,10 +94,6 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         try {
             return (E) em.createQuery(query).setParameter("value", value).getSingleResult();
 
-        } catch (NoResultException | NonUniqueResultException | NoSuchEntityException e) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                    "Could not retrieveByField: entityClass={0}, field={1}, value={2}",
-                    entityClass.getSimpleName(), field, value), e);
         } finally {
             em.close();
         }
@@ -190,7 +185,8 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
 
     @Override
-    public Transaction retrieveTransactionByTxUID(String txUID) {
+    public Transaction retrieveTransactionByTxUID(String txUID) throws NoResultException,
+            NoSuchEntityException, NonUniqueResultException {
         return retrieveByField(Transaction.class, "transactionId", txUID);
     }
 
@@ -217,12 +213,12 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     }
 
     @Override
-    public void enlistRMasTxParticipant(String transactionXID, Participant rm, Timestamp timestamp) {
-        enlistRMasTxParticipant(retrieveTransactionByTxUID(transactionXID), rm, timestamp);
+    public void createParticipantRecord(String transactionXID, Participant rm, Timestamp timestamp) {
+        createParticipantRecord(retrieveTransactionByTxUID(transactionXID), rm, timestamp);
     }
 
     @Override
-    public void enlistRMasTxParticipant(Transaction tx, Participant rm, Timestamp timestamp) {
+    public void createParticipantRecord(Transaction tx, Participant rm, Timestamp timestamp) {
         if (tx == null)
             throw new NullPointerException("Method called with null parameter: tx");
 
@@ -236,6 +232,8 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         ParticipantRecord pr = new ParticipantRecord(tx, rm);
         update(pr);
     }
+
+
 
 
     private boolean validateTxId(String txId) throws NullPointerException {

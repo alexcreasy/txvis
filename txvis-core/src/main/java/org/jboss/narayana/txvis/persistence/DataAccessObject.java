@@ -42,7 +42,7 @@ public interface DataAccessObject {
 
     Participant retrieveResourceManagerByJndiName(String jndiName);
 
-    void enlistRMasTxParticipant(Transaction tx, Participant rm, Timestamp timestamp);
+    void createParticipantRecord(Transaction tx, Participant rm, Timestamp timestamp);
 
-    void enlistRMasTxParticipant(String transactionXID, Participant rm, Timestamp timestamp);
+    void createParticipantRecord(String transactionXID, Participant rm, Timestamp timestamp);
 }

@@ -9,6 +9,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.test.utils.TransactionUtil;
+import org.jboss.narayana.txvis.test.utils.TransactionUtil2;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
@@ -16,6 +17,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,7 +58,7 @@ public class BasicIntegrationTest {
     private static final int NO_OF_TX = 2;
     private static final int NO_OF_PARTICIPANTS = 3;
     private static final int INTRO_DELAY = 0;
-    private static final int OUTRO_DELAY = 500;
+    private static final int OUTRO_DELAY = 1000;
 
 
     @EJB
@@ -65,11 +67,11 @@ public class BasicIntegrationTest {
     @EJB
     private LogMonitorBean mon;
 
-    private TransactionUtil txUtil;
+    private TransactionUtil2 txUtil;
     
     @Before
     public void setup() throws Exception {
-        txUtil = new TransactionUtil();
+        txUtil = new TransactionUtil2();
         dao.deleteAll(Transaction.class);
     }
 
@@ -87,7 +89,6 @@ public class BasicIntegrationTest {
             assertEquals("Incorrect number of ParticipantRecords parsed", NO_OF_PARTICIPANTS,
                     tx.getParticipantRecords().size());
     }
-
 
     @Test
     public void clientDrivenCommitTest() throws Exception {
@@ -119,6 +120,7 @@ public class BasicIntegrationTest {
         }
     }
 
+    @Ignore
     @Test
     public void resourceDrivenRollbackTest() throws Exception {
         createAndLogTransactions(Status.ROLLBACK_RESOURCE);
@@ -136,8 +138,8 @@ public class BasicIntegrationTest {
                 if (p.getVote().equals(Vote.ABORT))
                     abortVotes++;
             }
-           // assertEquals("Participants of transaction: " + t.getTransactionId() +
-           //         " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
+        assertEquals("Participants of transaction: " + t.getTransactionId() +
+                " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
         }
     }
 

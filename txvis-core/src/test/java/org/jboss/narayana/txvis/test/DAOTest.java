@@ -7,7 +7,6 @@ import org.jboss.narayana.txvis.persistence.entities.Participant;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.test.utils.UniqueIdGenerator;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
@@ -21,7 +20,6 @@ import org.junit.runner.RunWith;
 import javax.ejb.EJB;
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.Collection;
 
 import static junit.framework.Assert.*;
 
@@ -152,7 +150,7 @@ public class DAOTest {
         Participant rm = new Participant(jndiName, null, null);
         dao.create(rm);
 
-        dao.enlistRMasTxParticipant(tx, rm, new Timestamp(System.currentTimeMillis()));
+        dao.createParticipantRecord(tx, rm, new Timestamp(System.currentTimeMillis()));
 
         tx = dao.retrieve(Transaction.class, tx.getId());
         assertEquals("Transaction contains incorrect number of ParticipantRecords", 1, tx.getParticipantRecords().size());
