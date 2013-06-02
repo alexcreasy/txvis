@@ -20,13 +20,13 @@ import java.util.List;
  * Time: 15:57
  */
 @Stateless
-@DependsOn("EntityManagerProviderBean")
+@DependsOn("EntityManagerServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @EJB
-    private EntityManagerProviderBean emf;
+    private EntityManagerServiceBean emf;
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 

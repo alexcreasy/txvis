@@ -12,13 +12,13 @@ import java.io.File;
  */
 @Singleton
 @Startup
-@DependsOn("LogMonitorBean")
+@DependsOn("LogMonitorServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class StartupServiceBean {
 
     @EJB
-    private LogMonitorBean logMonitor;
+    private LogMonitorServiceBean logMonitor;
 
 
     @PostConstruct

@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.LogMonitorBean;
+import org.jboss.narayana.txvis.LogMonitorServiceBean;
 import org.jboss.narayana.txvis.persistence.*;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -62,7 +62,7 @@ public class BasicIntegrationTest {
     private DataAccessObject dao;
 
     @EJB
-    private LogMonitorBean mon;
+    private LogMonitorServiceBean mon;
 
     private TransactionUtil txUtil;
     

@@ -6,8 +6,6 @@ import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.logparsing.LogParser;
 import org.jboss.narayana.txvis.logparsing.LogParserFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import java.io.File;
@@ -23,7 +21,7 @@ import java.io.File;
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Lock(LockType.READ)
-public class LogMonitorBean {
+public class LogMonitorServiceBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -46,7 +44,7 @@ public class LogMonitorBean {
 
             } catch (Exception e) {
                 logger.fatal("Unhandled exception, stopping logfile monitor", e);
-                sessionContext.getBusinessObject(LogMonitorBean.class).stop();
+                sessionContext.getBusinessObject(LogMonitorServiceBean.class).stop();
             }
         }
     }

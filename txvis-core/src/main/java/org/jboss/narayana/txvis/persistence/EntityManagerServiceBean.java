@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class EntityManagerProviderBean implements Serializable {
+public class EntityManagerServiceBean implements Serializable {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private EntityManagerFactory emf;
@@ -37,7 +37,7 @@ public class EntityManagerProviderBean implements Serializable {
 
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "Initialised EntityManagerProviderBean with persistence context: {0}",
+                    "Initialised EntityManagerServiceBean with persistence context: {0}",
                     Configuration.PERSISTENCE_CONTEXT));
     }
 
@@ -48,7 +48,7 @@ public class EntityManagerProviderBean implements Serializable {
             emf.close();
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "Shutdown EntityManagerProviderBean with persistence context: {0}",
+                    "Shutdown EntityManagerServiceBean with persistence context: {0}",
                     Configuration.PERSISTENCE_CONTEXT));
     }
 }

@@ -1,7 +1,7 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
-import org.jboss.narayana.txvis.persistence.EntityManagerProviderBean;
+import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
@@ -15,7 +15,7 @@ import java.util.List;
  * Time: 00:41
  */
 @Stateless
-@DependsOn("EntityManagerProviderBean")
+@DependsOn("EntityManagerServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class TransactionDAOImpl {
@@ -24,7 +24,7 @@ public class TransactionDAOImpl {
     DataAccessObject dao;
 
     @EJB
-    EntityManagerProviderBean emf;
+    EntityManagerServiceBean emf;
 
     public Transaction retrieveTransactionByTxUID(String TxUID) {
         return dao.retrieveByField(Transaction.class, "transactionId", TxUID);
