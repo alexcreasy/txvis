@@ -120,7 +120,6 @@ public class BasicIntegrationTest {
         }
     }
 
-    @Ignore
     @Test
     public void resourceDrivenRollbackTest() throws Exception {
         createAndLogTransactions(Status.ROLLBACK_RESOURCE);

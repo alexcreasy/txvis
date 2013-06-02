@@ -228,9 +228,24 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         if (timestamp == null)
             throw new NullPointerException("Method called with null parameter: timestamp");
 
-
         ParticipantRecord pr = new ParticipantRecord(tx, rm);
         update(pr);
+    }
+
+    @Override
+    public ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName) {
+        final String query = "FROM " + ParticipantRecord.class.getSimpleName() +
+                " e WHERE e.transaction.transactionId=:txUID AND e.participant.jndiName=:jndiName";
+
+        final EntityManager em = emf.createEntityManager();
+        try {
+            return (ParticipantRecord) em.createQuery(query).setParameter("txUID", txUID)
+                    .setParameter("jndiName", rmJndiName).getSingleResult();
+
+        } finally {
+            em.close();
+        }
+
     }
 
 

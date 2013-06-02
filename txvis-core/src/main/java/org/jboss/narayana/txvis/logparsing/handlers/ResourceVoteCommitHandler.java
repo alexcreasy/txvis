@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import java.util.regex.Matcher;
@@ -24,6 +25,8 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-
+        ParticipantRecord rec = dao.retrieveParticipantRecord(matcher.group(TXID), matcher.group("JNDINAME"));
+        rec.setVote(Vote.COMMIT);
+        dao.update(rec);
     }
 }

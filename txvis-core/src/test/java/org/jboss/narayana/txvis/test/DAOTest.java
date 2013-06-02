@@ -141,7 +141,7 @@ public class DAOTest {
     }
 
     @Test
-    public void enlistRMasTxParticipantTest() throws Exception {
+    public void createParticipantRecordTest() throws Exception {
         final String txUID = idGen.getUniqueTxId();
         Transaction tx = new Transaction(txUID);
         dao.create(tx);
@@ -162,6 +162,21 @@ public class DAOTest {
             assertEquals("Incorrect Transaction found in PariticpantRecord", txUID, pr.getTransaction().getTransactionId());
             assertEquals("Incorrect Participant found in ParticipantRecord", jndiName, pr.getParticipant().getJndiName());
         }
+    }
+
+    @Test
+    public void retrieveParticipantRecordTest() throws Exception {
+        final String txUID = idGen.getUniqueTxId();
+        Transaction tx = new Transaction(txUID);
+        dao.create(tx);
+
+        final String jndiName = idGen.getUniqueJndiName();
+        Participant rm = new Participant(jndiName, null, null);
+        dao.create(rm);
+
+        dao.createParticipantRecord(tx, rm, new Timestamp(System.currentTimeMillis()));
+
+        assertNotNull("Did not retrieve ParticipantRecord", dao.retrieveParticipantRecord(txUID, jndiName));
     }
 
 
