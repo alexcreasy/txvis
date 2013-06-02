@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
 import java.io.File;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,8 +55,8 @@ public class BasicIntegrationTest {
 
     private static final int NO_OF_TX = 2;
     private static final int NO_OF_PARTICIPANTS = 3;
-    private static final int INTRO_DELAY = 300;
-    private static final int OUTRO_DELAY = 700;
+    private static final int INTRO_DELAY = 0;
+    private static final int OUTRO_DELAY = 500;
 
 
     @EJB
@@ -71,6 +72,22 @@ public class BasicIntegrationTest {
         txUtil = new TransactionUtil();
         dao.deleteAll(Transaction.class);
     }
+
+    @Test
+    public void parseTransactionTest() throws Exception {
+        createAndLogTransactions(Status.COMMIT);
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX,
+                dao.retrieveAll(Transaction.class).size());
+    }
+
+    @Test
+    public void parseEnlistResourceManagerTest() throws Exception {
+        createAndLogTransactions(Status.COMMIT);
+        for (Transaction tx : dao.retrieveAll(Transaction.class))
+            assertEquals("Incorrect number of ParticipantRecords parsed", NO_OF_PARTICIPANTS,
+                    tx.getParticipantRecords().size());
+    }
+
 
     @Test
     public void clientDrivenCommitTest() throws Exception {
@@ -130,13 +147,8 @@ public class BasicIntegrationTest {
 
     private void createAndLogTransactions(int introSleepDelay, int outroSleepDelay, int noOfTx,
                                           int noOfParticipantsPerTx, Status outcome) throws Exception {
-        mon.start();
-        try {
             Thread.sleep(introSleepDelay);
             txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
             Thread.sleep(outroSleepDelay);
-        } finally {
-            mon.stop();
-        }
     }
 }

@@ -15,8 +15,10 @@ import java.util.regex.Matcher;
 public class XAResourceRecordHandler extends AbstractHandler {
 
     public static final String REGEX =
-            PATTERN_TIMESTAMP + ".*?XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?tx_uid="
-            + PATTERN_TXID + ".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\sjndiName=(?<JNDINAME>java:[\\w/]+)";
+            PATTERN_TIMESTAMP +
+            ".*?XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?tx_uid="
+            + PATTERN_TXID +
+            ".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\sjndiName=(?<JNDINAME>java:[\\w/]+)";
 
 
     public XAResourceRecordHandler() {
