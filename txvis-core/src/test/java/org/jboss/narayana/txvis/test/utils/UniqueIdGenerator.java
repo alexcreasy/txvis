@@ -18,7 +18,7 @@ public class UniqueIdGenerator {
     private static final String RESOURCE_ID_BASE = "org.jboss.narayana.txvis.test@8aff";
     private int resourceCounter = 0;
 
-    private static final String JNDI_NAME_BASE = "java:jboss/fakejndiname/fakeresource";
+    private static final String JNDI_NAME_BASE = "java:jboss/";
     private int jndiCounter = 0;
 
 
@@ -36,7 +36,7 @@ public class UniqueIdGenerator {
     }
 
     public String getUniqueJndiName() {
-        return JNDI_NAME_BASE + jndiCounter++;
+        return JNDI_NAME_BASE + randomHexString(8) + "/fakeJndiName" + jndiCounter++;
     }
 
     private String randomHexString(int length) {
