@@ -21,7 +21,7 @@ public class ParticipantRecord implements Serializable {
     private Transaction transaction;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    private Participant participant;
+    private ResourceManager resourceManager;
 
     @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
@@ -29,20 +29,20 @@ public class ParticipantRecord implements Serializable {
 
     protected ParticipantRecord() {}
 
-    public ParticipantRecord(Transaction transaction, Participant participant) throws
+    public ParticipantRecord(Transaction transaction, ResourceManager resourceManager) throws
             NullPointerException{
 
         if (transaction == null)
             throw new NullPointerException("Method called with null parameter: transaction");
 
-        if (participant == null)
-            throw new NullPointerException("Method called with null parameter: participant");
+        if (resourceManager == null)
+            throw new NullPointerException("Method called with null parameter: resourceManager");
 
         this.transaction = transaction;
-        this.participant = participant;
+        this.resourceManager = resourceManager;
 
         transaction.addParticipantRecord(this);
-        participant.addParticipantRecord(this);
+        resourceManager.addParticipantRecord(this);
     }
 
     public Long getId() {
@@ -53,8 +53,8 @@ public class ParticipantRecord implements Serializable {
         return this.transaction;
     }
 
-    public Participant getParticipant() {
-        return this.participant;
+    public ResourceManager getResourceManager() {
+        return this.resourceManager;
     }
 
     public Vote getVote() {

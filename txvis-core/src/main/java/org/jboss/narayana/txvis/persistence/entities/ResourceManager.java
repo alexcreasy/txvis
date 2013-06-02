@@ -12,22 +12,22 @@ import java.util.HashSet;
  * Time: 22:29
  */
 @Entity
-public class Participant implements Serializable {
+public class ResourceManager implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "participant", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "resourceManager", fetch = FetchType.EAGER)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
     private String jndiName;
     private String productName;
     private String productVersion;
 
-    protected Participant() {}
+    protected ResourceManager() {}
 
-    public Participant(String jndiName, String productName, String productVersion)
+    public ResourceManager(String jndiName, String productName, String productVersion)
             throws IllegalArgumentException, NullPointerException {
         if (jndiName.trim().isEmpty())
             throw new IllegalArgumentException("Method called with empty parameter: jndiName");
@@ -61,10 +61,10 @@ public class Participant implements Serializable {
         this.productName = productName;
     }
 
-    void addParticipantRecord(ParticipantRecord p) {
-        if (p == null)
-            throw new NullPointerException("Method called with null parameter: p");
-        participantRecords.add(p);
+    void addParticipantRecord(ParticipantRecord rec) {
+        if (rec == null)
+            throw new NullPointerException("Method called with null parameter: rec");
+        participantRecords.add(rec);
     }
 
     public Collection<ParticipantRecord> getParticipantRecords() {

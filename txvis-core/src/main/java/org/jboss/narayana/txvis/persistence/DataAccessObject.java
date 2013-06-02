@@ -1,14 +1,12 @@
 package org.jboss.narayana.txvis.persistence;
 
-import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.Local;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,11 +38,11 @@ public interface DataAccessObject {
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);
 
-    Participant retrieveResourceManagerByJndiName(String jndiName);
+    ResourceManager retrieveResourceManagerByJndiName(String jndiName);
 
-    void createParticipantRecord(Transaction tx, Participant rm, Timestamp timestamp);
+    void createParticipantRecord(Transaction tx, ResourceManager rm, Timestamp timestamp);
 
-    void createParticipantRecord(String transactionXID, Participant rm, Timestamp timestamp);
+    void createParticipantRecord(String transactionXID, ResourceManager rm, Timestamp timestamp);
 
     ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName);
 }

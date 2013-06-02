@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
-import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -191,9 +191,9 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     }
 
     @Override
-    public Participant retrieveResourceManagerByJndiName(String jndiName) {
+    public ResourceManager retrieveResourceManagerByJndiName(String jndiName) {
         try {
-            return retrieveByField(Participant.class, "jndiName", jndiName);
+            return retrieveByField(ResourceManager.class, "jndiName", jndiName);
         } catch (NoResultException e) {
             return null;
         }
@@ -213,12 +213,12 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     }
 
     @Override
-    public void createParticipantRecord(String transactionXID, Participant rm, Timestamp timestamp) {
+    public void createParticipantRecord(String transactionXID, ResourceManager rm, Timestamp timestamp) {
         createParticipantRecord(retrieveTransactionByTxUID(transactionXID), rm, timestamp);
     }
 
     @Override
-    public void createParticipantRecord(Transaction tx, Participant rm, Timestamp timestamp) {
+    public void createParticipantRecord(Transaction tx, ResourceManager rm, Timestamp timestamp) {
         if (tx == null)
             throw new NullPointerException("Method called with null parameter: tx");
 
@@ -235,7 +235,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName) {
         final String query = "FROM " + ParticipantRecord.class.getSimpleName() +
-                " e WHERE e.transaction.transactionId=:txUID AND e.participant.jndiName=:jndiName";
+                " e WHERE e.transaction.transactionId=:txUID AND e.resourceManager.jndiName=:jndiName";
 
         final EntityManager em = emf.createEntityManager();
         try {

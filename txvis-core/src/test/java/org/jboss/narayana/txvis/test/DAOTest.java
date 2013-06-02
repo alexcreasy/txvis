@@ -3,7 +3,7 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.*;
-import org.jboss.narayana.txvis.persistence.entities.Participant;
+import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -147,7 +147,7 @@ public class DAOTest {
         dao.create(tx);
 
         final String jndiName = idGen.getUniqueJndiName();
-        Participant rm = new Participant(jndiName, null, null);
+        ResourceManager rm = new ResourceManager(jndiName, null, null);
         dao.create(rm);
 
         dao.createParticipantRecord(tx, rm, new Timestamp(System.currentTimeMillis()));
@@ -155,12 +155,12 @@ public class DAOTest {
         tx = dao.retrieve(Transaction.class, tx.getId());
         assertEquals("Transaction contains incorrect number of ParticipantRecords", 1, tx.getParticipantRecords().size());
 
-        rm = dao.retrieve(Participant.class, rm.getId());
-        assertEquals("Participant contains incorrect number of ParticipantRecords", 1, rm.getParticipantRecords().size());
+        rm = dao.retrieve(ResourceManager.class, rm.getId());
+        assertEquals("ResourceManager contains incorrect number of ParticipantRecords", 1, rm.getParticipantRecords().size());
 
         for (ParticipantRecord pr : tx.getParticipantRecords()) {
             assertEquals("Incorrect Transaction found in PariticpantRecord", txUID, pr.getTransaction().getTransactionId());
-            assertEquals("Incorrect Participant found in ParticipantRecord", jndiName, pr.getParticipant().getJndiName());
+            assertEquals("Incorrect ResourceManager found in ParticipantRecord", jndiName, pr.getResourceManager().getJndiName());
         }
     }
 
@@ -171,7 +171,7 @@ public class DAOTest {
         dao.create(tx);
 
         final String jndiName = idGen.getUniqueJndiName();
-        Participant rm = new Participant(jndiName, null, null);
+        ResourceManager rm = new ResourceManager(jndiName, null, null);
         dao.create(rm);
 
         dao.createParticipantRecord(tx, rm, new Timestamp(System.currentTimeMillis()));

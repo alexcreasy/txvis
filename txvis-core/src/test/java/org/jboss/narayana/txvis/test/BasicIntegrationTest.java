@@ -9,7 +9,6 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.test.utils.TransactionUtil;
-import org.jboss.narayana.txvis.test.utils.TransactionUtil2;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
@@ -17,13 +16,11 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
 import java.io.File;
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -67,11 +64,11 @@ public class BasicIntegrationTest {
     @EJB
     private LogMonitorBean mon;
 
-    private TransactionUtil2 txUtil;
+    private TransactionUtil txUtil;
     
     @Before
     public void setup() throws Exception {
-        txUtil = new TransactionUtil2();
+        txUtil = new TransactionUtil();
         dao.deleteAll(Transaction.class);
     }
 
