@@ -155,10 +155,15 @@ public class DAOTest {
         dao.enlistRMasTxParticipant(tx, rm, new Timestamp(System.currentTimeMillis()));
 
         tx = dao.retrieve(Transaction.class, tx.getId());
-        assertEquals("", 1, tx.getParticipantRecords().size());
+        assertEquals("Transaction contains incorrect number of ParticipantRecords", 1, tx.getParticipantRecords().size());
 
         rm = dao.retrieve(Participant.class, rm.getId());
-        assertEquals("", 1, rm.getParticipantRecords().size());
+        assertEquals("Participant contains incorrect number of ParticipantRecords", 1, rm.getParticipantRecords().size());
+
+        for (ParticipantRecord pr : tx.getParticipantRecords()) {
+            assertEquals("Incorrect Transaction found in PariticpantRecord", txUID, pr.getTransaction().getTransactionId());
+            assertEquals("Incorrect Participant found in ParticipantRecord", jndiName, pr.getParticipant().getJndiName());
+        }
     }
 
 
