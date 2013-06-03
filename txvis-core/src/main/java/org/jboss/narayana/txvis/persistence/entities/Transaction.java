@@ -30,6 +30,8 @@ public class Transaction implements Serializable {
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
 
+    private boolean onePhase = false;
+
     private Long startTime;
 
     private Long endTime;
@@ -65,6 +67,14 @@ public class Transaction implements Serializable {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public boolean isOnePhase() {
+        return onePhase;
+    }
+
+    public void setOnePhase(boolean isOnePhase) {
+        this.onePhase = onePhase;
     }
 
     public Timestamp getStartTime() {
