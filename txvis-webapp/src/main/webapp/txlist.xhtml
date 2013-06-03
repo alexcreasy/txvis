@@ -12,7 +12,7 @@
 <h:body>
    <div class="container">
        <div class="page-header">
-           <h1>Transaction Visualization Tool</h1>
+           <h1>Transaction Visualisation Tool</h1>
        </div>
        <h:form class="form-inline">
            <div>
@@ -29,7 +29,10 @@
                             styleClass="table table-striped">
                    <h:column>
                        <f:facet name="header">Transaction ID</f:facet>
-                       #{transaction.transactionId}
+                       <h:link value="#{transaction.transactionId}" outcome="txinfo" >
+                           <f:param name="includeViewParams" value="true" />
+                           <f:param name="txuid" value="#{transaction.transactionId}" />
+                       </h:link>
                    </h:column>
                    <h:column>
                        <f:facet name="header">Status</f:facet>
@@ -37,7 +40,7 @@
                    </h:column>
                    <h:column>
                        <f:facet name="header">Duration</f:facet>
-                       #{transaction.duration}
+                       #{transaction.duration}ms
                    </h:column>
                </h:dataTable>
            </div>

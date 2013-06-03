@@ -1,5 +1,14 @@
 package org.jboss.narayana.txvis.webapp.models;
 
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.persistence.entities.Transaction;
+
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Model;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 
@@ -9,6 +18,33 @@ import java.io.Serializable;
  * Time: 21:55
  */
 @Named
+@RequestScoped
 public class TransactionInfoBean implements Serializable {
 
+    @ManagedProperty(value="#{param.txuid}")
+    private String txUID;
+
+    @Inject
+    private DataAccessObject dao;
+
+    private Transaction tx;
+
+    public String getTxUID() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        this.txUID = (String) facesContext.getExternalContext().
+                getRequestParameterMap().get("txuid");
+        return this.txUID;
+    }
+
+    public void setTxUID(String txUID) {
+        this.txUID = txUID;
+    }
+
+    public Transaction getTransaction() {
+        return tx;
+    }
+
+    public void init() {
+        tx = dao.retrieveTransactionByTxUID(getTxUID());
+    }
 }

@@ -86,7 +86,7 @@ public class Transaction implements Serializable {
     }
 
     public Timestamp getEndTime() {
-        return new Timestamp(endTime);
+        return endTime != null ? new Timestamp(endTime) :null;
     }
 
     public void setEndTime(Timestamp endTime) {
@@ -94,7 +94,7 @@ public class Transaction implements Serializable {
     }
 
     public Collection<ParticipantRecord> getParticipantRecords() {
-        return Collections.unmodifiableCollection(participantRecords);
+        return participantRecords;
     }
 
     void addParticipantRecord(ParticipantRecord participantRecord) {
