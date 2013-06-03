@@ -52,6 +52,8 @@ public class DAOTest {
 
     UniqueIdGenerator idGen;
 
+    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
     @EJB
     DataAccessObject dao;
 
@@ -90,7 +92,7 @@ public class DAOTest {
         dao.create(t);
 
         t = dao.retrieveTransactionByTxUID(txUID);
-        t.setStatus(Status.COMMIT);
+        t.setStatus(Status.COMMIT, timestamp);
         dao.update(t);
 
 
@@ -126,10 +128,10 @@ public class DAOTest {
             txs[i] = new Transaction(txUIDs[i]);
         }
 
-        txs[0].setStatus(Status.COMMIT);
-        txs[1].setStatus(Status.COMMIT);
-        txs[2].setStatus(Status.ROLLBACK_RESOURCE);
-        txs[3].setStatus(Status.ROLLBACK_RESOURCE);
+        txs[0].setStatus(Status.COMMIT, timestamp);
+        txs[1].setStatus(Status.COMMIT, timestamp);
+        txs[2].setStatus(Status.ROLLBACK_RESOURCE, timestamp);
+        txs[3].setStatus(Status.ROLLBACK_RESOURCE, timestamp);
 
         for (int i = 0; i < txs.length; i++)
             dao.create(txs[i]);
@@ -150,7 +152,7 @@ public class DAOTest {
         ResourceManager rm = new ResourceManager(jndiName, null, null);
         dao.create(rm);
 
-        dao.createParticipantRecord(tx, rm, new Timestamp(System.currentTimeMillis()));
+        dao.createParticipantRecord(tx, rm, timestamp);
 
         tx = dao.retrieve(Transaction.class, tx.getId());
         assertEquals("Transaction contains incorrect number of ParticipantRecords", 1, tx.getParticipantRecords().size());
@@ -174,7 +176,7 @@ public class DAOTest {
         ResourceManager rm = new ResourceManager(jndiName, null, null);
         dao.create(rm);
 
-        dao.createParticipantRecord(tx, rm, new Timestamp(System.currentTimeMillis()));
+        dao.createParticipantRecord(tx, rm, timestamp);
 
         assertNotNull("Did not retrieve ParticipantRecord", dao.retrieveParticipantRecord(txUID, jndiName));
     }

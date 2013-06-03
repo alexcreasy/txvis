@@ -25,11 +25,8 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.COMMIT);
-        t.addEvent(new Event(EventType.COMMIT, timestamp));
-        t.setEndTime(timestamp);
+        t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
         dao.update(t);
     }
 

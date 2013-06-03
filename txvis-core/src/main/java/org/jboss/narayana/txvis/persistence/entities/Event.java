@@ -23,13 +23,15 @@ public class Event implements Serializable {
     private Timestamp timestamp;
     @Enumerated(EnumType.STRING)
     private EventType eventType;
+    private String eventValue;
 
     protected Event() {}
 
-    public Event(Transaction transaction, EventType eventType, Timestamp timestamp) {
+    public Event(Transaction transaction, EventType eventType, String eventValue, Timestamp timestamp) {
         this.transaction = transaction;
-        this.timestamp = timestamp;
         this.eventType = eventType;
+        this.eventValue = eventValue;
+        this.timestamp = timestamp;
     }
 
     public Event(EventType eventType, Timestamp timestamp) {
@@ -53,7 +55,12 @@ public class Event implements Serializable {
         return transaction;
     }
 
-    public void setTransaction(Transaction t) {
+    public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
+
+    public String getEventValue() {
+        return eventValue;
+    }
+
 }

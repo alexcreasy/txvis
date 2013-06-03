@@ -53,6 +53,15 @@ public class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
+    public Transaction(String transactionId, Timestamp timestamp) throws NullPointerException,
+            IllegalArgumentException {
+        if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
+            throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
+        this.transactionId = transactionId;
+
+        this.startTime = timestamp.getTime();
+    }
+
     public Long getId() {
         return id;
     }
@@ -65,8 +74,10 @@ public class Transaction implements Serializable {
         return this.status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Status status, Timestamp timestamp) {
         this.status = status;
+        addEvent(new Event(this, EventType.END, status.toString(), timestamp));
+        this.endTime = timestamp.getTime();
     }
 
     public boolean isOnePhase() {
@@ -81,16 +92,8 @@ public class Transaction implements Serializable {
         return new Timestamp(startTime);
     }
 
-    public void setStartTime(Timestamp startTime) {
-        this.startTime = startTime.getTime();
-    }
-
     public Timestamp getEndTime() {
         return endTime != null ? new Timestamp(endTime) :null;
-    }
-
-    public void setEndTime(Timestamp endTime) {
-        this.endTime = endTime.getTime();
     }
 
     public Collection<ParticipantRecord> getParticipantRecords() {
@@ -102,7 +105,7 @@ public class Transaction implements Serializable {
     }
 
     public Collection<Event> getEvents() {
-        return Collections.unmodifiableCollection(events);
+        return events;
     }
 
     public void addEvent(Event event) {

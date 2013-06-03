@@ -49,35 +49,26 @@ public class BasicActionHandler extends AbstractHandler {
     }
 
     private void begin(Matcher matcher) {
-        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
-        Transaction t = new Transaction(matcher.group(TXID));
-        t.setStartTime(timestamp);
-        dao.create(t);
+        dao.create(new Transaction(matcher.group(TXID), Utils.parseTimestamp(matcher.group(TIMESTAMP))));
 
     }
 
     private void abort(Matcher matcher) {
-        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.ROLLBACK_CLIENT);
-        t.setEndTime(timestamp);
+        t.setStatus(Status.ROLLBACK_CLIENT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
         dao.update(t);
     }
 
     private void phase2Abort(Matcher matcher) {
-        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.ROLLBACK_RESOURCE);
-        t.setEndTime(timestamp);
+        t.setStatus(Status.ROLLBACK_RESOURCE, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
         dao.update(t);
     }
 
     private void onePhaseCommit(Matcher matcher) {
-        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.COMMIT);
+        t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
         t.setOnePhase(true);
-        t.setEndTime(timestamp);
         dao.update(t);
     }
 }
