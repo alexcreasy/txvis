@@ -39,10 +39,11 @@ public class ReaperHandler extends AbstractHandler {
         switch(matcher.group("ACTIONSTATUS")) {
             case "COMMITTED":
                 Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-                t.setStatus(Status.COMMIT);
-                t.addEvent(new Event(EventType.COMMIT, timestamp));
-                t.setEndTime(timestamp);
-                dao.update(t);
+                if (t.getStatus().equals(Status.IN_FLIGHT)) {
+                    t.setStatus(Status.COMMIT);
+                    t.setEndTime(timestamp);
+                    dao.update(t);
+                }
                 break;
             case "ABORT":
                 break;

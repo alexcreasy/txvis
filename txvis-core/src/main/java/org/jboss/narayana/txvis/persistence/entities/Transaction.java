@@ -74,7 +74,7 @@ public class Transaction implements Serializable {
     }
 
     public void setOnePhase(boolean isOnePhase) {
-        this.onePhase = onePhase;
+        this.onePhase = isOnePhase;
     }
 
     public Timestamp getStartTime() {

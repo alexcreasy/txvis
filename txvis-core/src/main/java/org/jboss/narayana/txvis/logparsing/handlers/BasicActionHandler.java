@@ -51,33 +51,32 @@ public class BasicActionHandler extends AbstractHandler {
     private void begin(Matcher matcher) {
         Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = new Transaction(matcher.group(TXID));
-        t.addEvent(new Event(EventType.BEGIN, timestamp));
         t.setStartTime(timestamp);
         dao.create(t);
 
     }
 
     private void abort(Matcher matcher) {
-        setStatus(matcher.group(TXID),Status.ROLLBACK_CLIENT, matcher.group(TIMESTAMP));
-    }
-
-    private void phase2Abort(Matcher matcher) {
-        setStatus(matcher.group(TXID),Status.ROLLBACK_RESOURCE, matcher.group(TIMESTAMP));
-    }
-
-    private void onePhaseCommit(Matcher matcher) {
-        setStatus(matcher.group(TXID),Status.COMMIT, matcher.group(TIMESTAMP));
+        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
         Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setOnePhase(true);
+        t.setStatus(Status.ROLLBACK_CLIENT);
+        t.setEndTime(timestamp);
         dao.update(t);
     }
 
-    private void setStatus(String txId, Status status, String rawTimestamp) {
-        Timestamp timestamp = Utils.parseTimestamp(rawTimestamp);
-        Transaction t = dao.retrieveTransactionByTxUID(txId);
-        t.setStatus(status);
-        EventType eventType = status.equals(Status.COMMIT) ? EventType.COMMIT : EventType.ABORT;
-        t.addEvent(new Event(eventType, timestamp));
+    private void phase2Abort(Matcher matcher) {
+        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
+        t.setStatus(Status.ROLLBACK_RESOURCE);
+        t.setEndTime(timestamp);
+        dao.update(t);
+    }
+
+    private void onePhaseCommit(Matcher matcher) {
+        Timestamp timestamp = Utils.parseTimestamp(matcher.group(TIMESTAMP));
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
+        t.setStatus(Status.COMMIT);
+        t.setOnePhase(true);
         t.setEndTime(timestamp);
         dao.update(t);
     }

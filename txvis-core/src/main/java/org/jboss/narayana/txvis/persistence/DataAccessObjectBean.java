@@ -65,7 +65,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } catch (NoResultException e) {
             logger.warn(MessageFormat.format(
                     "DataAccessObjectBean.retrieve: No result found for search: class=`{0}`, primaryKey=`{1}`",
-                    entityClass, primaryKey), e);
+                    entityClass, primaryKey));
             return null;
         } finally {
             em.close();
@@ -84,7 +84,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } catch (NoResultException e) {
             logger.warn(MessageFormat.format(
                     "DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
-                    entityClass), e);
+                    entityClass));
             return null;
 
         } finally {
@@ -106,7 +106,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } catch (NoResultException e) {
             logger.warn(MessageFormat.format(
                     "DataAccessObjectBean.retrieveByField: No result found for search: class=`{0}`, field=`{1}`, value=`{2}`",
-                    entityClass, field, value), e);
+                    entityClass, field, value));
             return null;
 
         } finally {
