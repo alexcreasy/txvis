@@ -67,7 +67,9 @@ public class BasicActionHandler extends AbstractHandler {
 
     private void onePhaseCommit(Matcher matcher) {
         setStatus(matcher.group(TXID),Status.COMMIT, matcher.group(TIMESTAMP));
-
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
+        t.setOnePhase(true);
+        dao.update(t);
     }
 
     private void setStatus(String txId, Status status, String rawTimestamp) {
