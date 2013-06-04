@@ -35,6 +35,7 @@ public class BasicActionHandler extends AbstractHandler {
                 begin(matcher);
                 break;
             case "End":
+                end(matcher);
                 break;
             case "Abort":
                 abort(matcher);
@@ -51,6 +52,12 @@ public class BasicActionHandler extends AbstractHandler {
     private void begin(Matcher matcher) {
         dao.create(new Transaction(matcher.group(TXID), Utils.parseTimestamp(matcher.group(TIMESTAMP))));
 
+    }
+
+    private void end(Matcher matcher) {
+        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
+        t.addEvent(new Event(EventType.PREPARE, "N/A", Utils.parseTimestamp(matcher.group(TIMESTAMP))));
+        dao.update(t);
     }
 
     private void abort(Matcher matcher) {

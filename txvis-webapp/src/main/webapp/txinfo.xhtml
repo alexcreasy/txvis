@@ -16,6 +16,7 @@
             <h1>Transaction Visualisation Tool</h1>
         </div>
         <p><h:link value="&#171; Transaction List" outcome="txlist" /></p>
+        <hr />
         <div>
             <h3>Transaction Information</h3>
             <dl class="dl-horizontal">
@@ -33,6 +34,7 @@
                 <dd>#{transactionInfoBean.transaction.duration}ms</dd>
             </dl>
         </div>
+        <hr />
         <div>
             <h3>Enlisted Participants</h3>
             <h:dataTable value="#{transactionInfoBean.transaction.participantRecords}" var="rec"
@@ -54,8 +56,29 @@
                     #{rec.vote}
                 </h:column>
             </h:dataTable>
-            <p><h:link value="&#171; Transaction List" outcome="txlist" /></p>
         </div>
+        <hr />
+        <div>
+            <h3>Event Timeline</h3>
+            <h:dataTable value="#{transactionInfoBean.transaction.events}" var="event"
+                         styleClass="table table-striped">
+                <h:column>
+                    <f:facet name="header">Time</f:facet>
+                    #{event.timestamp}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Event</f:facet>
+                    #{event.eventType}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Action</f:facet>
+                    #{event.eventValue}
+                </h:column>
+            </h:dataTable>
+        </div>
+        <hr />
+        <p><h:link value="&#171; Transaction List" outcome="txlist" /></p>
+        <hr />
     </div>
 
     <h:outputScript library="js" name="jquery-1.9.1.min.js" />

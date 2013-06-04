@@ -20,7 +20,7 @@ public class Event implements Serializable {
     private Long id;
     @ManyToOne
     private Transaction transaction;
-    private Timestamp timestamp;
+    private Long timestamp;
     @Enumerated(EnumType.STRING)
     private EventType eventType;
     private String eventValue;
@@ -31,13 +31,13 @@ public class Event implements Serializable {
         this.transaction = transaction;
         this.eventType = eventType;
         this.eventValue = eventValue;
-        this.timestamp = timestamp;
+        setTimestamp(timestamp);
     }
 
     public Event(EventType eventType, String eventValue, Timestamp timestamp) {
         this.eventType = eventType;
         this.eventValue = eventValue;
-        this.timestamp = timestamp;
+        setTimestamp(timestamp);
     }
 
     public Long getId() {
@@ -45,7 +45,11 @@ public class Event implements Serializable {
     }
 
     public Timestamp getTimestamp() {
-        return timestamp;
+        return new Timestamp(timestamp);
+    }
+
+    private void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp.getTime();
     }
 
     public EventType getEventType() {

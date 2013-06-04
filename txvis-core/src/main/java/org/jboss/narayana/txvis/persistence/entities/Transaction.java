@@ -63,7 +63,7 @@ public class Transaction implements Serializable {
             throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
 
         this.transactionId = transactionId;
-        this.startTime = timestamp.getTime();
+        setStartTime(timestamp);
         events.add(new Event(this, EventType.BEGIN, "N/A", timestamp));
     }
 
@@ -82,7 +82,7 @@ public class Transaction implements Serializable {
     public void setStatus(Status status, Timestamp timestamp) {
         this.status = status;
         events.add(new Event(this, EventType.END, status.toString(), timestamp));
-        this.endTime = timestamp.getTime();
+        setEndTime(timestamp);
     }
 
     public boolean isOnePhase() {
@@ -99,9 +99,18 @@ public class Transaction implements Serializable {
         return new Timestamp(startTime);
     }
 
-    public Timestamp getEndTime() {
-        return endTime != null ? new Timestamp(endTime) :null;
+    private void setStartTime(Timestamp timestamp) {
+        this.startTime = timestamp.getTime();
     }
+
+    public Timestamp getEndTime() {
+        return (endTime != null) ? new Timestamp(endTime) : null;
+    }
+
+    private void setEndTime(Timestamp timestamp) {
+        this.endTime = timestamp.getTime();
+    }
+
 
     public Collection<ParticipantRecord> getParticipantRecords() {
         return participantRecords;
