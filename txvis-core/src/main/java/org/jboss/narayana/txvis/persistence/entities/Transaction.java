@@ -5,6 +5,7 @@ import org.hibernate.annotations.FetchMode;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
+import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -36,30 +37,34 @@ public class Transaction implements Serializable {
 
     private Long endTime;
 
-    @OneToMany(mappedBy = "transaction", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "transaction", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
-    private Collection<Event> events = new HashSet<>();
+    private Collection<Event> events = new LinkedList<>();
 
     protected Transaction() {}
 
     public Transaction(String transactionId) throws NullPointerException,
             IllegalArgumentException {
+
         if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
             throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
+
         this.transactionId = transactionId;
     }
 
     public Transaction(String transactionId, Timestamp timestamp) throws NullPointerException,
             IllegalArgumentException {
+
         if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
             throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
-        this.transactionId = transactionId;
 
+        this.transactionId = transactionId;
         this.startTime = timestamp.getTime();
+        events.add(new Event(this, EventType.BEGIN, "N/A", timestamp));
     }
 
     public Long getId() {
@@ -76,7 +81,7 @@ public class Transaction implements Serializable {
 
     public void setStatus(Status status, Timestamp timestamp) {
         this.status = status;
-        addEvent(new Event(this, EventType.END, status.toString(), timestamp));
+        events.add(new Event(this, EventType.END, status.toString(), timestamp));
         this.endTime = timestamp.getTime();
     }
 
@@ -85,6 +90,8 @@ public class Transaction implements Serializable {
     }
 
     public void setOnePhase(boolean isOnePhase) {
+        for (ParticipantRecord rec : participantRecords)
+            rec.setVote(Vote.COMMIT);
         this.onePhase = isOnePhase;
     }
 

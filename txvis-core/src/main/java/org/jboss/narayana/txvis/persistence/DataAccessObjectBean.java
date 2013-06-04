@@ -243,7 +243,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         if (timestamp == null)
             throw new NullPointerException("Method called with null parameter: timestamp");
 
-        ParticipantRecord pr = new ParticipantRecord(tx, rm);
+        ParticipantRecord pr = new ParticipantRecord(tx, rm, timestamp);
         update(pr);
     }
 
@@ -262,9 +262,6 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
 
     }
-
-
-
 
     private boolean validateTxId(String txId) throws NullPointerException {
         return txId.matches(AbstractHandler.PATTERN_TXID);

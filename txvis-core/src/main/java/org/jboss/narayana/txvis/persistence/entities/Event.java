@@ -34,8 +34,9 @@ public class Event implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Event(EventType eventType, Timestamp timestamp) {
+    public Event(EventType eventType, String eventValue, Timestamp timestamp) {
         this.eventType = eventType;
+        this.eventValue = eventValue;
         this.timestamp = timestamp;
     }
 

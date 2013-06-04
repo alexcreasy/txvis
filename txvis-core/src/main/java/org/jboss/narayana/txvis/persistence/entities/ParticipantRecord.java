@@ -1,9 +1,11 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
+import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -29,7 +31,7 @@ public class ParticipantRecord implements Serializable {
 
     protected ParticipantRecord() {}
 
-    public ParticipantRecord(Transaction transaction, ResourceManager resourceManager) throws
+    public ParticipantRecord(Transaction transaction, ResourceManager resourceManager, Timestamp timestamp) throws
             NullPointerException{
 
         if (transaction == null)
@@ -43,6 +45,8 @@ public class ParticipantRecord implements Serializable {
 
         transaction.addParticipantRecord(this);
         resourceManager.addParticipantRecord(this);
+
+        transaction.addEvent(new Event(EventType.ENLIST, resourceManager.getJndiName(), timestamp));
     }
 
     public Long getId() {
