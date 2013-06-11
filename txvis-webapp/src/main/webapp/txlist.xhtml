@@ -17,15 +17,15 @@
        <h:form class="form-inline">
            <div>
                <h4>Filter</h4>
-               <h:outputLabel for="filterByStatus" value="By Status:" />
-               <h:selectOneMenu id="filterByStatus" value="#{transactionListBean.filterByStatus}" >
+               <h:outputLabel for="filterByStatus" value="By Status: " />
+               <h:selectOneMenu id="filterByStatus" value="#{transactionListBean.filterByStatus}">
                    <f:selectItem itemLabel="ALL" itemValue="" />
                    <f:selectItems value="#{transactionListBean.statuses}" />
+                   <f:ajax render="txlist" event="change" execute="filterByStatus" />
                </h:selectOneMenu>
-               <h:commandButton value="Filter" action="result" />
            </div>
            <div>
-               <h:dataTable value="#{transactionListBean.transactionsList}" var="transaction"
+               <h:dataTable value="#{transactionListBean.transactionsList}" id="txlist" var="transaction"
                             styleClass="table table-striped">
                    <h:column>
                        <f:facet name="header">Transaction ID</f:facet>

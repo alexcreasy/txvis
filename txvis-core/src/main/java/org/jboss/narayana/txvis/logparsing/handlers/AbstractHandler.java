@@ -56,7 +56,11 @@ public abstract class AbstractHandler implements Handler {
             "(?<" + RESOURCEID + ">(?:\\w+\\.)+\\w+@[0-9a-f]+)";
 
 
-
+    public static final String BASE_REGEX =
+            "(?<TIMESTAMP>\\d{1,2}:\\d{1,2}:\\d{1,2},\\d{1,3})\\s(?<LEVEL>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\\s\\[(?<LOGCLASS>[^\\]]+)\\]\\s\\((?<THREAD>[^\\)]+)\\)\\s";
+     /*
+      ***********************************************************
+      */
 
 
 
