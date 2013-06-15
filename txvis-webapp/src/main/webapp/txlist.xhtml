@@ -29,9 +29,9 @@
                             styleClass="table table-striped">
                    <h:column>
                        <f:facet name="header">Transaction ID</f:facet>
-                       <h:link value="#{transaction.transactionId}" outcome="txinfo" >
+                       <h:link value="#{transaction.txuid}" outcome="txinfo" >
                            <f:param name="includeViewParams" value="true" />
-                           <f:param name="txuid" value="#{transaction.transactionId}" />
+                           <f:param name="txuid" value="#{transaction.txuid}" />
                        </h:link>
                    </h:column>
                    <h:column>

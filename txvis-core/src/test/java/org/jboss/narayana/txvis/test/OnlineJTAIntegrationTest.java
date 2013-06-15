@@ -5,6 +5,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.LogMonitorServiceBean;
 import org.jboss.narayana.txvis.persistence.*;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
+import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  * Time: 14:41
  */
 @RunWith(Arquillian.class)
-public class BasicIntegrationTest {
+public class OnlineJTAIntegrationTest {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -56,6 +57,7 @@ public class BasicIntegrationTest {
     private static final int NO_OF_PARTICIPANTS = 3;
     private static final int INTRO_DELAY = 0;
     private static final int OUTRO_DELAY = 1000;
+    private static final int EXPECTED_NO_OF_EVENTS = 3 + NO_OF_PARTICIPANTS;
 
 
     @EJB
@@ -70,6 +72,7 @@ public class BasicIntegrationTest {
     public void setup() throws Exception {
         txUtil = new TransactionUtil();
         dao.deleteAll(Transaction.class);
+        dao.deleteAll(ResourceManager.class);
     }
 
     @Test
@@ -82,9 +85,12 @@ public class BasicIntegrationTest {
     @Test
     public void parseEnlistResourceManagerTest() throws Exception {
         createAndLogTransactions(Status.COMMIT);
-        for (Transaction tx : dao.retrieveAll(Transaction.class))
+        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
             assertEquals("Incorrect number of ParticipantRecords parsed", NO_OF_PARTICIPANTS,
                     tx.getParticipantRecords().size());
+            assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
+        }
+
     }
 
     @Test
@@ -93,15 +99,15 @@ public class BasicIntegrationTest {
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
 
-        for (Transaction t : dao.retrieveAll(Transaction.class)) {
-            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.COMMIT,
-                    dao.retrieveTransactionByTxUID(t.getTransactionId()).getStatus());
-        }
+        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+            assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.COMMIT,
+                    dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
 
-        for (Transaction t : dao.retrieveAll(Transaction.class)) {
-            for (ParticipantRecord p : t.getParticipantRecords())
+            assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
+
+            for (ParticipantRecord rec : tx.getParticipantRecords())
                 assertEquals("ParticipantRecord did not report the correct vote", Vote.COMMIT,
-                        p.getVote());
+                        rec.getVote());
         }
     }
 
@@ -111,9 +117,13 @@ public class BasicIntegrationTest {
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
 
-        for (Transaction t : dao.retrieveAll(Transaction.class)) {
-            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status", Status.ROLLBACK_CLIENT,
-                    dao.retrieveTransactionByTxUID(t.getTransactionId()).getStatus());
+        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+            assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.ROLLBACK_CLIENT,
+                    dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
+
+            // Expected number of events is one less as in a client driven rollback as the transaction
+            // will not prepare.
+            assertEquals("Incorrect number of Events created", (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());
         }
     }
 
@@ -123,19 +133,20 @@ public class BasicIntegrationTest {
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
 
-        for (Transaction t : dao.retrieveAll(Transaction.class)) {
-            assertEquals("Transaction " + t.getTransactionId() + " did not report the correct status",
-                    Status.ROLLBACK_RESOURCE, dao.retrieveTransactionByTxUID(t.getTransactionId()).getStatus());
-        }
+        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+            assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status",
+                    Status.ROLLBACK_RESOURCE, dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
 
-        for (Transaction t : dao.retrieveAll(Transaction.class)) {
             int abortVotes = 0;
-            for (ParticipantRecord p : t.getParticipantRecords()) {
-                if (p.getVote().equals(Vote.ABORT))
+            for (ParticipantRecord rec : tx.getParticipantRecords()) {
+                if (rec.getVote().equals(Vote.ABORT))
                     abortVotes++;
             }
-        assertEquals("Participants of transaction: " + t.getTransactionId() +
-                " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
+
+            assertEquals("Participants of transaction: " + tx.getTxuid() +
+                    " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
+
+            assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
         }
     }
 

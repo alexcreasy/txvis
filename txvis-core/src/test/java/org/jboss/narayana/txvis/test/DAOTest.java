@@ -81,7 +81,7 @@ public class DAOTest {
         dao.create(t);
 
         assertEquals("Transaction ID did not match", txUID,
-                dao.retrieveTransactionByTxUID(txUID).getTransactionId());
+                dao.retrieveTransactionByTxUID(txUID).getTxuid());
     }
 
     @Test
@@ -161,7 +161,7 @@ public class DAOTest {
         assertEquals("ResourceManager contains incorrect number of ParticipantRecords", 1, rm.getParticipantRecords().size());
 
         for (ParticipantRecord pr : tx.getParticipantRecords()) {
-            assertEquals("Incorrect Transaction found in PariticpantRecord", txUID, pr.getTransaction().getTransactionId());
+            assertEquals("Incorrect Transaction found in PariticpantRecord", txUID, pr.getTransaction().getTxuid());
             assertEquals("Incorrect ResourceManager found in ParticipantRecord", jndiName, pr.getResourceManager().getJndiName());
         }
     }

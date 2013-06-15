@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -168,25 +169,37 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     public <E> void deleteAll(Class<E> entityClass) {
         final EntityManager em = emf.createEntityManager();
         try {
-            final boolean notActive = !em.getTransaction().isActive();
 
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                for (E e : retrieveAll(entityClass))
-                    em.remove(em.merge(e));
+//            Collection<E> entities = retrieveAll(entityClass);
+//
+//            if (entities.isEmpty())
+//                return;
+//
+//            final boolean notActive = !em.getTransaction().isActive();
+//
+//            if (notActive)
+//                em.getTransaction().begin();
+//            try {
+//                for (E e : entities)
+//                    em.remove(em.merge(e));
+//
+//                if (notActive)
+//                    em.getTransaction().commit();
+//
+//            } catch (Throwable throwable) {
+//                if (notActive)
+//                    em.getTransaction().rollback();
+//
+//                logger.warn(MessageFormat.format(
+//                        "An error occured while attempting to delete all entities: {0}",
+//                        entityClass.getSimpleName()), throwable);
+//            }
 
-                if (notActive)
-                    em.getTransaction().commit();
+            em.getTransaction().begin();
+            for (E e : retrieveAll(entityClass))
+                em.remove(em.merge(e));
+            em.getTransaction().commit();
 
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-
-                logger.warn(MessageFormat.format(
-                        "An error occured while attempting to delete all entities: {0}",
-                        entityClass.getSimpleName()), throwable);
-            }
         } finally {
             em.close();
         }
@@ -202,7 +215,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public Transaction retrieveTransactionByTxUID(String txUID) throws NoResultException,
             NoSuchEntityException, NonUniqueResultException {
-        return retrieveByField(Transaction.class, "transactionId", txUID);
+        return retrieveByField(Transaction.class, "txuid", txUID);
     }
 
     @Override
@@ -250,7 +263,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName) {
         final String query = "FROM " + ParticipantRecord.class.getSimpleName() +
-                " e WHERE e.transaction.transactionId=:txUID AND e.resourceManager.jndiName=:jndiName";
+                " e WHERE e.transaction.txuid=:txUID AND e.resourceManager.jndiName=:jndiName";
 
         final EntityManager em = emf.createEntityManager();
         try {

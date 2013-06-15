@@ -5,7 +5,7 @@
       xmlns:f="http://java.sun.com/jsf/core">
 
 <h:head>
-    <title>TxVis / Transaction Info: #{transactionInfoBean.transaction.transactionId}</title>
+    <title>TxVis / Transaction Info: #{transactionInfoBean.transaction.txuid}</title>
     <h:outputStylesheet library="css" name="bootstrap.min.css"  />
 </h:head>
 <f:event type="preRenderView" listener="#{transactionInfoBean.init}"/>
@@ -21,7 +21,7 @@
             <h3>Transaction Information</h3>
             <dl class="dl-horizontal">
                 <dt>Transaction UID: </dt>
-                <dd>#{transactionInfoBean.transaction.transactionId}</dd>
+                <dd>#{transactionInfoBean.transaction.txuid}</dd>
                 <dt>Outcome: </dt>
                 <dd>#{transactionInfoBean.transaction.status}</dd>
                 <dt>One Phase:</dt>

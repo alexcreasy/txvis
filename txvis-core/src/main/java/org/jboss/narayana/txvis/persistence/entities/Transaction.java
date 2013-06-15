@@ -10,7 +10,6 @@ import org.jboss.narayana.txvis.persistence.enums.Vote;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -26,7 +25,7 @@ public class Transaction implements Serializable {
     private Long id;
 
     @Column(unique = true)
-    private String transactionId;
+    private String txuid;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
@@ -47,22 +46,22 @@ public class Transaction implements Serializable {
 
     protected Transaction() {}
 
-    public Transaction(String transactionId) throws NullPointerException,
+    public Transaction(String txuid) throws NullPointerException,
             IllegalArgumentException {
 
-        if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
-            throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
+        if (!txuid.matches(AbstractHandler.PATTERN_TXID))
+            throw new IllegalArgumentException("Illegal transactionId: " + txuid);
 
-        this.transactionId = transactionId;
+        this.txuid = txuid;
     }
 
-    public Transaction(String transactionId, Timestamp timestamp) throws NullPointerException,
+    public Transaction(String txuid, Timestamp timestamp) throws NullPointerException,
             IllegalArgumentException {
 
-        if (!transactionId.matches(AbstractHandler.PATTERN_TXID))
-            throw new IllegalArgumentException("Illegal transactionId: " + transactionId);
+        if (!txuid.matches(AbstractHandler.PATTERN_TXID))
+            throw new IllegalArgumentException("Illegal transactionId: " + txuid);
 
-        this.transactionId = transactionId;
+        this.txuid = txuid;
         setStartTime(timestamp);
         events.add(new Event(this, EventType.BEGIN, "N/A", timestamp));
     }
@@ -71,8 +70,8 @@ public class Transaction implements Serializable {
         return id;
     }
 
-    public String getTransactionId() {
-        return this.transactionId;
+    public String getTxuid() {
+        return this.txuid;
     }
 
     public Status getStatus() {
@@ -138,7 +137,7 @@ public class Transaction implements Serializable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Tx ID: ").append(transactionId);
+        result.append("Tx ID: ").append(txuid);
 
         for (ParticipantRecord p : participantRecords) {
             result.append("\n\t").append(p);
