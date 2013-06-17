@@ -39,18 +39,16 @@ public class OnlineJTAIntegrationTest {
                 + "Dependencies: org.jboss.jts\n";
 
         File[] libs = Maven.resolver()
-                .loadPomFromFile("pom.xml").resolve("commons-io:commons-io:2.4")
+                .loadPomFromFile("pom.xml").resolve("commons-io:commons-io")
                 .withTransitivity().asFile();
 
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
+        return ShrinkWrap.create(WebArchive.class, "OnlineJTAIntegrationTest.war")
                 .addPackages(true, "org.jboss.narayana.txvis")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
                 .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
                 .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));
-
-        return archive;
     }
 
     private static final int NO_OF_TX = 2;
@@ -121,8 +119,8 @@ public class OnlineJTAIntegrationTest {
             assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.ROLLBACK_CLIENT,
                     dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
 
-            // Expected number of events is one less as in a client driven rollback as the transaction
-            // will not prepare.
+            // Expected number of events is one less as the client will initiate a rollback without asking
+            // the participants to prepare.
             assertEquals("Incorrect number of Events created", (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());
         }
     }

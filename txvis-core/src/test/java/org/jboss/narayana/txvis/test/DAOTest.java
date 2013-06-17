@@ -36,18 +36,11 @@ public class DAOTest {
         String ManifestMF = "Manifest-Version: 1.0\n"
                 + "Dependencies: org.jboss.jts\n";
 
-        File[] libs = Maven.resolver()
-                .loadPomFromFile("pom.xml").resolve("commons-io:commons-io:2.4")
-                .withTransitivity().asFile();
-
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
+        return ShrinkWrap.create(WebArchive.class, "test.war")
                 .addPackages(true, "org.jboss.narayana.txvis.persistence", "org.jboss.narayana.txvis.test.utils")
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
                 .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
-                .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));
-
-        return archive;
     }
 
     UniqueIdGenerator idGen;
