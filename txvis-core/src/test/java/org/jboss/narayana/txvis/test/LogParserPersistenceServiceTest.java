@@ -123,20 +123,21 @@ public class LogParserPersistenceServiceTest {
         final String jndiName1 = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName1, null, null, timestamp);
         final ResourceManager rm1 = dao.retrieveResourceManagerByJndiName(jndiName1);
-        assertNotNull("", rm1);
-        assertEquals("", jndiName1, rm1.getJndiName());
+        assertNotNull("ResourceManager not created", rm1);
+        assertEquals("ResourceManager contained incorrect Jndi name", jndiName1, rm1.getJndiName());
 
         // Test that the service functions correctly if the ResourceManager already exists
         final String jndiName2 = idGen.getUniqueJndiName();
         ResourceManager rm2 = new ResourceManager(jndiName2, null, null);
         dao.create(rm2);
-        assertNotNull("", dao.retrieveResourceManagerByJndiName(jndiName2));
+        assertNotNull("ResourceManager not created", dao.retrieveResourceManagerByJndiName(jndiName2));
         service.enlistResourceManager(txuid, jndiName2, null, null, timestamp);
         rm2 = dao.retrieveResourceManagerByJndiName(jndiName2);
-        assertNotNull("", rm2);
-        assertEquals("", jndiName2, rm2.getJndiName());
+        assertNotNull("ResourceManager not created", rm2);
+        assertEquals("ResourceManager contained incorrect Jndi name", jndiName2, rm2.getJndiName());
 
-        assertEquals("", 2, dao.retrieveTransactionByTxUID(txuid).getParticipantRecords().size());
+        assertEquals("Incorrect number of ParticipantRecords created", 2,
+                dao.retrieveTransactionByTxUID(txuid).getParticipantRecords().size());
     }
 
     @Test
@@ -147,7 +148,8 @@ public class LogParserPersistenceServiceTest {
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourceVoteCommit(txuid, jndiName, timestamp);
 
-        assertEquals("" ,Vote.COMMIT ,dao.retrieveParticipantRecord(txuid, jndiName).getVote());
+        assertEquals("ParticipantRecord contained incorrect vote" ,Vote.COMMIT,
+                dao.retrieveParticipantRecord(txuid, jndiName).getVote());
     }
 
     @Test
@@ -158,7 +160,8 @@ public class LogParserPersistenceServiceTest {
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourceVoteAbort(txuid, jndiName, timestamp);
 
-        assertEquals("" ,Vote.ABORT ,dao.retrieveParticipantRecord(txuid, jndiName).getVote());
+        assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
+                dao.retrieveParticipantRecord(txuid, jndiName).getVote());
     }
 
     private boolean eventExists(Collection<Event> events, EventType type) {
