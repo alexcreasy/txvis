@@ -17,7 +17,6 @@ import java.io.File;
  */
 @Singleton
 @LocalBean
-@DependsOn("DataAccessObjectBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Lock(LockType.READ)
@@ -27,9 +26,6 @@ public class LogMonitorServiceBean {
 
     @Resource
     private SessionContext sessionContext;
-
-    @EJB
-    private DataAccessObject dao;
 
     private File logFile;
     private Tailer tailer;
@@ -66,7 +62,7 @@ public class LogMonitorServiceBean {
             throw new IllegalStateException("Cannot call setFile while LogMonitor is running");
 
         logFile = file;
-        logParser = LogParserFactory.getInstance(dao);
+        logParser = LogParserFactory.getInstance();
     }
 
     public boolean isRunning() {
