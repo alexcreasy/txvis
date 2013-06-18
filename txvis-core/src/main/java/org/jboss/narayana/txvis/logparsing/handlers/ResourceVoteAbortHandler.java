@@ -34,8 +34,7 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        ParticipantRecord rec = dao.retrieveParticipantRecord(matcher.group(TXID), matcher.group("JNDINAME"));
-        rec.setVote(Vote.ABORT);
-        dao.update(rec);
+        service.resourceVoteAbort(matcher.group(TXID), matcher.group("JNDINAME"),
+                parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

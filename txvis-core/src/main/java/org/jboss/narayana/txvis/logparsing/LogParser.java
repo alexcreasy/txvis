@@ -71,11 +71,11 @@ public final class LogParser implements TailerListener {
 
     private String logFormat(Handler handler, Matcher matcher) {
         final StringBuilder sb =
-                new StringBuilder(this + " Parser match: handler=").append(handler.getClass().getSimpleName());
+                new StringBuilder(this + " Parser match: handler=`").append(handler.getClass().getSimpleName());
 
         for (int i = 1; i <= matcher.groupCount(); i++)
-            sb.append(", matcher.group(").append(i).append(")=").append(matcher.group(i));
+            sb.append("`, matcher.group(").append(i).append(")=`").append(matcher.group(i));
 
-        return sb.toString();
+        return sb.append("`").toString();
     }
 }

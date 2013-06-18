@@ -25,10 +25,6 @@ public final class CommitTxHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
-        dao.update(t);
+        service.commitTx(matcher.group(TXID), parseTimestamp(matcher.group(TIMESTAMP)));
     }
-
-
 }

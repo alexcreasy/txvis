@@ -36,11 +36,13 @@ public class Transaction implements Serializable {
 
     private Long endTime;
 
-    @OneToMany(mappedBy = "transaction", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "transaction", cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            fetch = FetchType.EAGER, orphanRemoval = true)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
-    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "transaction", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
+            fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<Event> events = new LinkedList<>();
 
@@ -128,6 +130,10 @@ public class Transaction implements Serializable {
         event.setTransaction(this);
     }
 
+    public void prepare(Timestamp timestamp) {
+        events.add(new Event(this, EventType.PREPARE, "N/A", timestamp));
+    }
+
     public long getDuration() {
         return status.equals(Status.IN_FLIGHT)
                 ? System.currentTimeMillis() - startTime
@@ -136,12 +142,9 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("Tx ID: ").append(txuid);
-
-        for (ParticipantRecord p : participantRecords) {
-            result.append("\n\t").append(p);
-        }
-        return result.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Transaction: uid: ").append(txuid)
+                .append(", Status: ").append(status);
+        return sb.toString();
     }
 }

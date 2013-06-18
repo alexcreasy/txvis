@@ -25,8 +25,7 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        ParticipantRecord rec = dao.retrieveParticipantRecord(matcher.group(TXID), matcher.group("JNDINAME"));
-        rec.setVote(Vote.COMMIT);
-        dao.update(rec);
+        service.resourceVoteCommit(matcher.group(TXID), matcher.group("JNDINAME"),
+                parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

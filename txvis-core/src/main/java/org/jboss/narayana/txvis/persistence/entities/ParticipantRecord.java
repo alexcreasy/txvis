@@ -70,4 +70,13 @@ public class ParticipantRecord implements Serializable {
             throw new NullPointerException("Method called with null parameter: vote");
         this.vote = vote;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("ParticipantRecord: Transaction < ").append(transaction)
+                .append(" >, ResourceManager <").append(resourceManager).append(" >")
+                .append(", Vote: ").append(vote);
+        return sb.toString();
+    }
 }

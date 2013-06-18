@@ -34,22 +34,17 @@ public class ReaperHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
+        final String txuid = matcher.group(TXID);
+        final Timestamp timestamp = parseTimestamp(matcher.group(TIMESTAMP));
+
         switch(matcher.group("ACTIONSTATUS")) {
             case "COMMITTED":
-                committed(matcher);
+                service.commitTx(txuid, timestamp);
                 break;
             case "ABORT":
                 break;
             default:
                 break;
-        }
-    }
-
-    private void committed(Matcher matcher) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        if (t.getStatus().equals(Status.IN_FLIGHT)) {
-            t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
-            dao.update(t);
         }
     }
 }

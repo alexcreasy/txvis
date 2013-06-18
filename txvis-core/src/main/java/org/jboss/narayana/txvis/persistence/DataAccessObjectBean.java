@@ -33,17 +33,16 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @Override
     public <E> void create(E entity) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("DataAccessObjectBean.create() entity=`{0}`", entity));
+
         final EntityManager em = emf.createEntityManager();
 
         try {
-            final boolean notActive = !em.getTransaction().isActive();
-
-            if (notActive)
-                em.getTransaction().begin();
+            em.getTransaction().begin();
             try {
                 em.persist(entity);
-                if (notActive)
-                    em.getTransaction().commit();
+                em.getTransaction().commit();
 
             } catch (Throwable throwable) {
                 em.getTransaction().rollback();
@@ -59,6 +58,10 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @Override
     public <E, K> E retrieve(Class<E> entityClass, K primaryKey) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("DataAccessObjectBean.retrieve() entityClass=`{0}`, primaryKey=`{1}`",
+                    entityClass, primaryKey));
+
         final EntityManager em = emf.createEntityManager();
         try {
             return em.find(entityClass, primaryKey);
@@ -76,6 +79,9 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     @SuppressWarnings("unchecked")
     public <E> List<E> retrieveAll(Class<E> entityClass) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll() entityClass=`{0}`", entityClass));
+
         final String s = "FROM " + entityClass.getSimpleName() + " e";
 
         final EntityManager em = emf.createEntityManager();
@@ -97,6 +103,11 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @SuppressWarnings("unchecked")
     public <E, V> E retrieveByField(Class<E> entityClass, String field, V value)
             throws NonUniqueResultException, NoSuchEntityException {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format(
+                    "DataAccessObjectBean.retrieveByField() entityClass=`{0}`, field=`{1}`, value=`{2}`",
+                    entityClass, field, value));
+
         final String query = MessageFormat.format(
                 "FROM {0} e WHERE e.{1}=:value", entityClass.getSimpleName(), field);
 
@@ -117,6 +128,9 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @Override
     public <E> void update(E entity) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("DataAccessObjectBean.update() entity=`{0}`", entity));
+
         final EntityManager em = emf.createEntityManager();
         try {
             final boolean notActive = !em.getTransaction().isActive();
@@ -142,6 +156,9 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     @Override
     public <E> void delete(E entity) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("DataAccessObjectBean.delete() entity=`{0}`", entity));
+
         final EntityManager em = emf.createEntityManager();
         try {
             final boolean notActive = !em.getTransaction().isActive();
@@ -165,52 +182,59 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <E> void deleteAll(Class<E> entityClass) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("DataAccessObjectBean.deleteAll() entityClass=`{0}`", entityClass));
+
         final EntityManager em = emf.createEntityManager();
         try {
+            final boolean notActive = !em.getTransaction().isActive();
 
-//            Collection<E> entities = retrieveAll(entityClass);
-//
-//            if (entities.isEmpty())
-//                return;
-//
-//            final boolean notActive = !em.getTransaction().isActive();
-//
-//            if (notActive)
-//                em.getTransaction().begin();
-//            try {
-//                for (E e : entities)
-//                    em.remove(em.merge(e));
-//
-//                if (notActive)
-//                    em.getTransaction().commit();
-//
-//            } catch (Throwable throwable) {
-//                if (notActive)
-//                    em.getTransaction().rollback();
-//
-//                logger.warn(MessageFormat.format(
-//                        "An error occured while attempting to delete all entities: {0}",
-//                        entityClass.getSimpleName()), throwable);
-//            }
+            if (notActive)
+                em.getTransaction().begin();
+            try {
+                for (E e : (Collection<E>) em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList())
+                    em.remove(e);
 
-            em.getTransaction().begin();
-            for (E e : retrieveAll(entityClass))
-                em.remove(em.merge(e));
-            em.getTransaction().commit();
+                if (notActive)
+                    em.getTransaction().commit();
+
+            } catch (Throwable throwable) {
+                if (notActive)
+                    em.getTransaction().rollback();
+
+                logger.warn(MessageFormat.format(
+                        "An error occured while attempting to delete all entities: {0}",
+                        entityClass.getSimpleName()), throwable);
+            }
+
+//            em.getTransaction().begin();
+//            for (E e : retrieveAll(entityClass))
+//                em.remove(em.merge(e));
+//            em.getTransaction().commit();
 
         } finally {
             em.close();
         }
     }
 
+    @Override
+    public void deleteAll() {
+        final EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Event").executeUpdate();
+            em.createQuery("DELETE FROM ParticipantRecord").executeUpdate();
+            em.createQuery("DELETE FROM ResourceManager").executeUpdate();
+            em.createQuery("DELETE FROM Transaction").executeUpdate();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
 
-
-
-
-
-
+    }
 
     @Override
     public Transaction retrieveTransactionByTxUID(String txUID) throws NoResultException,
@@ -241,8 +265,8 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     }
 
     @Override
-    public void createParticipantRecord(String transactionXID, ResourceManager rm, Timestamp timestamp) {
-        createParticipantRecord(retrieveTransactionByTxUID(transactionXID), rm, timestamp);
+    public void createParticipantRecord(String txuid, ResourceManager rm, Timestamp timestamp) {
+        createParticipantRecord(retrieveTransactionByTxUID(txuid), rm, timestamp);
     }
 
     @Override
@@ -273,7 +297,6 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } finally {
             em.close();
         }
-
     }
 
     private boolean validateTxId(String txId) throws NullPointerException {

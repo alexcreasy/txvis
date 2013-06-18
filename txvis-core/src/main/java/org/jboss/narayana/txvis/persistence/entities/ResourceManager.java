@@ -70,4 +70,13 @@ public class ResourceManager implements Serializable {
     public Collection<ParticipantRecord> getParticipantRecords() {
         return Collections.unmodifiableCollection(participantRecords);
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("ResourceManager: JNDIName: ").append(jndiName)
+                .append(" Product Name: ").append(productName)
+                .append(" Product Version: ").append(productVersion);
+        return sb.toString();
+    }
 }

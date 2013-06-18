@@ -1,11 +1,5 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
-import org.jboss.narayana.txvis.Utils;
-import org.jboss.narayana.txvis.persistence.entities.Event;
-import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.EventType;
-import org.jboss.narayana.txvis.persistence.enums.Status;
-
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
@@ -30,52 +24,31 @@ public class BasicActionHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
+        final String txuid = matcher.group(TXID);
+        final Timestamp timestamp =  parseTimestamp(matcher.group(TIMESTAMP));
+
         switch (matcher.group("BASICACTION")) {
             case "Begin":
-                begin(matcher);
+                service.createTx(txuid, timestamp);
                 break;
             case "End":
-                end(matcher);
+                service.prepareTx(txuid, timestamp);
                 break;
             case "Abort":
-                abort(matcher);
+                service.topLevelAbortTx(txuid, timestamp);
                 break;
             case "phase2Abort":
-                phase2Abort(matcher);
+                service.resourceDrivenAbortTx(txuid, timestamp);
                 break;
             case "onePhaseCommit":
-                onePhaseCommit(matcher);
                 break;
         }
     }
 
-    private void begin(Matcher matcher) {
-        dao.create(new Transaction(matcher.group(TXID), Utils.parseTimestamp(matcher.group(TIMESTAMP))));
-
-    }
-
-    private void end(Matcher matcher) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.addEvent(new Event(EventType.PREPARE, "N/A", Utils.parseTimestamp(matcher.group(TIMESTAMP))));
-        dao.update(t);
-    }
-
-    private void abort(Matcher matcher) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.ROLLBACK_CLIENT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
-        dao.update(t);
-    }
-
-    private void phase2Abort(Matcher matcher) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.ROLLBACK_RESOURCE, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
-        dao.update(t);
-    }
-
-    private void onePhaseCommit(Matcher matcher) {
-        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-        t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
-        t.setOnePhase(true);
-        dao.update(t);
-    }
+//    private void onePhaseCommit(Matcher matcher) {
+//        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
+//        t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
+//        t.setOnePhase(true);
+//        dao.update(t);
+//    }
 }

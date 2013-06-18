@@ -45,4 +45,6 @@ public interface DataAccessObject {
     void createParticipantRecord(String transactionXID, ResourceManager rm, Timestamp timestamp);
 
     ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName);
+
+    void deleteAll();
 }

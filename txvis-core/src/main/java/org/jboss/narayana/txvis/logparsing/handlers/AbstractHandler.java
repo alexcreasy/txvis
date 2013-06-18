@@ -2,7 +2,11 @@ package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.persistence.LogParserPersistenceService;
 
+import java.sql.Timestamp;
+import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -63,28 +67,80 @@ public abstract class AbstractHandler implements Handler {
       */
 
 
-
+    //
     private final Pattern pattern;
+    //
+    protected LogParserPersistenceService service;
 
-    protected DataAccessObject dao;
-
+    /**
+     *
+     * @param regex
+     * @throws PatternSyntaxException
+     */
     public AbstractHandler(String regex) throws PatternSyntaxException {
         this.pattern = Pattern.compile(regex);
     }
 
+    /**
+     *
+     * @param regex
+     * @param flags
+     * @throws PatternSyntaxException
+     * @throws IllegalArgumentException
+     */
     public AbstractHandler(String regex, int flags)
             throws PatternSyntaxException, IllegalArgumentException {
         this.pattern = Pattern.compile(regex, flags);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public final Pattern getPattern() {
         return this.pattern;
     }
 
-    public void injectDAO(DataAccessObject dao) throws NullPointerException {
-        if (dao == null)
-            throw new NullPointerException("Method called with null parameter: dao");
-        this.dao = dao;
+    /**
+     *
+     * @param service
+     * @throws NullPointerException
+     */
+    public void injectService(LogParserPersistenceService service) throws NullPointerException {
+        if (service == null)
+            throw new NullPointerException("Method called with null parameter: service");
+        this.service = service;
+    }
+
+
+    /*
+     *
+     *
+     */
+    protected Timestamp parseTimestamp(String dateTime) {
+        int hour = -1;
+        int minute = -1;
+        int second = -1;
+        int millis = -1;
+
+        try {
+            hour = Integer.parseInt(dateTime.substring(0, 2));
+            minute = Integer.parseInt(dateTime.substring(3, 5));
+            second = Integer.parseInt(dateTime.substring(6, 8));
+            millis = Integer.parseInt(dateTime.substring(9));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "Utils.parseTimeStamp could not parse: {0}  / tokens: hour={1}, minute={2}, second={3}, millis={4}",
+                    dateTime, hour, minute, second, millis), e);
+        }
+
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, hour);
+        c.set(Calendar.MINUTE, minute);
+        c.set(Calendar.SECOND, second);
+        c.set(Calendar.MILLISECOND, millis);
+
+        return new Timestamp(c.getTimeInMillis());
     }
 }

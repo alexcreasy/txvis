@@ -46,7 +46,7 @@ public class OnlineJTAIntegrationTest {
                 .addPackages(true, "org.jboss.narayana.txvis")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
-                .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
+                .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-mysql-ds.xml")), "txvis-test-ds.xml")
                 .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));
     }
@@ -69,8 +69,7 @@ public class OnlineJTAIntegrationTest {
     @Before
     public void setup() throws Exception {
         txUtil = new TransactionUtil();
-        dao.deleteAll(Transaction.class);
-        dao.deleteAll(ResourceManager.class);
+        dao.deleteAll();
     }
 
     @Test

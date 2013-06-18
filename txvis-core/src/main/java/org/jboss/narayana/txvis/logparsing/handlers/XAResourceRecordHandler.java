@@ -3,6 +3,7 @@ package org.jboss.narayana.txvis.logparsing.handlers;
 import org.jboss.narayana.txvis.Utils;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 
+import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
 /**
@@ -25,24 +26,18 @@ public class XAResourceRecordHandler extends AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
+        final String txuid = matcher.group(TXID);
+        final Timestamp timestamp = parseTimestamp(matcher.group(TIMESTAMP));
+        final String jndiName = matcher.group("JNDINAME");
+        final String productName = matcher.group("PRODUCTNAME");
+        final String productVer = matcher.group("PRODUCTVERSION");
 
         switch (matcher.group("RECORDACTION")) {
             case "XAResourceRecord":
-                enlistResourceManger(matcher);
+                service.enlistResourceManager(txuid, jndiName, productName, productVer, timestamp);
                 break;
             case "topLevelPrepare":
                 break;
         }
-    }
-
-
-    void enlistResourceManger(Matcher matcher) {
-        ResourceManager rm = dao.retrieveResourceManagerByJndiName(matcher.group("JNDINAME"));
-
-        if (rm == null)
-            rm = new ResourceManager(matcher.group("JNDINAME"),
-                    matcher.group("PRODUCTNAME"), matcher.group("PRODUCTVERSION"));
-
-         dao.createParticipantRecord(matcher.group(TXID), rm, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }
