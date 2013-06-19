@@ -1,8 +1,7 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
-import org.jboss.narayana.txvis.persistence.LogParserPersistenceService;
+import org.jboss.narayana.txvis.persistence.HandlerService;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -70,7 +69,7 @@ public abstract class AbstractHandler implements Handler {
     //
     private final Pattern pattern;
     //
-    protected LogParserPersistenceService service;
+    protected HandlerService service;
 
     /**
      *
@@ -107,7 +106,7 @@ public abstract class AbstractHandler implements Handler {
      * @param service
      * @throws NullPointerException
      */
-    public void injectService(LogParserPersistenceService service) throws NullPointerException {
+    public void injectService(HandlerService service) throws NullPointerException {
         if (service == null)
             throw new NullPointerException("Method called with null parameter: service");
         this.service = service;

@@ -1,11 +1,5 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
-import org.jboss.narayana.txvis.Utils;
-import org.jboss.narayana.txvis.persistence.entities.Event;
-import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.EventType;
-import org.jboss.narayana.txvis.persistence.enums.Status;
-
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
@@ -39,7 +33,7 @@ public class ReaperHandler extends AbstractHandler {
 
         switch(matcher.group("ACTIONSTATUS")) {
             case "COMMITTED":
-                service.commitTx(txuid, timestamp);
+                service.commitTx2Phase(txuid, timestamp);
                 break;
             case "ABORT":
                 break;

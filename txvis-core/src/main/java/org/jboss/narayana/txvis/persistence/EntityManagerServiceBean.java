@@ -13,6 +13,10 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 
 /**
+ * Singleton, Local EJB responsible for providing an EntityManager on
+ * request. The Bean will handle the the initialisation and destruction
+ * of the persistence context throughout the container's lifecycle.
+ *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 16/05/2013
  * Time: 14:50

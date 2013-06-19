@@ -24,7 +24,7 @@ import java.util.Calendar;
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class LogParserPersistenceService {
+public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -38,7 +38,7 @@ public class LogParserPersistenceService {
      */
     public void createTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("LogParserPersistenceService.createTx(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.createTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = new Transaction(txuid, timestamp);
@@ -52,7 +52,7 @@ public class LogParserPersistenceService {
      */
     public void prepareTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("LogParserPersistenceService.prepareTx(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.prepareTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
@@ -65,14 +65,13 @@ public class LogParserPersistenceService {
      * @param txuid
      * @param timestamp
      */
-    public void commitTx(String txuid, Timestamp timestamp) {
+    public void commitTx2Phase(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "LogParserPersistenceService.commitTx(), txuid=`{0}`, timestamp=`{1}`",
+                    "HandlerService.commitTx2Phase(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
-
         if (tx.getStatus().equals(Status.IN_FLIGHT)) {
             tx.setStatus(Status.COMMIT, timestamp);
             dao.update(tx);
@@ -84,10 +83,27 @@ public class LogParserPersistenceService {
      * @param txuid
      * @param timestamp
      */
+    public void commitTx1Phase(String txuid, Timestamp timestamp) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format(
+                    "HandlerService.commitTx1Phase(), txuid=`{0}`, timestamp=`{1}`",
+                    txuid, timestamp));
+
+        final Transaction t = dao.retrieveTransactionByTxUID(txuid);
+        t.setStatus(Status.COMMIT, timestamp);
+        t.setOnePhase(true);
+        dao.update(t);
+    }
+
+    /**
+     *
+     * @param txuid
+     * @param timestamp
+     */
     public void topLevelAbortTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "LogParserPersistenceService.topLevelAbortTx(), txuid=`{0}`, timestamp=`{1}`",
+                    "HandlerService.topLevelAbortTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
@@ -103,7 +119,7 @@ public class LogParserPersistenceService {
     public void resourceDrivenAbortTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "LogParserPersistenceService.resourceDrivenAbortTx(), txuid=`{0}`, timestamp=`{1}`",
+                    "HandlerService.resourceDrivenAbortTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
@@ -120,7 +136,7 @@ public class LogParserPersistenceService {
     public void resourceVoteCommit(String txuid, String rmJndiName, Timestamp timestamp) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "LogParserPersistenceService.resourceVoteCommit(), txuid=`{0}`, timestamp=`{1}`",
+                    "HandlerService.resourceVoteCommit(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final ParticipantRecord rec = dao.retrieveParticipantRecord(txuid, rmJndiName);
@@ -137,7 +153,7 @@ public class LogParserPersistenceService {
     public void resourceVoteAbort(String txuid, String rmJndiName, Timestamp timestamp) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "LogParserPersistenceService.resourceVoteAbort(), txuid=`{0}`, timestamp=`{1}`",
+                    "HandlerService.resourceVoteAbort(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final ParticipantRecord rec = dao.retrieveParticipantRecord(txuid, rmJndiName);
@@ -157,15 +173,12 @@ public class LogParserPersistenceService {
                                       String rmProductVersion, Timestamp timestamp) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "LogParserPersistenceService.enlistResourceManager(), txuid=`{0}`, timestamp=`{1}`, rmJndiName=`{2}`, rmProductName=`{3}`, rmProductVersion=`{4}`",
+                    "HandlerService.enlistResourceManager(), txuid=`{0}`, timestamp=`{1}`, rmJndiName=`{2}`, rmProductName=`{3}`, rmProductVersion=`{4}`",
                     txuid, timestamp, rmJndiName, rmProductName, rmProductVersion));
 
-
         ResourceManager rm = dao.retrieveResourceManagerByJndiName(rmJndiName);
-
         if (rm == null)
             rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
-
         dao.createParticipantRecord(txuid, rm, timestamp);
     }
 }

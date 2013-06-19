@@ -3,9 +3,8 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
-import org.jboss.narayana.txvis.persistence.LogParserPersistenceService;
+import org.jboss.narayana.txvis.persistence.HandlerService;
 import org.jboss.narayana.txvis.persistence.entities.Event;
-import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
@@ -32,7 +31,7 @@ import java.util.Collection;
  * Time: 14:08
  */
 @RunWith(Arquillian.class)
-public class LogParserPersistenceServiceTest {
+public class HandlerServiceTest {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -50,7 +49,7 @@ public class LogParserPersistenceServiceTest {
     private DataAccessObject dao;
 
     @EJB
-    private LogParserPersistenceService service;
+    private HandlerService service;
 
     private UniqueIdGenerator idGen = new UniqueIdGenerator();
     private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -79,14 +78,27 @@ public class LogParserPersistenceServiceTest {
     }
 
     @Test
-    public void commitTxTest() throws Exception {
+    public void commitTx2PhaseTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
         service.createTx(txuid, timestamp);
-        service.commitTx(txuid, timestamp);
+        service.commitTx2Phase(txuid, timestamp);
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
 
         assertEquals("Transaction record shows incorrect status", Status.COMMIT, tx.getStatus());
+        assertTrue("Could not find event record with type END", eventExists(tx.getEvents(), EventType.END));
+    }
+
+    @Test
+    public void commitTx1PhaseTest() throws Exception {
+        final String txuid = idGen.getUniqueTxId();
+        service.createTx(txuid, timestamp);
+        service.commitTx1Phase(txuid, timestamp);
+
+        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+
+        assertEquals("Transaction record shows incorrect status", Status.COMMIT, tx.getStatus());
+        assertTrue("Transaction did not correctly report one phase commit", tx.isOnePhase());
         assertTrue("Could not find event record with type END", eventExists(tx.getEvents(), EventType.END));
     }
 

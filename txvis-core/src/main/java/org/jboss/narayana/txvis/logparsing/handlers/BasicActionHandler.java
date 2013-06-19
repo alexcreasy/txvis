@@ -41,14 +41,8 @@ public class BasicActionHandler extends AbstractHandler {
                 service.resourceDrivenAbortTx(txuid, timestamp);
                 break;
             case "onePhaseCommit":
+                service.commitTx1Phase(txuid, timestamp);
                 break;
         }
     }
-
-//    private void onePhaseCommit(Matcher matcher) {
-//        Transaction t = dao.retrieveTransactionByTxUID(matcher.group(TXID));
-//        t.setStatus(Status.COMMIT, Utils.parseTimestamp(matcher.group(TIMESTAMP)));
-//        t.setOnePhase(true);
-//        dao.update(t);
-//    }
 }
