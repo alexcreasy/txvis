@@ -1,7 +1,7 @@
 package org.jboss.narayana.txvis.webapp.models;
 
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
+import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
@@ -24,7 +24,7 @@ public class TransactionListBean implements Serializable {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
-    private GenericDAO dao;
+    private TransactionDAO dao;
 
     private Collection<Transaction> transactionsList;
 
@@ -44,8 +44,8 @@ public class TransactionListBean implements Serializable {
     public void filter() {
         logger.trace("filter, filterByStatus=" + filterByStatus);
         transactionsList = filterByStatus == null
-                ? dao.retrieveAll(Transaction.class)
-                : dao.retrieveTransactionsWithStatus(filterByStatus);
+                ? dao.retrieveAll()
+                : dao.retrieveAllWithStatus(filterByStatus);
     }
 
     public void setFilterByStatus(Status status) {

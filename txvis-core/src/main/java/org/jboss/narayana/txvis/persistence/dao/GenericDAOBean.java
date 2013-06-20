@@ -25,7 +25,7 @@ import java.util.List;
 @DependsOn("EntityManagerServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class GenericDAOBean implements GenericDAO, Serializable {
+public class GenericDAOBean implements GenericDAO {
 
     @EJB
     private EntityManagerServiceBean emf;

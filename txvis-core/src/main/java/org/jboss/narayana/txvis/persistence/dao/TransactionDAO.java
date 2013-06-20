@@ -7,6 +7,7 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
 import javax.persistence.EntityManager;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class TransactionDAO {
+public class TransactionDAO implements Serializable{
 
     @EJB
     private GenericDAO dao;

@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.Local;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * Time: 22:35
  */
 @Local
-public interface GenericDAO {
+public interface GenericDAO extends Serializable {
 
     <E> void create(E entity);
 
@@ -32,7 +33,6 @@ public interface GenericDAO {
     <E> void delete(E entity);
 
     <E> void deleteAll(Class<E> entityClass);
-
 
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);

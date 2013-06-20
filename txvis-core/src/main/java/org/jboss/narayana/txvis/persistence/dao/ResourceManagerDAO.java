@@ -5,6 +5,7 @@ import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 
 import javax.ejb.*;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class ResourceManagerDAO {
+public class ResourceManagerDAO implements Serializable{
 
     @EJB
     private GenericDAO dao;

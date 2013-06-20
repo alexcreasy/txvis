@@ -1,6 +1,6 @@
 package org.jboss.narayana.txvis.webapp.models;
 
-import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
+import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 
 import javax.enterprise.context.RequestScoped;
@@ -23,7 +23,7 @@ public class TransactionInfoBean implements Serializable {
     private String txUID;
 
     @Inject
-    private GenericDAO dao;
+    private TransactionDAO dao;
 
     private Transaction tx;
 
@@ -43,6 +43,6 @@ public class TransactionInfoBean implements Serializable {
     }
 
     public void init() {
-        tx = dao.retrieve(Transaction.class, getTxUID());
+        tx = dao.retrieve(getTxUID());
     }
 }

@@ -5,6 +5,7 @@ import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 
 import javax.ejb.*;
 import javax.persistence.EntityManager;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class ParticipantRecordDAO {
+public class ParticipantRecordDAO implements Serializable {
 
     @EJB
     private GenericDAO dao;
