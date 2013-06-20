@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.persistence;
+package org.jboss.narayana.txvis.persistence.dao;
 
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
@@ -15,7 +15,7 @@ import java.util.List;
  * Time: 22:35
  */
 @Local
-public interface DataAccessObject {
+public interface GenericDAO {
 
     <E> void create(E entity);
 

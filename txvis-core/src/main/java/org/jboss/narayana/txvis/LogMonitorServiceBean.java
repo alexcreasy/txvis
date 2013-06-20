@@ -2,7 +2,6 @@ package org.jboss.narayana.txvis;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.logparsing.LogParser;
 import org.jboss.narayana.txvis.logparsing.LogParserFactory;
 

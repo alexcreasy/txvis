@@ -1,15 +1,11 @@
 package org.jboss.narayana.txvis.webapp.models;
 
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Model;
-import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
@@ -28,7 +24,7 @@ public class TransactionListBean implements Serializable {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
-    private DataAccessObject dao;
+    private GenericDAO dao;
 
     private Collection<Transaction> transactionsList;
 

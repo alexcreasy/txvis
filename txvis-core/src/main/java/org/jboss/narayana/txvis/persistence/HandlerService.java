@@ -1,18 +1,17 @@
 package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.persistence.entities.Event;
+import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
+import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
-import java.util.Calendar;
 
 /**
  *
@@ -29,7 +28,10 @@ public class HandlerService {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @EJB
-    private DataAccessObject dao;
+    private GenericDAO dao;
+
+    @EJB
+    TransactionDAO transactionDAO;
 
     /**
      *
@@ -41,7 +43,7 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.createTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         final Transaction tx = new Transaction(txuid, timestamp);
-        dao.create(tx);
+        transactionDAO.create(tx);
     }
 
     /**
@@ -53,9 +55,9 @@ public class HandlerService {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("HandlerService.prepareTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
         tx.prepare(timestamp);
-        dao.update(tx);
+        transactionDAO.update(tx);
     }
 
     /**
@@ -68,10 +70,10 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.commitTx2Phase(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
         if (tx.getStatus().equals(Status.IN_FLIGHT)) {
             tx.setStatus(Status.COMMIT, timestamp);
-            dao.update(tx);
+            transactionDAO.update(tx);
         }
     }
 
@@ -85,10 +87,10 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.commitTx1Phase(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final Transaction t = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction t = transactionDAO.retrieve(txuid);
         t.setStatus(Status.COMMIT, timestamp);
         t.setOnePhase(true);
-        dao.update(t);
+        transactionDAO.update(t);
     }
 
     /**
@@ -101,9 +103,9 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.topLevelAbortTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
         tx.setStatus(Status.ROLLBACK_CLIENT, timestamp);
-        dao.update(tx);
+        transactionDAO.update(tx);
     }
 
     /**
@@ -116,9 +118,9 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.resourceDrivenAbortTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
         tx.setStatus(Status.ROLLBACK_RESOURCE, timestamp);
-        dao.update(tx);
+        transactionDAO.update(tx);
     }
 
     /**

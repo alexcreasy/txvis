@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.persistence.*;
+import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -12,7 +12,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,7 @@ import static junit.framework.Assert.*;
  * Time: 17:31
  */
 @RunWith(Arquillian.class)
-public class DAOTest {
+public class GenericDAOTest {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -48,7 +47,7 @@ public class DAOTest {
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     @EJB
-    DataAccessObject dao;
+    GenericDAO dao;
 
     @Before
     public void setup() throws Exception {

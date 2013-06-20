@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.HandlerService;
 import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
@@ -46,7 +46,7 @@ public class HandlerServiceTest {
     }
 
     @EJB
-    private DataAccessObject dao;
+    private GenericDAO dao;
 
     @EJB
     private HandlerService service;

@@ -1,7 +1,8 @@
-package org.jboss.narayana.txvis.persistence;
+package org.jboss.narayana.txvis.persistence.dao;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -24,7 +25,7 @@ import java.util.List;
 @DependsOn("EntityManagerServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class DataAccessObjectBean implements DataAccessObject, Serializable {
+public class GenericDAOBean implements GenericDAO, Serializable {
 
     @EJB
     private EntityManagerServiceBean emf;
@@ -40,7 +41,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     public <E> void create(E entity) {
 
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("DataAccessObjectBean.create() entity=`{0}`", entity));
+            logger.trace(MessageFormat.format("GenericDAOBean.create() entity=`{0}`", entity));
 
         final EntityManager em = emf.createEntityManager();
         final EntityTransaction etx = em.getTransaction();
@@ -71,7 +72,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     public <E, K> E retrieve(Class<E> entityClass, K primaryKey) {
 
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("DataAccessObjectBean.retrieve() entityClass=`{0}`, primaryKey=`{1}`",
+            logger.trace(MessageFormat.format("GenericDAOBean.retrieve() entityClass=`{0}`, primaryKey=`{1}`",
                     entityClass, primaryKey));
 
         final EntityManager em = emf.createEntityManager();
@@ -80,7 +81,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } catch (NoResultException e) {
 
             logger.warn(MessageFormat.format(
-                    "DataAccessObjectBean.retrieve: No result found for search: class=`{0}`, primaryKey=`{1}`",
+                    "GenericDAOBean.retrieve: No result found for search: class=`{0}`, primaryKey=`{1}`",
                     entityClass, primaryKey));
 
             return null;
@@ -99,7 +100,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @SuppressWarnings("unchecked")
     public <E> List<E> retrieveAll(Class<E> entityClass) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll() entityClass=`{0}`", entityClass));
+            logger.trace(MessageFormat.format("GenericDAOBean.retrieveAll() entityClass=`{0}`", entityClass));
 
         final EntityManager em = emf.createEntityManager();
         try {
@@ -109,7 +110,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } catch (NoResultException e) {
 
             if (logger.isTraceEnabled())
-                logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
+                logger.trace(MessageFormat.format("GenericDAOBean.retrieveAll: No result found for search: class=`{0}`",
                         entityClass));
             return null;
         } finally {
@@ -135,7 +136,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
-                    "DataAccessObjectBean.retrieveByField() entityClass=`{0}`, field=`{1}`, value=`{2}`",
+                    "GenericDAOBean.retrieveByField() entityClass=`{0}`, field=`{1}`, value=`{2}`",
                     entityClass, field, value));
 
         final EntityManager em = emf.createEntityManager();
@@ -148,7 +149,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
             if (logger.isTraceEnabled())
                 logger.trace(MessageFormat.format(
-                        "DataAccessObjectBean.retrieveByField: No result found for search: " +
+                        "GenericDAOBean.retrieveByField: No result found for search: " +
                                 "class=`{0}`, field=`{1}`, value=`{2}`", entityClass, field, value));
             return null;
         } finally {
@@ -164,7 +165,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public <E> void update(E entity) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("DataAccessObjectBean.update() entity=`{0}`", entity));
+            logger.trace(MessageFormat.format("GenericDAOBean.update() entity=`{0}`", entity));
 
         final EntityManager em = emf.createEntityManager();
         final EntityTransaction etx = em.getTransaction();
@@ -191,7 +192,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public <E> void delete(E entity) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("DataAccessObjectBean.delete() entity=`{0}`", entity));
+            logger.trace(MessageFormat.format("GenericDAOBean.delete() entity=`{0}`", entity));
 
         final EntityManager em = emf.createEntityManager();
         final EntityTransaction etx = em.getTransaction();
@@ -219,7 +220,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public <E> void deleteAll(Class<E> entityClass) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("DataAccessObjectBean.deleteAll() entityClass=`{0}`", entityClass));
+            logger.trace(MessageFormat.format("GenericDAOBean.deleteAll() entityClass=`{0}`", entityClass));
 
         final EntityManager em = emf.createEntityManager();
         final EntityTransaction etx = em.getTransaction();

@@ -3,9 +3,9 @@ package org.jboss.narayana.txvis.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.LogMonitorServiceBean;
-import org.jboss.narayana.txvis.persistence.*;
+import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
+import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
-import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
@@ -59,7 +59,10 @@ public class OnlineJTAIntegrationTest {
 
 
     @EJB
-    private DataAccessObject dao;
+    private GenericDAO dao;
+
+    @EJB
+    private TransactionDAO transactionDAO;
 
     @EJB
     private LogMonitorServiceBean mon;
@@ -76,13 +79,13 @@ public class OnlineJTAIntegrationTest {
     public void parseTransactionTest() throws Exception {
         createAndLogTransactions(Status.COMMIT);
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX,
-                dao.retrieveAll(Transaction.class).size());
+                transactionDAO.retrieveAll().size());
     }
 
     @Test
     public void parseEnlistResourceManagerTest() throws Exception {
         createAndLogTransactions(Status.COMMIT);
-        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+        for (Transaction tx : transactionDAO.retrieveAll()) {
             assertEquals("Incorrect number of ParticipantRecords parsed", NO_OF_PARTICIPANTS,
                     tx.getParticipantRecords().size());
             assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
@@ -94,11 +97,11 @@ public class OnlineJTAIntegrationTest {
     public void clientDrivenCommitTest() throws Exception {
         createAndLogTransactions(Status.COMMIT);
 
-        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
-        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+        for (Transaction tx : transactionDAO.retrieveAll()) {
             assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.COMMIT,
-                    dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
+                    transactionDAO.retrieve(tx.getTxuid()).getStatus());
 
             assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
 
@@ -112,11 +115,11 @@ public class OnlineJTAIntegrationTest {
     public void clientDrivenRollbackTest() throws Exception {
         createAndLogTransactions(Status.ROLLBACK_CLIENT);
 
-        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
-        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+        for (Transaction tx : transactionDAO.retrieveAll()) {
             assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.ROLLBACK_CLIENT,
-                    dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
+                    transactionDAO.retrieve(tx.getTxuid()).getStatus());
 
             // Expected number of events is one less as the client will initiate a rollback without asking
             // the participants to prepare.
@@ -128,11 +131,11 @@ public class OnlineJTAIntegrationTest {
     public void resourceDrivenRollbackTest() throws Exception {
         createAndLogTransactions(Status.ROLLBACK_RESOURCE);
 
-        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, dao.retrieveAll(Transaction.class).size());
+        assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
-        for (Transaction tx : dao.retrieveAll(Transaction.class)) {
+        for (Transaction tx : transactionDAO.retrieveAll()) {
             assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status",
-                    Status.ROLLBACK_RESOURCE, dao.retrieveTransactionByTxUID(tx.getTxuid()).getStatus());
+                    Status.ROLLBACK_RESOURCE, transactionDAO.retrieve(tx.getTxuid()).getStatus());
 
             int abortVotes = 0;
             for (ParticipantRecord rec : tx.getParticipantRecords()) {

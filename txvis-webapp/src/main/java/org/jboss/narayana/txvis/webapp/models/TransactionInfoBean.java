@@ -1,11 +1,9 @@
 package org.jboss.narayana.txvis.webapp.models;
 
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
+import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Model;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -25,7 +23,7 @@ public class TransactionInfoBean implements Serializable {
     private String txUID;
 
     @Inject
-    private DataAccessObject dao;
+    private GenericDAO dao;
 
     private Transaction tx;
 
