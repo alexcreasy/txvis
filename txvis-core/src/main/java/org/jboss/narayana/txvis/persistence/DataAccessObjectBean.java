@@ -43,19 +43,17 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
             logger.trace(MessageFormat.format("DataAccessObjectBean.create() entity=`{0}`", entity));
 
         final EntityManager em = emf.createEntityManager();
-
+        final EntityTransaction etx = em.getTransaction();
         try {
-            em.getTransaction().begin();
-            try {
-                em.persist(entity);
-                em.getTransaction().commit();
+            etx.begin();
 
-            } catch (Throwable throwable) {
+            em.persist(entity);
+
+            etx.commit();
+        } catch (RuntimeException e) {
+            if (etx != null && etx.isActive())
                 em.getTransaction().rollback();
-
-                logger.warn(MessageFormat.format("An error occured while attempting to persist entity: {0}",
-                        em.getClass().getSimpleName()), throwable);
-            }
+            throw e;
         } finally {
             em.close();
         }
