@@ -25,12 +25,21 @@ public final class LogParser implements TailerListener {
     // Enforce package-private constructor
     LogParser() {}
 
+    /**
+     *
+     * @param lineHandler
+     * @throws NullPointerException
+     */
     void addHandler(Handler lineHandler) throws NullPointerException {
         if (lineHandler == null)
             throw new NullPointerException("Method called with null parameter: lineHandler");
         handlers.add(lineHandler);
     }
 
+    /**
+     *
+     * @param line
+     */
     @Override
     public void handle(String line) {
         for (Handler handler : handlers) {
@@ -46,29 +55,46 @@ public final class LogParser implements TailerListener {
         }
     }
 
+    /**
+     *
+     * @param tailer
+     */
     @Override
     public void init(Tailer tailer) {
         this.tailer = tailer;
     }
 
+    /**
+     *
+     */
     @Override
     public void fileNotFound() {
         logger.fatal("Log file not found: " + tailer.getFile());
         throw new IllegalStateException("Log file not found: " + tailer.getFile());
     }
 
+    /**
+     *
+     */
     @Override
     public void fileRotated() {
         if (logger.isInfoEnabled())
             logger.info("Log file has been rotated");
     }
 
+    /**
+     *
+     * @param ex
+     */
     @Override
     public void handle(Exception ex) {
         logger.error("Exception caught: ", ex);
         throw new RuntimeException("Unhandled Exception ", ex);
     }
 
+    /*
+     *
+     */
     private String logFormat(Handler handler, Matcher matcher) {
         final StringBuilder sb =
                 new StringBuilder(this + " Parser match: handler=`").append(handler.getClass().getSimpleName());

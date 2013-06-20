@@ -13,15 +13,24 @@ import java.util.regex.Matcher;
  * Time: 19:34
  */
 public class BasicActionHandler extends AbstractHandler {
+    /**
+     *
+     */
+    public static final String REGEX = PATTERN_TIMESTAMP + ".*?BasicAction::" +
+            "(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
 
-    public static final String REGEX = PATTERN_TIMESTAMP +
-            ".*?BasicAction::(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"
-            + PATTERN_TXID;
-
+    /**
+     *
+     */
     public BasicActionHandler() {
         super(REGEX);
     }
 
+    /**
+     *
+     * @param matcher
+     * @param line
+     */
     @Override
     public void handle(Matcher matcher, String line) {
         final String txuid = matcher.group(TXID);

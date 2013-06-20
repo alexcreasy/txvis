@@ -34,10 +34,7 @@ public final class LogParserFactory {
                 logParser.addHandler(h);
 
                 if (logger.isInfoEnabled())
-                    logger.info(
-                            "Successfully loaded log handler: " + c.getSimpleName()
-                                    + "regex={" + h.getPattern() + "}, ");
-
+                    logger.info("Successfully loaded log handler: " + c.getSimpleName() + "regex={" + h.getPattern() + "}, ");
             } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
                 logger.fatal("Unable to load log handler: " + c, e);
                 throw new IllegalStateException(e);

@@ -19,9 +19,7 @@ public abstract class AbstractHandler implements Handler {
     protected static final Logger logger = Logger.getLogger(Handler.class.getName());
 
     /*
-     * Constants can be used as building blocks
-     * for regular expressions in implementation
-     * classes.
+     * Constants can be used as building blocks for regular expressions in implementation classes.
      */
 
     /**
@@ -30,41 +28,18 @@ public abstract class AbstractHandler implements Handler {
      * calling <code>matcher.group(TIMESTAMP)</code>
      */
     public static final String TIMESTAMP = "TIMESTAMP";
-
     /**
      *
      */
-    public static final String PATTERN_TIMESTAMP =
-            "^(?<" + TIMESTAMP + ">\\d{2}:\\d{2}:\\d{2},\\d{3})";
-
+    public static final String PATTERN_TIMESTAMP = "^(?<" + TIMESTAMP + ">\\d{2}:\\d{2}:\\d{2},\\d{3})";
     /**
      *
      */
     public static final String TXID = "TXID";
-
     /**
      *
      */
-    public static final String PATTERN_TXID =
-            "(?<" + TXID + ">(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
-    /**
-     *
-     */
-    public static final String RESOURCEID = "XARESOURCEID";
-
-    /**
-     *
-     */
-    public static final String PATTERN_RESOURCEID =
-            "(?<" + RESOURCEID + ">(?:\\w+\\.)+\\w+@[0-9a-f]+)";
-
-
-    public static final String BASE_REGEX =
-            "(?<TIMESTAMP>\\d{1,2}:\\d{1,2}:\\d{1,2},\\d{1,3})\\s(?<LEVEL>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\\s\\[(?<LOGCLASS>[^\\]]+)\\]\\s\\((?<THREAD>[^\\)]+)\\)\\s";
-     /*
-      ***********************************************************
-      */
-
+    public static final String PATTERN_TXID = "(?<" + TXID + ">(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
 
     //
     private final Pattern pattern;
@@ -78,18 +53,6 @@ public abstract class AbstractHandler implements Handler {
      */
     public AbstractHandler(String regex) throws PatternSyntaxException {
         this.pattern = Pattern.compile(regex);
-    }
-
-    /**
-     *
-     * @param regex
-     * @param flags
-     * @throws PatternSyntaxException
-     * @throws IllegalArgumentException
-     */
-    public AbstractHandler(String regex, int flags)
-            throws PatternSyntaxException, IllegalArgumentException {
-        this.pattern = Pattern.compile(regex, flags);
     }
 
     /**
@@ -112,10 +75,10 @@ public abstract class AbstractHandler implements Handler {
         this.service = service;
     }
 
-
-    /*
+    /**
      *
-     *
+     * @param dateTime
+     * @return
      */
     protected Timestamp parseTimestamp(String dateTime) {
         int hour = -1;

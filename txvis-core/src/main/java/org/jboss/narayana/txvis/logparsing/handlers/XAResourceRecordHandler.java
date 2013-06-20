@@ -9,18 +9,25 @@ import java.util.regex.Matcher;
  * Time: 22:43
  */
 public class XAResourceRecordHandler extends AbstractHandler {
-
-    public static final String REGEX =
-            PATTERN_TIMESTAMP +
-            ".*?XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?tx_uid="
-            + PATTERN_TXID +
+    /**
+     *
+     */
+    public static final String REGEX = PATTERN_TIMESTAMP +
+            ".*?XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?tx_uid=" + PATTERN_TXID +
             ".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\sjndiName=(?<JNDINAME>java:[\\w/]+)";
 
-
+    /**
+     *
+     */
     public XAResourceRecordHandler() {
         super(REGEX);
     }
 
+    /**
+     *
+     * @param matcher
+     * @param line
+     */
     @Override
     public void handle(Matcher matcher, String line) {
         final String txuid = matcher.group(TXID);

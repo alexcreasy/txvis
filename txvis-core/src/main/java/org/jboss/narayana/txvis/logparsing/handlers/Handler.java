@@ -1,7 +1,5 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
-import org.jboss.narayana.txvis.persistence.DataAccessObject;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +9,16 @@ import java.util.regex.Pattern;
  * Time: 16:54
  */
 public interface Handler {
-
+    /**
+     *
+     * @param matcher
+     * @param line
+     */
     void handle(Matcher matcher, String line);
+
+    /**
+     *
+     * @return
+     */
     Pattern getPattern();
 }
