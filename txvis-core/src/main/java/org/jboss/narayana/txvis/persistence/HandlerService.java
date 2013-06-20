@@ -30,9 +30,6 @@ public class HandlerService {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @EJB
-    private GenericDAO dao;
-
-    @EJB
     private TransactionDAO transactionDAO;
 
     @EJB
@@ -145,7 +142,7 @@ public class HandlerService {
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
         rec.setVote(Vote.COMMIT);
-        dao.update(rec);
+        participantRecordDAO.update(rec);
     }
 
     /**
@@ -161,7 +158,7 @@ public class HandlerService {
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
         rec.setVote(Vote.ABORT);
-        dao.update(rec);
+        participantRecordDAO.update(rec);
     }
 
     /**
@@ -180,9 +177,12 @@ public class HandlerService {
                     txuid, timestamp, rmJndiName, rmProductName, rmProductVersion));
 
         ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
-        if (rm == null)
+        if (rm == null) {
             rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
+            resourceManagerDAO.create(rm);
+        }
 
-        dao.createParticipantRecord(txuid, rm, timestamp);
+        final ParticipantRecord rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
+        participantRecordDAO.create(rec);
     }
 }

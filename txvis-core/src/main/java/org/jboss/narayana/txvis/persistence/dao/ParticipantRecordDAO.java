@@ -25,7 +25,10 @@ public class ParticipantRecordDAO {
     private EntityManagerServiceBean emf;
 
     public void create(ParticipantRecord rec) throws NullPointerException {
-        dao.create(rec);
+        // update used instead of create to ensure that the changes instigated in the
+        // Transaction and ResourceManager entities are cascaded by the
+        // container (CascadeType.MERGE).
+        dao.update(rec);
     }
 
     /**
