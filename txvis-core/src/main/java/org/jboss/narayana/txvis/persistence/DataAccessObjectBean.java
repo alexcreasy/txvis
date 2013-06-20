@@ -226,7 +226,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         try {
             etx.begin();
 
-            for (E e : (Collection<E>) em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList())
+            for (E e : (Collection<E>) em.createQuery("FROM "+entityClass.getSimpleName()+" e").getResultList())
                 em.remove(e);
 
             etx.commit();
@@ -296,10 +296,12 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @SuppressWarnings("unchecked")
     @Override
     public List<Transaction> retrieveTransactionsWithStatus(Status status) {
-        final String s = "FROM " + Transaction.class.getSimpleName() + " e WHERE status=:status";
         final EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery(s).setParameter("status", status).getResultList();
+
+            return em.createQuery("FROM "+Transaction.class.getSimpleName()+" e WHERE status=:status")
+                    .setParameter("status", status).getResultList();
+
         } finally {
             em.close();
         }
@@ -345,12 +347,13 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
      */
     @Override
     public ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName) {
-        final String query = "FROM " + ParticipantRecord.class.getSimpleName() +
-                " e WHERE e.transaction.txuid=:txUID AND e.resourceManager.jndiName=:jndiName";
         final EntityManager em = emf.createEntityManager();
         try {
-            return (ParticipantRecord) em.createQuery(query).setParameter("txUID", txUID)
-                    .setParameter("jndiName", rmJndiName).getSingleResult();
+
+            return (ParticipantRecord) em.createQuery("FROM "+ParticipantRecord.class.getSimpleName()+" e " +
+                    "WHERE e.transaction.txuid=:txUID AND e.resourceManager.jndiName=:jndiName")
+                    .setParameter("txUID", txUID).setParameter("jndiName", rmJndiName).getSingleResult();
+
         } finally {
             em.close();
         }
