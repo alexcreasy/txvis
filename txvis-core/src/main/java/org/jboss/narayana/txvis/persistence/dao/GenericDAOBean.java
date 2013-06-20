@@ -267,16 +267,6 @@ public class GenericDAOBean implements GenericDAO, Serializable {
 
     /**
      *
-     * @param jndiName
-     * @return
-     */
-    @Override
-    public ResourceManager retrieveResourceManagerByJndiName(String jndiName) {
-        return retrieve(ResourceManager.class, jndiName);
-    }
-
-    /**
-     *
      * @param status
      * @return
      */

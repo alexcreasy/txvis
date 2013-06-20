@@ -37,8 +37,6 @@ public interface GenericDAO {
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);
 
-    ResourceManager retrieveResourceManagerByJndiName(String jndiName);
-
     void createParticipantRecord(Transaction tx, ResourceManager rm, Timestamp timestamp);
 
     void createParticipantRecord(String transactionXID, ResourceManager rm, Timestamp timestamp);

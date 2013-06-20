@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
+import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
@@ -32,6 +33,9 @@ public class HandlerService {
 
     @EJB
     TransactionDAO transactionDAO;
+
+    @EJB
+    ResourceManagerDAO resourceManagerDAO;
 
     /**
      *
@@ -170,7 +174,7 @@ public class HandlerService {
                     "rmJndiName=`{2}`, rmProductName=`{3}`, rmProductVersion=`{4}`",
                     txuid, timestamp, rmJndiName, rmProductName, rmProductVersion));
 
-        ResourceManager rm = dao.retrieveResourceManagerByJndiName(rmJndiName);
+        ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
         if (rm == null)
             rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
         dao.createParticipantRecord(txuid, rm, timestamp);

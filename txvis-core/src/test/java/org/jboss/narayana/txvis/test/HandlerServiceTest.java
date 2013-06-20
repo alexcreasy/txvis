@@ -4,6 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.HandlerService;
+import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
@@ -51,6 +52,9 @@ public class HandlerServiceTest {
 
     @EJB
     private TransactionDAO transactionDAO;
+
+    @EJB
+    private ResourceManagerDAO resourceManagerDAO;
 
     @EJB
     private HandlerService service;
@@ -138,7 +142,7 @@ public class HandlerServiceTest {
         // Test that the service creates a new ResourceManager if it does not already exist
         final String jndiName1 = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName1, null, null, timestamp);
-        final ResourceManager rm1 = dao.retrieveResourceManagerByJndiName(jndiName1);
+        final ResourceManager rm1 = resourceManagerDAO.retrieve(jndiName1);
         assertNotNull("ResourceManager not created", rm1);
         assertEquals("ResourceManager contained incorrect Jndi name", jndiName1, rm1.getJndiName());
 
@@ -146,9 +150,9 @@ public class HandlerServiceTest {
         final String jndiName2 = idGen.getUniqueJndiName();
         ResourceManager rm2 = new ResourceManager(jndiName2, null, null);
         dao.create(rm2);
-        assertNotNull("ResourceManager not created", dao.retrieveResourceManagerByJndiName(jndiName2));
+        assertNotNull("ResourceManager not created",resourceManagerDAO.retrieve(jndiName2));
         service.enlistResourceManager(txuid, jndiName2, null, null, timestamp);
-        rm2 = dao.retrieveResourceManagerByJndiName(jndiName2);
+        rm2 = resourceManagerDAO.retrieve(jndiName2);
         assertNotNull("ResourceManager not created", rm2);
         assertEquals("ResourceManager contained incorrect Jndi name", jndiName2, rm2.getJndiName());
 
