@@ -283,29 +283,4 @@ public class GenericDAOBean implements GenericDAO, Serializable {
             em.close();
         }
     }
-
-    /**
-     *
-     * @param txUID
-     * @param rmJndiName
-     * @return
-     */
-    @Override
-    public ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName) {
-        final EntityManager em = emf.createEntityManager();
-        try {
-
-            return (ParticipantRecord) em.createQuery("FROM "+ParticipantRecord.class.getSimpleName()+" e " +
-                    "WHERE e.transaction.txuid=:txUID AND e.resourceManager.jndiName=:jndiName")
-                    .setParameter("txUID", txUID).setParameter("jndiName", rmJndiName).getSingleResult();
-
-        } finally {
-            em.close();
-        }
-    }
-
-    private boolean validateTxId(String txId) throws NullPointerException {
-        return txId.matches(AbstractHandler.PATTERN_TXID);
-    }
-
 }

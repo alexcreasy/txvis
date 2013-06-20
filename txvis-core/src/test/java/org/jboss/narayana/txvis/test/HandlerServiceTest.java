@@ -4,6 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.HandlerService;
+import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Event;
@@ -55,6 +56,9 @@ public class HandlerServiceTest {
 
     @EJB
     private ResourceManagerDAO resourceManagerDAO;
+
+    @EJB
+    private ParticipantRecordDAO participantRecordDAO;
 
     @EJB
     private HandlerService service;
@@ -169,7 +173,7 @@ public class HandlerServiceTest {
         service.resourceVoteCommit(txuid, jndiName, timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" ,Vote.COMMIT,
-                dao.retrieveParticipantRecord(txuid, jndiName).getVote());
+                participantRecordDAO.retrieve(txuid, jndiName).getVote());
     }
 
     @Test
@@ -181,7 +185,7 @@ public class HandlerServiceTest {
         service.resourceVoteAbort(txuid, jndiName, timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
-                dao.retrieveParticipantRecord(txuid, jndiName).getVote());
+                participantRecordDAO.retrieve(txuid, jndiName).getVote());
     }
 
     private boolean eventExists(Collection<Event> events, EventType type) {

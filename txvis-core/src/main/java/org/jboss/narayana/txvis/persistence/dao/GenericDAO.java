@@ -37,7 +37,5 @@ public interface GenericDAO {
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);
 
-    ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName);
-
     void deleteAll();
 }
