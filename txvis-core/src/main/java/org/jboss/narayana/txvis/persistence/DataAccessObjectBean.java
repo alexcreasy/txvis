@@ -98,15 +98,16 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     @SuppressWarnings("unchecked")
     public <E> List<E> retrieveAll(Class<E> entityClass) {
-
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll() entityClass=`{0}`", entityClass));
 
-        final String query = "FROM " + entityClass.getSimpleName() + " e";
         final EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery(query).getResultList();
+
+            return em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList();
+
         } catch (NoResultException e) {
+
             if (logger.isTraceEnabled())
                 logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
                         entityClass));
@@ -137,10 +138,12 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
                     "DataAccessObjectBean.retrieveByField() entityClass=`{0}`, field=`{1}`, value=`{2}`",
                     entityClass, field, value));
 
-        final String query = MessageFormat.format("FROM {0} e WHERE e.{1}=:value", entityClass.getSimpleName(), field);
         final EntityManager em = emf.createEntityManager();
         try {
-            return (E) em.createQuery(query).setParameter("value", value).getSingleResult();
+
+            return (E) em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value")
+                    .setParameter("value", value).getSingleResult();
+
         } catch (NoResultException e) {
 
             if (logger.isTraceEnabled())
