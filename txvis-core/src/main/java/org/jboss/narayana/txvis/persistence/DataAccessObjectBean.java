@@ -220,25 +220,18 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
             logger.trace(MessageFormat.format("DataAccessObjectBean.deleteAll() entityClass=`{0}`", entityClass));
 
         final EntityManager em = emf.createEntityManager();
+        final EntityTransaction etx = em.getTransaction();
         try {
-            final boolean notActive = !em.getTransaction().isActive();
+            etx.begin();
 
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                for (E e : (Collection<E>) em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList())
-                    em.remove(e);
+            for (E e : (Collection<E>) em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList())
+                em.remove(e);
 
-                if (notActive)
-                    em.getTransaction().commit();
-
-            } catch (Throwable throwable) {
-                if (notActive)
-                    em.getTransaction().rollback();
-
-                logger.warn(MessageFormat.format("An error occured while attempting to delete all entities: {0}",
-                        entityClass.getSimpleName()), throwable);
-            }
+            etx.commit();
+        } catch (RuntimeException e) {
+            if (etx != null && etx.isActive())
+                etx.rollback();
+            throw e;
         } finally {
             em.close();
         }
