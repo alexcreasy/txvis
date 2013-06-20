@@ -21,10 +21,6 @@ import java.util.*;
 public class Transaction implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
     private String txuid;
 
     @Enumerated(EnumType.STRING)
@@ -78,12 +74,8 @@ public class Transaction implements Serializable {
         events.add(new Event(this, EventType.BEGIN, "N/A", timestamp));
     }
 
-    /**
-     *
-     * @return
-     */
-    public Long getId() {
-        return id;
+    public String getId() {
+        return getTxuid();
     }
 
     /**

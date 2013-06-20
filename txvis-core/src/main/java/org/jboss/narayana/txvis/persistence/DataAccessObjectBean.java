@@ -266,16 +266,17 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     /**
      *
-     * @param txUID
+     * @param txuid
      * @return
      * @throws NoResultException
      * @throws NoSuchEntityException
      * @throws NonUniqueResultException
      */
     @Override
-    public Transaction retrieveTransactionByTxUID(String txUID) throws NoResultException,
+    public Transaction retrieveTransactionByTxUID(String txuid) throws NoResultException,
             NoSuchEntityException, NonUniqueResultException {
-        return retrieveByField(Transaction.class, "txuid", txUID);
+//        return retrieveByField(Transaction.class, "txuid", txuid);
+        return retrieve(Transaction.class, txuid);
     }
 
     /**
