@@ -66,7 +66,7 @@ public class HandlerServiceTest {
     @Test
     public void createTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -78,7 +78,7 @@ public class HandlerServiceTest {
     @Test
     public void prepareTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         service.prepareTx(txuid, timestamp);
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -88,7 +88,7 @@ public class HandlerServiceTest {
     @Test
     public void commitTx2PhaseTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         service.commitTx2Phase(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(txuid);
@@ -100,7 +100,7 @@ public class HandlerServiceTest {
     @Test
     public void commitTx1PhaseTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         service.commitTx1Phase(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(txuid);
@@ -113,7 +113,7 @@ public class HandlerServiceTest {
     @Test
     public void topLevelAbortTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         service.topLevelAbortTx(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(txuid);
@@ -125,7 +125,7 @@ public class HandlerServiceTest {
     @Test
     public void resourceDrivenAbortTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         service.resourceDrivenAbortTx(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(txuid);
@@ -137,7 +137,7 @@ public class HandlerServiceTest {
     @Test
     public void enlistResourceManagerTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
 
         // Test that the service creates a new ResourceManager if it does not already exist
         final String jndiName1 = idGen.getUniqueJndiName();
@@ -149,7 +149,7 @@ public class HandlerServiceTest {
         // Test that the service functions correctly if the ResourceManager already exists
         final String jndiName2 = idGen.getUniqueJndiName();
         ResourceManager rm2 = new ResourceManager(jndiName2, null, null);
-        dao.create(rm2);
+        resourceManagerDAO.create(rm2);
         assertNotNull("ResourceManager not created",resourceManagerDAO.retrieve(jndiName2));
         service.enlistResourceManager(txuid, jndiName2, null, null, timestamp);
         rm2 = resourceManagerDAO.retrieve(jndiName2);
@@ -163,7 +163,7 @@ public class HandlerServiceTest {
     @Test
     public void resourceVoteCommitTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourceVoteCommit(txuid, jndiName, timestamp);
@@ -175,7 +175,7 @@ public class HandlerServiceTest {
     @Test
     public void resourceVoteAbortTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.createTx(txuid, timestamp);
+        service.beginTx(txuid, timestamp);
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourceVoteAbort(txuid, jndiName, timestamp);

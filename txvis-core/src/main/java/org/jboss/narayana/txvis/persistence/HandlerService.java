@@ -2,6 +2,7 @@ package org.jboss.narayana.txvis.persistence;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
+import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
@@ -32,19 +33,23 @@ public class HandlerService {
     private GenericDAO dao;
 
     @EJB
-    TransactionDAO transactionDAO;
+    private TransactionDAO transactionDAO;
 
     @EJB
-    ResourceManagerDAO resourceManagerDAO;
+    private ResourceManagerDAO resourceManagerDAO;
+
+    @EJB
+    private ParticipantRecordDAO participantRecordDAO;
+
 
     /**
      *
      * @param txuid
      * @param timestamp
      */
-    public void createTx(String txuid, Timestamp timestamp) {
+    public void beginTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.createTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
+            logger.trace(MessageFormat.format("HandlerService.beginTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         final Transaction tx = new Transaction(txuid, timestamp);
         transactionDAO.create(tx);
@@ -138,7 +143,7 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.resourceVoteCommit(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final ParticipantRecord rec = dao.retrieveParticipantRecord(txuid, rmJndiName);
+        final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
         rec.setVote(Vote.COMMIT);
         dao.update(rec);
     }
@@ -154,7 +159,7 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.resourceVoteAbort(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final ParticipantRecord rec = dao.retrieveParticipantRecord(txuid, rmJndiName);
+        final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
         rec.setVote(Vote.ABORT);
         dao.update(rec);
     }
@@ -177,6 +182,7 @@ public class HandlerService {
         ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
         if (rm == null)
             rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
+
         dao.createParticipantRecord(txuid, rm, timestamp);
     }
 }

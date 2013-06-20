@@ -38,7 +38,7 @@ public class BasicActionHandler extends AbstractHandler {
 
         switch (matcher.group("BASICACTION")) {
             case "Begin":
-                service.createTx(txuid, timestamp);
+                service.beginTx(txuid, timestamp);
                 break;
             case "End":
                 service.prepareTx(txuid, timestamp);
