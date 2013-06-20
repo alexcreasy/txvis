@@ -165,23 +165,18 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
             logger.trace(MessageFormat.format("DataAccessObjectBean.update() entity=`{0}`", entity));
 
         final EntityManager em = emf.createEntityManager();
+        final EntityTransaction etx = em.getTransaction();
         try {
-            final boolean notActive = !em.getTransaction().isActive();
+            etx.begin();
 
-            if (notActive)
-                em.getTransaction().begin();
-            try {
-                em.merge(entity);
-                if (notActive)
-                    em.getTransaction().commit();
+            em.merge(entity);
 
-            } catch (Throwable throwable) {
-                    em.getTransaction().rollback();
+            etx.commit();
 
-                logger.warn(MessageFormat.format(
-                        "An error occured while attempting to update entity: {0}",
-                        entity.getClass().getSimpleName()), throwable);
-            }
+            } catch (RuntimeException e) {
+            if (etx != null && etx.isActive())
+                etx.rollback();
+            throw e;
         } finally {
             em.close();
         }
