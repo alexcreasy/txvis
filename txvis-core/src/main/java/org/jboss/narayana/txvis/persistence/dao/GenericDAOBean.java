@@ -286,38 +286,6 @@ public class GenericDAOBean implements GenericDAO, Serializable {
 
     /**
      *
-     * @param txuid
-     * @param rm
-     * @param timestamp
-     */
-    @Override
-    public void createParticipantRecord(String txuid, ResourceManager rm, Timestamp timestamp) {
-        createParticipantRecord(retrieve(Transaction.class, txuid), rm, timestamp);
-    }
-
-    /**
-     *
-     * @param tx
-     * @param rm
-     * @param timestamp
-     */
-    @Override
-    public void createParticipantRecord(Transaction tx, ResourceManager rm, Timestamp timestamp) {
-        if (tx == null)
-            throw new NullPointerException("Method called with null parameter: tx");
-
-        if (rm == null)
-            throw new NullPointerException("Method called with null parameter: rm");
-
-        if (timestamp == null)
-            throw new NullPointerException("Method called with null parameter: timestamp");
-
-        ParticipantRecord pr = new ParticipantRecord(tx, rm, timestamp);
-        update(pr);
-    }
-
-    /**
-     *
      * @param txUID
      * @param rmJndiName
      * @return

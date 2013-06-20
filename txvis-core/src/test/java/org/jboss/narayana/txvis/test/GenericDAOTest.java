@@ -133,45 +133,4 @@ public class GenericDAOTest {
         assertEquals("Incorrect number of Transaction objects with Status.ROLLBACK_RESOURCE", 2,
                 dao.retrieveTransactionsWithStatus(Status.ROLLBACK_RESOURCE).size());
     }
-
-    @Test
-    public void createParticipantRecordTest() throws Exception {
-        final String txUID = idGen.getUniqueTxId();
-        Transaction tx = new Transaction(txUID);
-        dao.create(tx);
-
-        final String jndiName = idGen.getUniqueJndiName();
-        ResourceManager rm = new ResourceManager(jndiName, null, null);
-        dao.create(rm);
-
-        dao.createParticipantRecord(tx, rm, timestamp);
-
-        tx = dao.retrieve(Transaction.class, tx.getId());
-        assertEquals("Transaction contains incorrect number of ParticipantRecords", 1, tx.getParticipantRecords().size());
-
-        rm = dao.retrieve(ResourceManager.class, rm.getId());
-        assertEquals("ResourceManager contains incorrect number of ParticipantRecords", 1, rm.getParticipantRecords().size());
-
-        for (ParticipantRecord pr : tx.getParticipantRecords()) {
-            assertEquals("Incorrect Transaction found in PariticpantRecord", txUID, pr.getTransaction().getTxuid());
-            assertEquals("Incorrect ResourceManager found in ParticipantRecord", jndiName, pr.getResourceManager().getJndiName());
-        }
-    }
-
-    @Test
-    public void retrieveParticipantRecordTest() throws Exception {
-        final String txUID = idGen.getUniqueTxId();
-        Transaction tx = new Transaction(txUID);
-        dao.create(tx);
-
-        final String jndiName = idGen.getUniqueJndiName();
-        ResourceManager rm = new ResourceManager(jndiName, null, null);
-        dao.create(rm);
-
-        dao.createParticipantRecord(tx, rm, timestamp);
-
-        assertNotNull("Did not retrieve ParticipantRecord", dao.retrieveParticipantRecord(txUID, jndiName));
-    }
-
-
 }
