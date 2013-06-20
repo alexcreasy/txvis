@@ -20,7 +20,6 @@ public class StartupServiceBean {
     @EJB
     private LogMonitorServiceBean logMonitor;
 
-
     @PostConstruct
     protected void setup() {
         logMonitor.setFile(new File(Configuration.LOGFILE_PATH));

@@ -31,8 +31,14 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
+    /**
+     *
+     * @param entity
+     * @param <E>
+     */
     @Override
     public <E> void create(E entity) {
+
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("DataAccessObjectBean.create() entity=`{0}`", entity));
 
@@ -47,8 +53,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
             } catch (Throwable throwable) {
                 em.getTransaction().rollback();
 
-                logger.warn(MessageFormat.format(
-                        "An error occured while attempting to persist entity: {0}",
+                logger.warn(MessageFormat.format("An error occured while attempting to persist entity: {0}",
                         em.getClass().getSimpleName()), throwable);
             }
         } finally {
@@ -56,8 +61,17 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
     }
 
+    /**
+     *
+     * @param entityClass
+     * @param primaryKey
+     * @param <E>
+     * @param <K>
+     * @return
+     */
     @Override
     public <E, K> E retrieve(Class<E> entityClass, K primaryKey) {
+
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("DataAccessObjectBean.retrieve() entityClass=`{0}`, primaryKey=`{1}`",
                     entityClass, primaryKey));
@@ -65,67 +79,88 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         final EntityManager em = emf.createEntityManager();
         try {
             return em.find(entityClass, primaryKey);
-
         } catch (NoResultException e) {
+
             logger.warn(MessageFormat.format(
                     "DataAccessObjectBean.retrieve: No result found for search: class=`{0}`, primaryKey=`{1}`",
                     entityClass, primaryKey));
+
             return null;
         } finally {
             em.close();
         }
     }
 
+    /**
+     *
+     * @param entityClass
+     * @param <E>
+     * @return
+     */
     @Override
     @SuppressWarnings("unchecked")
     public <E> List<E> retrieveAll(Class<E> entityClass) {
+
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll() entityClass=`{0}`", entityClass));
 
         final String s = "FROM " + entityClass.getSimpleName() + " e";
-
         final EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(s).getResultList();
-
         } catch (NoResultException e) {
-            logger.warn(MessageFormat.format(
-                    "DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
-                    entityClass));
-            return null;
 
+            logger.warn(MessageFormat.format("DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
+                    entityClass));
+
+            return null;
         } finally {
             em.close();
         }
     }
 
+    /**
+     *
+     * @param entityClass
+     * @param field
+     * @param value
+     * @param <E>
+     * @param <V>
+     * @return
+     * @throws NonUniqueResultException
+     * @throws NoSuchEntityException
+     */
     @Override
     @SuppressWarnings("unchecked")
     public <E, V> E retrieveByField(Class<E> entityClass, String field, V value)
             throws NonUniqueResultException, NoSuchEntityException {
+
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format(
                     "DataAccessObjectBean.retrieveByField() entityClass=`{0}`, field=`{1}`, value=`{2}`",
                     entityClass, field, value));
 
-        final String query = MessageFormat.format(
-                "FROM {0} e WHERE e.{1}=:value", entityClass.getSimpleName(), field);
-
+        final String query = MessageFormat.format("FROM {0} e WHERE e.{1}=:value", entityClass.getSimpleName(), field);
         final EntityManager em = emf.createEntityManager();
         try {
             return (E) em.createQuery(query).setParameter("value", value).getSingleResult();
-
         } catch (NoResultException e) {
+
             logger.warn(MessageFormat.format(
                     "DataAccessObjectBean.retrieveByField: No result found for search: class=`{0}`, field=`{1}`, value=`{2}`",
                     entityClass, field, value));
-            return null;
 
+            return null;
         } finally {
             em.close();
         }
     }
 
+    /**
+     *
+     * @param entity
+     * @param <E>
+     */
     @Override
     public <E> void update(E entity) {
         if (logger.isTraceEnabled())
@@ -154,6 +189,11 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
     }
 
+    /**
+     *
+     * @param entity
+     * @param <E>
+     */
     @Override
     public <E> void delete(E entity) {
         if (logger.isTraceEnabled())
@@ -182,6 +222,11 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
     }
 
+    /**
+     *
+     * @param entityClass
+     * @param <E>
+     */
     @SuppressWarnings("unchecked")
     @Override
     public <E> void deleteAll(Class<E> entityClass) {
@@ -205,21 +250,17 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
                 if (notActive)
                     em.getTransaction().rollback();
 
-                logger.warn(MessageFormat.format(
-                        "An error occured while attempting to delete all entities: {0}",
+                logger.warn(MessageFormat.format("An error occured while attempting to delete all entities: {0}",
                         entityClass.getSimpleName()), throwable);
             }
-
-//            em.getTransaction().begin();
-//            for (E e : retrieveAll(entityClass))
-//                em.remove(em.merge(e));
-//            em.getTransaction().commit();
-
         } finally {
             em.close();
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void deleteAll() {
         final EntityManager em = emf.createEntityManager();
@@ -233,15 +274,27 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         } finally {
             em.close();
         }
-
     }
 
+    /**
+     *
+     * @param txUID
+     * @return
+     * @throws NoResultException
+     * @throws NoSuchEntityException
+     * @throws NonUniqueResultException
+     */
     @Override
     public Transaction retrieveTransactionByTxUID(String txUID) throws NoResultException,
             NoSuchEntityException, NonUniqueResultException {
         return retrieveByField(Transaction.class, "txuid", txUID);
     }
 
+    /**
+     *
+     * @param jndiName
+     * @return
+     */
     @Override
     public ResourceManager retrieveResourceManagerByJndiName(String jndiName) {
         try {
@@ -251,11 +304,15 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
     }
 
+    /**
+     *
+     * @param status
+     * @return
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Transaction> retrieveTransactionsWithStatus(Status status) {
         final String s = "FROM " + Transaction.class.getSimpleName() + " e WHERE status=:status";
-
         final EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(s).setParameter("status", status).getResultList();
@@ -264,11 +321,23 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         }
     }
 
+    /**
+     *
+     * @param txuid
+     * @param rm
+     * @param timestamp
+     */
     @Override
     public void createParticipantRecord(String txuid, ResourceManager rm, Timestamp timestamp) {
         createParticipantRecord(retrieveTransactionByTxUID(txuid), rm, timestamp);
     }
 
+    /**
+     *
+     * @param tx
+     * @param rm
+     * @param timestamp
+     */
     @Override
     public void createParticipantRecord(Transaction tx, ResourceManager rm, Timestamp timestamp) {
         if (tx == null)
@@ -284,16 +353,20 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         update(pr);
     }
 
+    /**
+     *
+     * @param txUID
+     * @param rmJndiName
+     * @return
+     */
     @Override
     public ParticipantRecord retrieveParticipantRecord(String txUID, String rmJndiName) {
         final String query = "FROM " + ParticipantRecord.class.getSimpleName() +
                 " e WHERE e.transaction.txuid=:txUID AND e.resourceManager.jndiName=:jndiName";
-
         final EntityManager em = emf.createEntityManager();
         try {
             return (ParticipantRecord) em.createQuery(query).setParameter("txUID", txUID)
                     .setParameter("jndiName", rmJndiName).getSingleResult();
-
         } finally {
             em.close();
         }

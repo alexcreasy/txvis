@@ -30,9 +30,14 @@ public class EntityManagerServiceBean implements Serializable {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private EntityManagerFactory emf;
 
+    /**
+     *
+     * @return
+     */
     public EntityManager createEntityManager() {
         return emf.createEntityManager();
     }
+
 
     @PostConstruct
     @PostActivate
@@ -40,8 +45,7 @@ public class EntityManagerServiceBean implements Serializable {
         emf = Persistence.createEntityManagerFactory(Configuration.PERSISTENCE_CONTEXT);
 
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "Initialised EntityManagerServiceBean with persistence context: {0}",
+            logger.trace(MessageFormat.format("Initialised EntityManagerServiceBean with persistence context: {0}",
                     Configuration.PERSISTENCE_CONTEXT));
     }
 
@@ -50,9 +54,9 @@ public class EntityManagerServiceBean implements Serializable {
     private void tearDown() {
         if(emf.isOpen())
             emf.close();
+
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "Shutdown EntityManagerServiceBean with persistence context: {0}",
+            logger.trace(MessageFormat.format("Shutdown EntityManagerServiceBean with persistence context: {0}",
                     Configuration.PERSISTENCE_CONTEXT));
     }
 }

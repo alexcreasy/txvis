@@ -38,8 +38,7 @@ public class HandlerService {
      */
     public void createTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.createTx(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
+            logger.trace(MessageFormat.format("HandlerService.createTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         final Transaction tx = new Transaction(txuid, timestamp);
         dao.create(tx);
@@ -52,8 +51,7 @@ public class HandlerService {
      */
     public void prepareTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.prepareTx(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
+            logger.trace(MessageFormat.format("HandlerService.prepareTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
         tx.prepare(timestamp);
@@ -67,8 +65,7 @@ public class HandlerService {
      */
     public void commitTx2Phase(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.commitTx2Phase(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.commitTx2Phase(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
@@ -85,8 +82,7 @@ public class HandlerService {
      */
     public void commitTx1Phase(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.commitTx1Phase(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.commitTx1Phase(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction t = dao.retrieveTransactionByTxUID(txuid);
@@ -102,8 +98,7 @@ public class HandlerService {
      */
     public void topLevelAbortTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.topLevelAbortTx(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.topLevelAbortTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
@@ -118,8 +113,7 @@ public class HandlerService {
      */
     public void resourceDrivenAbortTx(String txuid, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.resourceDrivenAbortTx(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.resourceDrivenAbortTx(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
@@ -135,8 +129,7 @@ public class HandlerService {
      */
     public void resourceVoteCommit(String txuid, String rmJndiName, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.resourceVoteCommit(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.resourceVoteCommit(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final ParticipantRecord rec = dao.retrieveParticipantRecord(txuid, rmJndiName);
@@ -152,8 +145,7 @@ public class HandlerService {
      */
     public void resourceVoteAbort(String txuid, String rmJndiName, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.resourceVoteAbort(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.resourceVoteAbort(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final ParticipantRecord rec = dao.retrieveParticipantRecord(txuid, rmJndiName);
@@ -172,8 +164,8 @@ public class HandlerService {
     public void enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
                                       String rmProductVersion, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "HandlerService.enlistResourceManager(), txuid=`{0}`, timestamp=`{1}`, rmJndiName=`{2}`, rmProductName=`{3}`, rmProductVersion=`{4}`",
+            logger.trace(MessageFormat.format("HandlerService.enlistResourceManager(), txuid=`{0}`, timestamp=`{1}`, " +
+                    "rmJndiName=`{2}`, rmProductName=`{3}`, rmProductVersion=`{4}`",
                     txuid, timestamp, rmJndiName, rmProductName, rmProductVersion));
 
         ResourceManager rm = dao.retrieveResourceManagerByJndiName(rmJndiName);

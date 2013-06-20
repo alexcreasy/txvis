@@ -25,8 +25,16 @@ public class Event implements Serializable {
     private EventType eventType;
     private String eventValue;
 
+    // Restrict default constructor to EJB container
     protected Event() {}
 
+    /**
+     *
+     * @param transaction
+     * @param eventType
+     * @param eventValue
+     * @param timestamp
+     */
     public Event(Transaction transaction, EventType eventType, String eventValue, Timestamp timestamp) {
         this.transaction = transaction;
         this.eventType = eventType;
@@ -34,36 +42,70 @@ public class Event implements Serializable {
         setTimestamp(timestamp);
     }
 
+    /**
+     *
+     * @param eventType
+     * @param eventValue
+     * @param timestamp
+     */
     public Event(EventType eventType, String eventValue, Timestamp timestamp) {
         this.eventType = eventType;
         this.eventValue = eventValue;
         setTimestamp(timestamp);
     }
 
+    /**
+     *
+     * @return
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     *
+     * @return
+     */
     public Timestamp getTimestamp() {
         return new Timestamp(timestamp);
     }
 
+    /**
+     *
+     * @param timestamp
+     */
     private void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp.getTime();
     }
 
+    /**
+     *
+     * @return
+     */
     public EventType getEventType() {
         return eventType;
     }
 
+    /**
+     *
+     * @return
+     */
     public Transaction getTransaction() {
         return transaction;
     }
 
+    /**
+     *
+     * @param transaction
+     */
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEventValue() {
         return eventValue;
     }

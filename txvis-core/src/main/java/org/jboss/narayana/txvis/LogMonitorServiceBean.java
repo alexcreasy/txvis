@@ -31,6 +31,9 @@ public class LogMonitorServiceBean {
     private Tailer tailer;
     private LogParser logParser;
 
+    /**
+     *
+     */
     @Asynchronous
     public void start() {
         if (tailer == null) {
@@ -45,6 +48,9 @@ public class LogMonitorServiceBean {
         }
     }
 
+    /**
+     *
+     */
     public void stop() {
         if (tailer != null) {
             tailer.stop();
@@ -52,7 +58,11 @@ public class LogMonitorServiceBean {
         }
     }
 
-    public void setFile(File file) {
+    /**
+     *
+     * @param file
+     */
+    public void setFile(File file) throws NullPointerException, IllegalStateException {
         if (file == null)
             throw new NullPointerException("Method called with null parameter: file");
 
@@ -65,6 +75,10 @@ public class LogMonitorServiceBean {
         logParser = LogParserFactory.getInstance();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isRunning() {
         return tailer != null;
     }
