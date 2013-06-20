@@ -102,15 +102,14 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll() entityClass=`{0}`", entityClass));
 
-        final String s = "FROM " + entityClass.getSimpleName() + " e";
+        final String query = "FROM " + entityClass.getSimpleName() + " e";
         final EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery(s).getResultList();
+            return em.createQuery(query).getResultList();
         } catch (NoResultException e) {
-
-            logger.warn(MessageFormat.format("DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
-                    entityClass));
-
+            if (logger.isTraceEnabled())
+                logger.trace(MessageFormat.format("DataAccessObjectBean.retrieveAll: No result found for search: class=`{0}`",
+                        entityClass));
             return null;
         } finally {
             em.close();
@@ -144,10 +143,10 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
             return (E) em.createQuery(query).setParameter("value", value).getSingleResult();
         } catch (NoResultException e) {
 
-            logger.warn(MessageFormat.format(
-                    "DataAccessObjectBean.retrieveByField: No result found for search: class=`{0}`, field=`{1}`, value=`{2}`",
-                    entityClass, field, value));
-
+            if (logger.isTraceEnabled())
+                logger.trace(MessageFormat.format(
+                        "DataAccessObjectBean.retrieveByField: No result found for search: " +
+                                "class=`{0}`, field=`{1}`, value=`{2}`", entityClass, field, value));
             return null;
         } finally {
             em.close();
@@ -243,13 +242,20 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
     @Override
     public void deleteAll() {
         final EntityManager em = emf.createEntityManager();
+        final EntityTransaction etx = em.getTransaction();
         try {
-            em.getTransaction().begin();
+            etx.begin();
+
             em.createQuery("DELETE FROM Event").executeUpdate();
             em.createQuery("DELETE FROM ParticipantRecord").executeUpdate();
             em.createQuery("DELETE FROM ResourceManager").executeUpdate();
             em.createQuery("DELETE FROM Transaction").executeUpdate();
-            em.getTransaction().commit();
+
+            etx.commit();
+        } catch (RuntimeException e) {
+            if (etx != null && etx.isActive())
+                etx.rollback();
+            throw e;
         } finally {
             em.close();
         }
@@ -276,11 +282,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
      */
     @Override
     public ResourceManager retrieveResourceManagerByJndiName(String jndiName) {
-        try {
-            return retrieveByField(ResourceManager.class, "jndiName", jndiName);
-        } catch (NoResultException e) {
-            return null;
-        }
+        return retrieveByField(ResourceManager.class, "jndiName", jndiName);
     }
 
     /**
