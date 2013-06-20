@@ -268,14 +268,9 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
      *
      * @param txuid
      * @return
-     * @throws NoResultException
-     * @throws NoSuchEntityException
-     * @throws NonUniqueResultException
      */
     @Override
-    public Transaction retrieveTransactionByTxUID(String txuid) throws NoResultException,
-            NoSuchEntityException, NonUniqueResultException {
-//        return retrieveByField(Transaction.class, "txuid", txuid);
+    public Transaction retrieveTransactionByTxUID(String txuid) {
         return retrieve(Transaction.class, txuid);
     }
 
@@ -286,7 +281,7 @@ public class DataAccessObjectBean implements DataAccessObject, Serializable {
      */
     @Override
     public ResourceManager retrieveResourceManagerByJndiName(String jndiName) {
-        return retrieveByField(ResourceManager.class, "jndiName", jndiName);
+        return retrieve(ResourceManager.class, jndiName);
     }
 
     /**

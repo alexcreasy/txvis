@@ -14,13 +14,14 @@ import java.util.HashSet;
 @Entity
 public class ResourceManager implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @OneToMany(mappedBy = "resourceManager", fetch = FetchType.EAGER)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
 
+    @Id
     private String jndiName;
     private String productName;
     private String productVersion;
@@ -50,8 +51,8 @@ public class ResourceManager implements Serializable {
      *
      * @return
      */
-    public Long getId() {
-        return id;
+    public String getId() {
+        return getJndiName();
     }
 
     /**
