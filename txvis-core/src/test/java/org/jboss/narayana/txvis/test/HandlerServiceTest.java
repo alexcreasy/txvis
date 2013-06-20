@@ -4,6 +4,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.HandlerService;
+import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -49,6 +50,9 @@ public class HandlerServiceTest {
     private GenericDAO dao;
 
     @EJB
+    private TransactionDAO transactionDAO;
+
+    @EJB
     private HandlerService service;
 
     private UniqueIdGenerator idGen = new UniqueIdGenerator();
@@ -60,7 +64,7 @@ public class HandlerServiceTest {
         final String txuid = idGen.getUniqueTxId();
         service.createTx(txuid, timestamp);
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
 
         assertNotNull("Transaction not created", tx);
         assertEquals("Incorrect txuid", txuid, tx.getTxuid());
@@ -72,7 +76,7 @@ public class HandlerServiceTest {
         final String txuid = idGen.getUniqueTxId();
         service.createTx(txuid, timestamp);
         service.prepareTx(txuid, timestamp);
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
 
         assertTrue("Could not find event record with type PREPARE", eventExists(tx.getEvents(), EventType.PREPARE));
     }
@@ -83,7 +87,7 @@ public class HandlerServiceTest {
         service.createTx(txuid, timestamp);
         service.commitTx2Phase(txuid, timestamp);
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
 
         assertEquals("Transaction record shows incorrect status", Status.COMMIT, tx.getStatus());
         assertTrue("Could not find event record with type END", eventExists(tx.getEvents(), EventType.END));
@@ -95,7 +99,7 @@ public class HandlerServiceTest {
         service.createTx(txuid, timestamp);
         service.commitTx1Phase(txuid, timestamp);
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
 
         assertEquals("Transaction record shows incorrect status", Status.COMMIT, tx.getStatus());
         assertTrue("Transaction did not correctly report one phase commit", tx.isOnePhase());
@@ -108,7 +112,7 @@ public class HandlerServiceTest {
         service.createTx(txuid, timestamp);
         service.topLevelAbortTx(txuid, timestamp);
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
 
         assertEquals("Transaction record shows incorrect status", Status.ROLLBACK_CLIENT, tx.getStatus());
         assertTrue("Could not find event record with type END", eventExists(tx.getEvents(), EventType.END));
@@ -120,7 +124,7 @@ public class HandlerServiceTest {
         service.createTx(txuid, timestamp);
         service.resourceDrivenAbortTx(txuid, timestamp);
 
-        final Transaction tx = dao.retrieveTransactionByTxUID(txuid);
+        final Transaction tx = transactionDAO.retrieve(txuid);
 
         assertEquals("Transaction record shows incorrect status", Status.ROLLBACK_RESOURCE, tx.getStatus());
         assertTrue("Could not find event record with type END", eventExists(tx.getEvents(), EventType.END));
@@ -149,7 +153,7 @@ public class HandlerServiceTest {
         assertEquals("ResourceManager contained incorrect Jndi name", jndiName2, rm2.getJndiName());
 
         assertEquals("Incorrect number of ParticipantRecords created", 2,
-                dao.retrieveTransactionByTxUID(txuid).getParticipantRecords().size());
+                transactionDAO.retrieve(txuid).getParticipantRecords().size());
     }
 
     @Test

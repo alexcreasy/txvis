@@ -43,6 +43,6 @@ public class TransactionInfoBean implements Serializable {
     }
 
     public void init() {
-        tx = dao.retrieveTransactionByTxUID(getTxUID());
+        tx = dao.retrieve(Transaction.class, getTxUID());
     }
 }

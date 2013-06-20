@@ -33,7 +33,6 @@ public interface GenericDAO {
 
     <E> void deleteAll(Class<E> entityClass);
 
-    Transaction retrieveTransactionByTxUID(String TxUID);
 
     @SuppressWarnings("unchecked")
     List<Transaction> retrieveTransactionsWithStatus(Status status);

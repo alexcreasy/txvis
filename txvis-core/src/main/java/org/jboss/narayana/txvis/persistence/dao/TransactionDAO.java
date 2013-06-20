@@ -15,6 +15,7 @@ import java.util.List;
  * Time: 13:14
  */
 @Stateless
+@LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class TransactionDAO {

@@ -73,7 +73,7 @@ public class GenericDAOTest {
         dao.create(t);
 
         assertEquals("Transaction ID did not match", txUID,
-                dao.retrieveTransactionByTxUID(txUID).getTxuid());
+                dao.retrieve(Transaction.class, txUID).getTxuid());
     }
 
     @Test
@@ -83,12 +83,12 @@ public class GenericDAOTest {
         Transaction t = new Transaction(txUID);
         dao.create(t);
 
-        t = dao.retrieveTransactionByTxUID(txUID);
+        t = dao.retrieve(Transaction.class, txUID);
         t.setStatus(Status.COMMIT, timestamp);
         dao.update(t);
 
 
-        t = dao.retrieveTransactionByTxUID(txUID);
+        t = dao.retrieve(Transaction.class, txUID);
         assertEquals("Retrieved transaction entity did not report correct status",
                 Status.COMMIT, t.getStatus());
     }

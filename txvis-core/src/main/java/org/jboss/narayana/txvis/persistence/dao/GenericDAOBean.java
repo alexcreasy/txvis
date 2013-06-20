@@ -267,16 +267,6 @@ public class GenericDAOBean implements GenericDAO, Serializable {
 
     /**
      *
-     * @param txuid
-     * @return
-     */
-    @Override
-    public Transaction retrieveTransactionByTxUID(String txuid) {
-        return retrieve(Transaction.class, txuid);
-    }
-
-    /**
-     *
      * @param jndiName
      * @return
      */
@@ -312,7 +302,7 @@ public class GenericDAOBean implements GenericDAO, Serializable {
      */
     @Override
     public void createParticipantRecord(String txuid, ResourceManager rm, Timestamp timestamp) {
-        createParticipantRecord(retrieveTransactionByTxUID(txuid), rm, timestamp);
+        createParticipantRecord(retrieve(Transaction.class, txuid), rm, timestamp);
     }
 
     /**
