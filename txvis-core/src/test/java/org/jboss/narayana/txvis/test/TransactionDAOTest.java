@@ -2,9 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
-import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
-import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
+import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.test.utils.UniqueIdGenerator;
@@ -17,18 +15,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
+
 import java.io.File;
 import java.sql.Timestamp;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
- * Date: 03/05/2013
- * Time: 17:31
+ * Date: 20/06/2013
+ * Time: 16:03
  */
 @RunWith(Arquillian.class)
-public class GenericDAOTest {
+public class TransactionDAOTest {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -42,12 +41,13 @@ public class GenericDAOTest {
                 .setManifest(new StringAsset(ManifestMF));
     }
 
-    UniqueIdGenerator idGen;
-
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     @EJB
-    GenericDAO dao;
+    private TransactionDAO transactionDAO;
+
+    private UniqueIdGenerator idGen;
+
+    private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     @Before
     public void setup() throws Exception {
@@ -55,46 +55,29 @@ public class GenericDAOTest {
     }
 
     @Test
-    public void createAndRetrieveTest() throws Exception {
-        final String txUID = idGen.getUniqueTxId();
-        Transaction t = new Transaction(txUID);
-        dao.create(t);
+    public void retrieveAllWithStatusTest() throws Exception {
+        transactionDAO.deleteAll();
 
-        assertNotNull("Entity did not contain an ID after attempting to persist", t.getId());
+        final String[] txUIDs = new String[4];
 
-        assertNotNull("Unable to retrieve persisted Entity",
-                dao.retrieve(Transaction.class, t.getId()));
-    }
+        final Transaction[] txs = new Transaction[4];
 
-    @Test
-    public void UpdateTest() throws Exception {
-        final String txUID = idGen.getUniqueTxId();
+        for (int i = 0; i < txUIDs.length; i++) {
+            txUIDs[i] = idGen.getUniqueTxId();
+            txs[i] = new Transaction(txUIDs[i]);
+        }
 
-        Transaction t = new Transaction(txUID);
-        dao.create(t);
+        txs[0].setStatus(Status.COMMIT, timestamp);
+        txs[1].setStatus(Status.COMMIT, timestamp);
+        txs[2].setStatus(Status.ROLLBACK_RESOURCE, timestamp);
+        txs[3].setStatus(Status.ROLLBACK_RESOURCE, timestamp);
 
-        t = dao.retrieve(Transaction.class, txUID);
-        t.setStatus(Status.COMMIT, timestamp);
-        dao.update(t);
+        for (int i = 0; i < txs.length; i++)
+            transactionDAO.create(txs[i]);
 
-
-        t = dao.retrieve(Transaction.class, txUID);
-        assertEquals("Retrieved transaction entity did not report correct status",
-                Status.COMMIT, t.getStatus());
-    }
-
-    @Test
-    public void retrieveAllTest() throws Exception {
-
-    }
-
-    @Test
-    public void deleteTest() throws Exception {
-
-    }
-
-    @Test
-    public void deleteAllTest() throws Exception {
-
+        assertEquals("Incorrect number of Transaction objects with Status.COMMIT", 2,
+                transactionDAO.retrieveAllWithStatus(Status.COMMIT).size());
+        assertEquals("Incorrect number of Transaction objects with Status.ROLLBACK_RESOURCE", 2,
+                transactionDAO.retrieveAllWithStatus(Status.ROLLBACK_RESOURCE).size());
     }
 }
