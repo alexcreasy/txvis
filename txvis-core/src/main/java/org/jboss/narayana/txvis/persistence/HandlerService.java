@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.persistence;
 
+import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
@@ -48,8 +49,20 @@ public class HandlerService {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("HandlerService.beginTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
-        final Transaction tx = new Transaction(txuid, timestamp);
-        transactionDAO.create(tx);
+        Transaction tx = transactionDAO.retrieve(txuid);
+        if (tx == null) {
+            // txuid has not been seen before by log parser -> create tx record.
+            tx = new Transaction(txuid, timestamp);
+            tx.setNodeId(arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+            transactionDAO.create(tx);
+        } else {
+            // If transaction has already been created we have a JTS transaction, if it originates from,
+            // the same node it is a local transaction, from a different node and we have a distributed transaction
+            if (arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier().equals(tx.getNodeId())) {
+                tx.setDistributed(true);
+                transactionDAO.update(tx);
+            }
+        }
     }
 
     /**
@@ -62,6 +75,12 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.prepareTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
+
+        if (tx == null) {
+            logger.error("HandlerService.prepareTx(), Transaction not found: " + txuid);
+            return;
+        }
+
         tx.prepare(timestamp);
         transactionDAO.update(tx);
     }
@@ -77,6 +96,12 @@ public class HandlerService {
                     txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
+
+        if (tx == null) {
+            logger.error("HandlerService.commitTx2Phase(), Transaction not found: " + txuid);
+            return;
+        }
+
         if (tx.getStatus().equals(Status.IN_FLIGHT)) {
             tx.setStatus(Status.COMMIT, timestamp);
             transactionDAO.update(tx);
@@ -93,10 +118,16 @@ public class HandlerService {
             logger.trace(MessageFormat.format("HandlerService.commitTx1Phase(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
-        final Transaction t = transactionDAO.retrieve(txuid);
-        t.setStatus(Status.COMMIT, timestamp);
-        t.setOnePhase(true);
-        transactionDAO.update(t);
+        final Transaction tx = transactionDAO.retrieve(txuid);
+
+        if (tx == null) {
+            logger.error("HandlerService.commitTx1Phase(), Transaction not found: " + txuid);
+            return;
+        }
+
+        tx.setStatus(Status.COMMIT, timestamp);
+        tx.setOnePhase(true);
+        transactionDAO.update(tx);
     }
 
     /**
@@ -110,6 +141,12 @@ public class HandlerService {
                     txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
+
+        if (tx == null) {
+            logger.error("HandlerService.topLevelAbortTx(), Transaction not found: " + txuid);
+            return;
+        }
+
         tx.setStatus(Status.ROLLBACK_CLIENT, timestamp);
         transactionDAO.update(tx);
     }
@@ -125,6 +162,11 @@ public class HandlerService {
                     txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
+
+        if (tx == null) {
+            logger.error("HandlerService.resourceDrivenAbortTx(), Transaction not found: " + txuid);
+            return;
+        }
         tx.setStatus(Status.ROLLBACK_RESOURCE, timestamp);
         transactionDAO.update(tx);
     }
@@ -141,6 +183,12 @@ public class HandlerService {
                     txuid, timestamp));
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
+
+        if (rec == null) {
+            logger.error("HandlerService.resourceVoteCommit(), ParticipantRecord not found: " + txuid);
+            return;
+        }
+
         rec.setVote(Vote.COMMIT);
         participantRecordDAO.update(rec);
     }
@@ -157,6 +205,12 @@ public class HandlerService {
                     txuid, timestamp));
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
+
+        if (rec == null) {
+            logger.error("HandlerService.resourceVoteAbort(), ParticipantRecord not found: " + txuid);
+            return;
+        }
+
         rec.setVote(Vote.ABORT);
         participantRecordDAO.update(rec);
     }

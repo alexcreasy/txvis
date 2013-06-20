@@ -27,6 +27,8 @@ public class Transaction implements Serializable {
     private Status status = Status.IN_FLIGHT;
 
     private boolean onePhase = false;
+    private boolean distributed;
+    private String nodeId;
     private Long startTime;
     private Long endTime;
 
@@ -121,6 +123,38 @@ public class Transaction implements Serializable {
         for (ParticipantRecord rec : participantRecords)
             rec.setVote(Vote.COMMIT);
         this.onePhase = isOnePhase;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isDistributed() {
+        return distributed;
+    }
+
+    /**
+     *
+     * @param distributed
+     */
+    public void setDistributed(boolean distributed) {
+        this.distributed = distributed;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    /**
+     *
+     * @param nodeId
+     */
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     /**

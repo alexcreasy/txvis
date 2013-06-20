@@ -13,7 +13,8 @@
     <modules>
         <module>txvis-core</module>
         <module>txvis-webapp</module>
-        <module>txvis-ear</module>
+        <module>txvis-deployfull</module>
+        <module>txvis-deploycore</module>
     </modules>
 
     <properties>
