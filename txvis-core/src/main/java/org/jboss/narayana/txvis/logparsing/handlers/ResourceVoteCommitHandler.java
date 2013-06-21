@@ -11,8 +11,8 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = PATTERN_TIMESTAMP +
-            ".*?XAResourceRecord.topLevelPrepare.*?jndiName=(?<JNDINAME>java:[\\w/]+).*?tx_uid=" + PATTERN_TXID;
+    public static final String REGEX = "XAResourceRecord.topLevelPrepare.*?jndiName=(?<JNDINAME>java:[\\w/]+).*?" +
+            "tx_uid="+ PATTERN_TXUID;
 
     /**
      *
@@ -28,6 +28,6 @@ public class ResourceVoteCommitHandler extends AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.resourceVoteCommit(matcher.group(TXID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
+        service.resourceVoteCommit(matcher.group(TXUID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

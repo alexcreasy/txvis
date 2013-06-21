@@ -62,8 +62,7 @@ public class GenericDAOTest {
 
         assertNotNull("Entity did not contain an ID after attempting to persist", t.getId());
 
-        assertNotNull("Unable to retrieve persisted Entity",
-                dao.retrieve(Transaction.class, t.getId()));
+        assertNotNull("Unable to retrieve persisted Entity", dao.retrieve(Transaction.class, t.getId()));
     }
 
     @Test
@@ -77,10 +76,8 @@ public class GenericDAOTest {
         t.setStatus(Status.COMMIT, timestamp);
         dao.update(t);
 
-
         t = dao.retrieve(Transaction.class, txUID);
-        assertEquals("Retrieved transaction entity did not report correct status",
-                Status.COMMIT, t.getStatus());
+        assertEquals("Retrieved transaction entity did not report correct status", Status.COMMIT, t.getStatus());
     }
 
     @Test

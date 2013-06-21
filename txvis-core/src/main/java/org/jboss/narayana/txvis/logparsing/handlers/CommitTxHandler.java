@@ -11,7 +11,7 @@ public final class CommitTxHandler extends AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = PATTERN_TIMESTAMP + ".*?FileSystemStore.remove_committed\\(" + PATTERN_TXID + ",";
+    public static final String REGEX = "FileSystemStore.remove_committed\\("+ PATTERN_TXUID +",";
 
     /**
      *
@@ -27,6 +27,6 @@ public final class CommitTxHandler extends AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.commitTx2Phase(matcher.group(TXID), parseTimestamp(matcher.group(TIMESTAMP)));
+        service.commitTx2Phase(matcher.group(TXUID), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

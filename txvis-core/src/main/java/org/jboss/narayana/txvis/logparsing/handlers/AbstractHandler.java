@@ -31,15 +31,42 @@ public abstract class AbstractHandler implements Handler {
     /**
      *
      */
-    public static final String PATTERN_TIMESTAMP = "^(?<" + TIMESTAMP + ">\\d{2}:\\d{2}:\\d{2},\\d{3})";
+    public static final String PATTERN_TIMESTAMP = "(?<"+TIMESTAMP+">\\d{2}:\\d{2}:\\d{2},\\d{3})";
     /**
      *
      */
-    public static final String TXID = "TXID";
+    public static final String TXUID = "TXUID";
     /**
      *
      */
-    public static final String PATTERN_TXID = "(?<" + TXID + ">(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
+    public static final String PATTERN_TXUID = "(?<"+TXUID+">(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
+    /**
+     *
+     */
+    public static final String LOG_LEVEL = "LOGLEVEL";
+    /**
+     *
+     */
+    public static final String PATTERN_LOG_LEVEL = "(?<"+LOG_LEVEL+">TRACE|DEBUG|INFO|WARN|ERROR|FATAL)";
+    /**
+     *
+     */
+    public static final String LOG_CLASS = "LOGCLASS";
+    /**
+     *
+     */
+    public static final String PATTERN_LOG_CLASS = "\\[(?<"+LOG_CLASS+">[^\\]]+)\\]";
+    /**
+     *
+     */
+    public static final String THREAD_ID = "THREADID";
+    /**
+     *
+     */
+    public static final String PATTERN_THREAD_ID = "\\((?<"+THREAD_ID+">[^\\)]+)\\)\\s";
+
+    public static final String BASE_REGEX = "^"+PATTERN_TIMESTAMP+"\\s+"+PATTERN_LOG_LEVEL+"\\s+"+PATTERN_LOG_CLASS+"\\s+" +
+            PATTERN_THREAD_ID+".*?";
 
     //
     private final Pattern pattern;
@@ -52,7 +79,11 @@ public abstract class AbstractHandler implements Handler {
      * @throws PatternSyntaxException
      */
     public AbstractHandler(String regex) throws PatternSyntaxException {
-        this.pattern = Pattern.compile(regex);
+        this(regex, false);
+    }
+
+    public AbstractHandler(String regex, boolean dontAppend) {
+        this.pattern = Pattern.compile(dontAppend ? regex : BASE_REGEX + regex);
     }
 
     /**

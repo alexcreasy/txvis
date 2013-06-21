@@ -11,8 +11,8 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = PATTERN_TIMESTAMP + ".*?prepare\\son.*?tx_uid=" + PATTERN_TXID +
-            ".*?jndiName=(?<JNDINAME>java:[\\w/]+).*?failed\\swith\\sexception";
+    public static final String REGEX = "prepare\\son.*?tx_uid="+ PATTERN_TXUID +".*?" +
+            "jndiName=(?<JNDINAME>java:[\\w/]+).*?failed";
 
     /**
      *
@@ -28,6 +28,6 @@ public class ResourceVoteAbortHandler extends AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.resourceVoteAbort(matcher.group(TXID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
+        service.resourceVoteAbort(matcher.group(TXUID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

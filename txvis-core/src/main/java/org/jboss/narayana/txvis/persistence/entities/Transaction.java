@@ -51,7 +51,7 @@ public class Transaction implements Serializable {
      */
     public Transaction(String txuid) throws NullPointerException, IllegalArgumentException {
 
-        if (!txuid.matches(AbstractHandler.PATTERN_TXID))
+        if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
             throw new IllegalArgumentException("Illegal transactionId: " + txuid);
 
         this.txuid = txuid;
@@ -66,7 +66,7 @@ public class Transaction implements Serializable {
      */
     public Transaction(String txuid, Timestamp timestamp) throws NullPointerException, IllegalArgumentException {
 
-        if (!txuid.matches(AbstractHandler.PATTERN_TXID))
+        if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
             throw new IllegalArgumentException("Illegal transactionId: " + txuid);
 
         this.txuid = txuid;

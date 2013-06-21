@@ -21,7 +21,7 @@ public class ReaperHandler extends AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = PATTERN_TIMESTAMP + ".*?TransactionReaper::remove.*?BasicAction:\\s" + PATTERN_TXID +
+    public static final String REGEX = "TransactionReaper::remove.*?BasicAction:\\s"+ PATTERN_TXUID +
             ".*?ActionStatus\\.(?<ACTIONSTATUS>[A-Z]+)";
 
     /**
@@ -38,7 +38,7 @@ public class ReaperHandler extends AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        final String txuid = matcher.group(TXID);
+        final String txuid = matcher.group(TXUID);
         final Timestamp timestamp = parseTimestamp(matcher.group(TIMESTAMP));
 
         switch(matcher.group("ACTIONSTATUS")) {

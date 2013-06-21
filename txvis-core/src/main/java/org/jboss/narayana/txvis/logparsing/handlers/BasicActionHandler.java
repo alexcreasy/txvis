@@ -16,8 +16,8 @@ public class BasicActionHandler extends AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = PATTERN_TIMESTAMP + ".*?BasicAction::" +
-            "(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s" + PATTERN_TXID;
+    public static final String REGEX = "BasicAction::" +
+            "(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"+ PATTERN_TXUID;
 
     /**
      *
@@ -33,7 +33,7 @@ public class BasicActionHandler extends AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        final String txuid = matcher.group(TXID);
+        final String txuid = matcher.group(TXUID);
         final Timestamp timestamp =  parseTimestamp(matcher.group(TIMESTAMP));
 
         switch (matcher.group("BASICACTION")) {

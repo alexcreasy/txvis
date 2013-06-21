@@ -65,7 +65,7 @@ public class TransactionDAO implements Serializable{
     }
 
     private boolean validateTxId(String txId) throws NullPointerException {
-        return txId.matches(AbstractHandler.PATTERN_TXID);
+        return txId.matches(AbstractHandler.PATTERN_TXUID);
     }
 
 
