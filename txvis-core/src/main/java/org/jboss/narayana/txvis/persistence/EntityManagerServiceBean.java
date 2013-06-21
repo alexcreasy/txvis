@@ -22,6 +22,7 @@ import java.text.MessageFormat;
  * Time: 14:50
  */
 @Singleton
+@Startup
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
