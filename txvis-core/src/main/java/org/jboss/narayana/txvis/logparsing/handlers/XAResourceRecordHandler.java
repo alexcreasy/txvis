@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.jboss.narayana.txvis.logparsing.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.JbossAS8Handler;
 
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
@@ -10,7 +11,7 @@ import java.util.regex.Matcher;
  * Date: 28/04/2013
  * Time: 22:43
  */
-public class XAResourceRecordHandler extends AbstractHandler {
+public class XAResourceRecordHandler extends JbossAS8Handler {
     /**
      *
      */

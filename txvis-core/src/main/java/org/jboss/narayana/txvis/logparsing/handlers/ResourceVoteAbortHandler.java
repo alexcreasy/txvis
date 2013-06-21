@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.jboss.narayana.txvis.logparsing.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.JbossAS8Handler;
 
 import java.util.regex.Matcher;
 
@@ -9,7 +10,7 @@ import java.util.regex.Matcher;
  * Date: 27/04/2013
  * Time: 20:34
  */
-public class ResourceVoteAbortHandler extends AbstractHandler {
+public class ResourceVoteAbortHandler extends JbossAS8Handler {
     /**
      *
      */

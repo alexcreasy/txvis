@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.narayana.txvis.LogMonitorServiceBean;
+import org.jboss.narayana.txvis.LogMonitorBean;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
@@ -65,7 +65,7 @@ public class OnlineJTAIntegrationTest {
     private TransactionDAO transactionDAO;
 
     @EJB
-    private LogMonitorServiceBean mon;
+    private LogMonitorBean mon;
 
     private TransactionUtil txUtil;
     

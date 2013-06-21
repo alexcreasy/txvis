@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.jboss.narayana.txvis.logparsing.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.JbossAS8Handler;
 
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
@@ -19,7 +20,7 @@ import java.util.regex.Matcher;
  * //10:45:31,753 TRACE [com.arjuna.ats.arjuna] (default task-2) TransactionReaper::remove (
  * BasicAction: 0:ffffac1182da:1f1d981b:51a5c3b5:127 status: ActionStatus.COMMITTED )
  */
-public class ReaperHandler extends AbstractHandler {
+public class ReaperHandler extends JbossAS8Handler {
     /**
      *
      */

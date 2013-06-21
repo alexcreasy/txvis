@@ -19,7 +19,7 @@ import java.io.File;
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Lock(LockType.READ)
-public class LogMonitorServiceBean {
+public class LogMonitorBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -42,7 +42,7 @@ public class LogMonitorServiceBean {
 
             } catch (Exception e) {
                 logger.fatal("Unhandled exception, stopping logfile monitor", e);
-                sessionContext.getBusinessObject(LogMonitorServiceBean.class).stop();
+                sessionContext.getBusinessObject(LogMonitorBean.class).stop();
             }
         }
     }
