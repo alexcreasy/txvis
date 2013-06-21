@@ -72,7 +72,9 @@ public class GenericDAOBean implements GenericDAO {
 
         final EntityManager em = emf.createEntityManager();
         try {
+
             return em.find(entityClass, primaryKey);
+
         } catch (NoResultException e) {
 
             logger.warn(MessageFormat.format(
