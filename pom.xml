@@ -18,8 +18,8 @@
             <modules>
                 <module>txvis-core</module>
                 <module>txvis-webapp</module>
-                <module>txvis-deployfull</module>
-                <module>txvis-deploycore</module>
+                <module>txvis-full</module>
+                <module>txvis-lite</module>
             </modules>
         </profile>
         <profile>
@@ -30,7 +30,7 @@
             <modules>
                 <module>txvis-core</module>
                 <module>txvis-webapp</module>
-                <module>txvis-deployfull</module>
+                <module>txvis-full</module>
             </modules>
         </profile>
         <profile>
@@ -38,8 +38,8 @@
             <modules>
                 <module>txvis-core</module>
                 <module>txvis-webapp</module>
-                <module>txvis-deployfull</module>
-                <module>txvis-deploycore</module>
+                <module>txvis-full</module>
+                <module>txvis-lite</module>
             </modules>
         </profile>
     </profiles>
