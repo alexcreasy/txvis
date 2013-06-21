@@ -2,12 +2,12 @@ package org.jboss.narayana.txvis.logparsing;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.Configuration;
-import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.HandlerService;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.Collection;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -34,7 +34,7 @@ public final class LogParserFactory {
                 logParser.addHandler(h);
 
                 if (logger.isInfoEnabled())
-                    logger.info("Successfully loaded log handler: " + c.getSimpleName() + "regex={" + h.getPattern() + "}, ");
+                    logger.info("Successfully loaded log handler: "+c.getSimpleName()+" regex=`" + h.getPattern() + "`,");
             } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
                 logger.fatal("Unable to load log handler: " + c, e);
                 throw new IllegalStateException(e);

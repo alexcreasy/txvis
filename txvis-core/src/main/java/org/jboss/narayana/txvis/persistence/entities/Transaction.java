@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.persistence.entities;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;

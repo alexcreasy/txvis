@@ -3,13 +3,10 @@ package org.jboss.narayana.txvis.logparsing;
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
-import org.jboss.narayana.txvis.logparsing.handlers.Handler;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.logparsing.handlers;
+package org.jboss.narayana.txvis.logparsing;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

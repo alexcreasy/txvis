@@ -1,17 +1,12 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
-import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
-import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
 import javax.persistence.*;
-import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;

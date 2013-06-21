@@ -1,6 +1,6 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
-import org.jboss.narayana.txvis.logparsing.handlers.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;

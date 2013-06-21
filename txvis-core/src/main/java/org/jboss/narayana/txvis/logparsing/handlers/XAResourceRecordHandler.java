@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.logparsing.handlers;
 
+import org.jboss.narayana.txvis.logparsing.AbstractHandler;
+
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
@@ -13,7 +15,7 @@ public class XAResourceRecordHandler extends AbstractHandler {
      *
      */
     public static final String REGEX = "XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?" +
-            "tx_uid="+ PATTERN_TXUID +".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\s" +
+            "tx_uid="+PATTERN_TXUID+".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\s" +
             "jndiName=(?<JNDINAME>java:[\\w/]+)";
 
     /**
