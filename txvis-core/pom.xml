@@ -12,8 +12,7 @@
 
     <groupId>org.jboss.narayana</groupId>
     <artifactId>txvis-core</artifactId>
-    <properties>
-    </properties>
+    <properties />
 
     <distributionManagement>
         <repository>

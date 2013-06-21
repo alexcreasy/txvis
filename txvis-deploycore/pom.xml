@@ -48,13 +48,34 @@
                 <artifactId>jboss-as-maven-plugin</artifactId>
                 <version>${version.jboss.maven.plugin}</version>
                 <configuration>
-                    <filename>${project.artifactId}.ear</filename>
-                    <skip>false</skip>
-                    <port>10099</port>
+                    <execCommands />
+                    <execute-commands />
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-</project>
+
+    <profiles>
+        <profile>
+            <id>distributed</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.as.plugins</groupId>
+                        <artifactId>jboss-as-maven-plugin</artifactId>
+                        <version>${version.jboss.maven.plugin}</version>
+                        <configuration>
+                            <execCommands />
+                            <execute-commands />
+                            <filename>${project.artifactId}.ear</filename>
+                            <skip>false</skip>
+                            <port>10099</port>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

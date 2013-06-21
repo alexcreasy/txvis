@@ -9,13 +9,40 @@
     <packaging>pom</packaging>
     <name>Transaction Visualization Tool</name>
 
-
-    <modules>
-        <module>txvis-core</module>
-        <module>txvis-webapp</module>
-        <module>txvis-deployfull</module>
-        <module>txvis-deploycore</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>txvis-core</module>
+                <module>txvis-webapp</module>
+                <module>txvis-deployfull</module>
+                <module>txvis-deploycore</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>centralised</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>txvis-core</module>
+                <module>txvis-webapp</module>
+                <module>txvis-deployfull</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>distributed</id>
+            <modules>
+                <module>txvis-core</module>
+                <module>txvis-webapp</module>
+                <module>txvis-deployfull</module>
+                <module>txvis-deploycore</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -86,10 +113,11 @@
                 <artifactId>jboss-as-maven-plugin</artifactId>
                 <version>${version.jboss.maven.plugin}</version>
                 <configuration>
+                    <execCommands />
+                    <execute-commands />
                     <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

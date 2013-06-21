@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.logparsing;
+package org.jboss.narayana.txvis.logparsing.handlers;
 
 import org.jboss.narayana.txvis.logparsing.AbstractHandler;
 
