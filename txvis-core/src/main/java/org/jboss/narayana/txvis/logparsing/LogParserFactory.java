@@ -48,7 +48,7 @@ public final class LogParserFactory {
         HandlerService service;
         try {
             Context context = new InitialContext();
-            service = (HandlerService) context.lookup("java:module/HandlerService");
+            service = (HandlerService) context.lookup(Configuration.HANDLER_SERVICE_JNDI_NAME);
         }
         catch (NamingException e) {
             logger.fatal("JNDI lookup of HandlerService failed", e);

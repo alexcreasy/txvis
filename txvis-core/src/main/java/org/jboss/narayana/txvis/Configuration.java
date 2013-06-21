@@ -37,4 +37,8 @@ public final class Configuration {
      *
      */
     public static final String PERSISTENCE_CONTEXT = "org.jboss.narayana.txvis";
+    /**
+     *
+     */
+    public static final String HANDLER_SERVICE_JNDI_NAME = "java:module/HandlerService";
 }
