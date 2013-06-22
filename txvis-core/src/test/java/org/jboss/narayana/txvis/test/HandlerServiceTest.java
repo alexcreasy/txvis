@@ -165,24 +165,24 @@ public class HandlerServiceTest {
     }
 
     @Test
-    public void resourceVoteCommitTest() throws Exception {
+    public void resourcePreparedTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
         service.beginTx(txuid, timestamp);
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
-        service.resourceVoteCommit(txuid, jndiName, timestamp);
+        service.resourcePrepared(txuid, jndiName, timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" ,Vote.COMMIT,
                 participantRecordDAO.retrieve(txuid, jndiName).getVote());
     }
 
     @Test
-    public void resourceVoteAbortTest() throws Exception {
+    public void resourceFailedToPrepareTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
         service.beginTx(txuid, timestamp);
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
-        service.resourceVoteAbort(txuid, jndiName, timestamp);
+        service.resourceFailedToPrepare(txuid, jndiName, "XAER_RMERR", timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
                 participantRecordDAO.retrieve(txuid, jndiName).getVote());

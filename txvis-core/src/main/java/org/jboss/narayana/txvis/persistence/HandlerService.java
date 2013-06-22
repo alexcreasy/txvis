@@ -177,15 +177,15 @@ public class HandlerService {
      * @param rmJndiName
      * @param timestamp
      */
-    public void resourceVoteCommit(String txuid, String rmJndiName, Timestamp timestamp) {
+    public void resourcePrepared(String txuid, String rmJndiName, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.resourceVoteCommit(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.resourcePrepared(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
         if (rec == null) {
-            logger.error("HandlerService.resourceVoteCommit(), ParticipantRecord not found: " + txuid);
+            logger.error("HandlerService.resourcePrepared(), ParticipantRecord not found: " + txuid);
             return;
         }
 
@@ -199,15 +199,15 @@ public class HandlerService {
      * @param rmJndiName
      * @param timestamp
      */
-    public void resourceVoteAbort(String txuid, String rmJndiName, Timestamp timestamp) {
+    public void resourceFailedToPrepare(String txuid, String rmJndiName, String xaExceptionType, Timestamp timestamp) {
         if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.resourceVoteAbort(), txuid=`{0}`, timestamp=`{1}`",
+            logger.trace(MessageFormat.format("HandlerService.resourceFailedToPrepare(), txuid=`{0}`, timestamp=`{1}`",
                     txuid, timestamp));
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
         if (rec == null) {
-            logger.error("HandlerService.resourceVoteAbort(), ParticipantRecord not found: " + txuid);
+            logger.error("HandlerService.resourceFailedToPrepare(), ParticipantRecord not found: " + txuid);
             return;
         }
 

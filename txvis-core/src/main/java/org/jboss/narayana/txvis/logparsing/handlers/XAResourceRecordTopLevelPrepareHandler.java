@@ -28,6 +28,6 @@ public class XAResourceRecordTopLevelPrepareHandler extends JbossAS8AbstractHand
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.resourceVoteCommit(matcher.group(TXUID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
+        service.resourcePrepared(matcher.group(TXUID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

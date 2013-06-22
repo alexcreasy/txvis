@@ -12,7 +12,7 @@ public class ResourcePrepareFailedHandler extends JbossAS8AbstractHandler {
      *
      */
     public static final String REGEX = "prepare\\son.*?tx_uid="+ PATTERN_TXUID +".*?" +
-            "jndiName=(?<JNDINAME>java:[\\w/]+).*?failed";
+            "jndiName=(?<JNDINAME>java:[\\w/]+).*?failed\\swith\\sexception\\sXAException\\.(?<XAEXCEPTION>[A-Z_]+)";
 
     /**
      *
@@ -28,6 +28,7 @@ public class ResourcePrepareFailedHandler extends JbossAS8AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.resourceVoteAbort(matcher.group(TXUID), matcher.group("JNDINAME"), parseTimestamp(matcher.group(TIMESTAMP)));
+        service.resourceFailedToPrepare(matcher.group(TXUID), matcher.group("JNDINAME"), matcher.group("XAEXCEPTION"),
+                parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }
