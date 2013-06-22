@@ -17,7 +17,7 @@ public class BasicActionHandler extends JbossAS8Handler {
      *
      */
     public static final String REGEX = "BasicAction::" +
-            "(?<BASICACTION>Begin|End|Abort|phase2Abort|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"+ PATTERN_TXUID;
+            "(?<BASICACTION>Begin|End|Abort|phase2Abort|phase2Commit|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"+ PATTERN_TXUID;
 
     /**
      *
@@ -48,6 +48,9 @@ public class BasicActionHandler extends JbossAS8Handler {
                 break;
             case "phase2Abort":
                 service.resourceDrivenAbortTx(txuid, timestamp);
+                break;
+            case "phase2Commit":
+                service.commitTx2Phase(txuid, timestamp);
                 break;
             case "onePhaseCommit":
                 service.commitTx1Phase(txuid, timestamp);

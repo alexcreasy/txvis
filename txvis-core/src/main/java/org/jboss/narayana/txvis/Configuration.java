@@ -30,7 +30,6 @@ public final class Configuration {
             XAResourceRecordHandler.class,
             ResourceVoteAbortHandler.class,
             ResourceVoteCommitHandler.class,
-            CommitTxHandler.class,
             ReaperHandler.class,
     };
     /**
