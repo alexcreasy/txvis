@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
  * Date: 29/04/2013
  * Time: 17:45
  */
-public class ResourceVoteCommitHandler extends JbossAS8Handler {
+public class XAResourceRecordTopLevelPrepareHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
@@ -17,7 +17,7 @@ public class ResourceVoteCommitHandler extends JbossAS8Handler {
     /**
      *
      */
-    public ResourceVoteCommitHandler() {
+    public XAResourceRecordTopLevelPrepareHandler() {
         super(REGEX);
     }
 

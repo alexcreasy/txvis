@@ -28,9 +28,9 @@ public final class Configuration {
     public static final Class[] LOG_HANDLERS = new Class[] {
             BasicActionHandler.class,
             XAResourceRecordHandler.class,
-            ResourceVoteAbortHandler.class,
-            ResourceVoteCommitHandler.class,
-            ReaperHandler.class,
+            ResourcePrepareFailedHandler.class,
+            XAResourceRecordTopLevelPrepareHandler.class,
+            TransactionReaperHandler.class,
     };
     /**
      *

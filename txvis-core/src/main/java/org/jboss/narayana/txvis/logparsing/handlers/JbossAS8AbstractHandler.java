@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
  * Date: 21/06/2013
  * Time: 15:47
  */
-public abstract class JbossAS8Handler extends AbstractHandler {
+public abstract class JbossAS8AbstractHandler extends AbstractHandler {
 
     /**
      * The back reference group name used to retrieve the log4j
@@ -73,11 +73,11 @@ public abstract class JbossAS8Handler extends AbstractHandler {
      */
 
 
-    public JbossAS8Handler(String regex) {
+    public JbossAS8AbstractHandler(String regex) {
         this(regex, false);
     }
 
-    public JbossAS8Handler(String regex, boolean dontPrefix) {
+    public JbossAS8AbstractHandler(String regex, boolean dontPrefix) {
         super(dontPrefix ? regex : (BASE_REGEX_PREFIX + regex));
     }
 

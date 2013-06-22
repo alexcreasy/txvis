@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
  * Date: 28/05/2013
  * Time: 19:34
  */
-public class BasicActionHandler extends JbossAS8Handler {
+public class BasicActionHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
