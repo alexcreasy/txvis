@@ -86,9 +86,10 @@ public class OnlineJTAIntegrationTest {
     public void parseEnlistResourceManagerTest() throws Exception {
         createAndLogTransactions(Status.COMMIT);
         for (Transaction tx : transactionDAO.retrieveAll()) {
-            assertEquals("Incorrect number of ParticipantRecords parsed", NO_OF_PARTICIPANTS,
+            assertEquals("Incorrect number of ParticipantRecords parsed for Transaction: "+tx.getTxuid(), NO_OF_PARTICIPANTS,
                     tx.getParticipantRecords().size());
-            assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
+            assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(), EXPECTED_NO_OF_EVENTS,
+                    tx.getEvents().size());
         }
 
     }
@@ -100,14 +101,15 @@ public class OnlineJTAIntegrationTest {
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
         for (Transaction tx : transactionDAO.retrieveAll()) {
-            assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.COMMIT,
+            assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status", Status.COMMIT,
                     transactionDAO.retrieve(tx.getTxuid()).getStatus());
 
-            assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
+            assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(), EXPECTED_NO_OF_EVENTS,
+                    tx.getEvents().size());
 
             for (ParticipantRecord rec : tx.getParticipantRecords())
-                assertEquals("ParticipantRecord did not report the correct vote", Vote.COMMIT,
-                        rec.getVote());
+                assertEquals("ParticipantRecord did not report the correct vote: Transaction: "+rec.getTransaction().getTxuid()+
+                        ", ResourceManager: "+rec.getResourceManager().getJndiName(), Vote.COMMIT, rec.getVote());
         }
     }
 
@@ -118,12 +120,13 @@ public class OnlineJTAIntegrationTest {
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
         for (Transaction tx : transactionDAO.retrieveAll()) {
-            assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status", Status.ROLLBACK_CLIENT,
+            assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status", Status.ROLLBACK_CLIENT,
                     transactionDAO.retrieve(tx.getTxuid()).getStatus());
 
             // Expected number of events is one less as the client will initiate a rollback without asking
             // the participants to prepare.
-            assertEquals("Incorrect number of Events created", (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());
+            assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(),
+                    (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());
         }
     }
 
@@ -134,7 +137,7 @@ public class OnlineJTAIntegrationTest {
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
         for (Transaction tx : transactionDAO.retrieveAll()) {
-            assertEquals("Transaction " + tx.getTxuid() + " did not report the correct status",
+            assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status",
                     Status.ROLLBACK_RESOURCE, transactionDAO.retrieve(tx.getTxuid()).getStatus());
 
             int abortVotes = 0;
@@ -143,10 +146,11 @@ public class OnlineJTAIntegrationTest {
                     abortVotes++;
             }
 
-            assertEquals("Participants of transaction: " + tx.getTxuid() +
-                    " did not report correct number of votes: " + Vote.ABORT, 1, abortVotes);
+            assertEquals("Participants of transaction: "+tx.getTxuid()+" did not report correct number of votes: "+Vote.ABORT,
+                    1, abortVotes);
 
-            assertEquals("Incorrect number of Events created", EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
+            assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(),
+                    EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
         }
     }
 
