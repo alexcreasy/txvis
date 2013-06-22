@@ -61,7 +61,7 @@
                         <configuration>
                             <execCommands />
                             <execute-commands />
-                            <filename>${project.artifactId}-${project.version}.ear</filename>
+                            <filename>${project.artifactId}.ear</filename>
                             <skip>false</skip>
                             <port>10099</port>
                         </configuration>

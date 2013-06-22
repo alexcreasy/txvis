@@ -55,7 +55,7 @@
                 <configuration>
                     <execute-commands/>
                     <execCommands/>
-                    <filename>${project.artifactId}-${project.version}.ear</filename>
+                    <filename>${project.artifactId}.ear</filename>
                     <skip>false</skip>
                 </configuration>
             </plugin>
