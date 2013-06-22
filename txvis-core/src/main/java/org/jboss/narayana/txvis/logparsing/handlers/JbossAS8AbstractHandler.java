@@ -72,7 +72,6 @@ public abstract class JbossAS8AbstractHandler extends AbstractHandler {
      ***********************************************************************************
      */
 
-
     public JbossAS8AbstractHandler(String regex) {
         this(regex, false);
     }

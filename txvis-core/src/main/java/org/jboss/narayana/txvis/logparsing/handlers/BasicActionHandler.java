@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 /**
  *
  * An example log line is as follows:
- * <code>>18:15:54,161 TRACE [com.arjuna.ats.arjuna] (default task-14) BasicAction::Begin() for action-id 0:ffffac1182da:579fdb56:51a46622:e77</code>
+ * <code>>18:15:54,161 TRACE [com.arjuna.ats.arjuna] (default task-14) BasicAction::Begin() for
+ * action-id 0:ffffac1182da:579fdb56:51a46622:e77</code>
  *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 28/05/2013

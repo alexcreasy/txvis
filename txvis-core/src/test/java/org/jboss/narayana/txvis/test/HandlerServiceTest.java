@@ -168,6 +168,7 @@ public class HandlerServiceTest {
     public void resourcePreparedTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
         service.beginTx(txuid, timestamp);
+
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourcePrepared(txuid, jndiName, timestamp);
@@ -178,14 +179,20 @@ public class HandlerServiceTest {
 
     @Test
     public void resourceFailedToPrepareTest() throws Exception {
+        final String xaException = "XAER_RMERR";
+
         final String txuid = idGen.getUniqueTxId();
         service.beginTx(txuid, timestamp);
+
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
-        service.resourceFailedToPrepare(txuid, jndiName, "XAER_RMERR", timestamp);
+        service.resourceFailedToPrepare(txuid, jndiName, xaException, timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
                 participantRecordDAO.retrieve(txuid, jndiName).getVote());
+
+        assertEquals("ParticipantRecord contained incorrect XAException" , xaException,
+                participantRecordDAO.retrieve(txuid, jndiName).getXaException());
     }
 
     private boolean eventExists(Collection<Event> events, EventType type) {

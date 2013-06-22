@@ -25,6 +25,8 @@ public class ParticipantRecord implements Serializable {
     @ManyToOne(cascade = CascadeType.MERGE)
     private ResourceManager resourceManager;
 
+    private String xaException = null;
+
     @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
 
@@ -75,6 +77,22 @@ public class ParticipantRecord implements Serializable {
      */
     public ResourceManager getResourceManager() {
         return this.resourceManager;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getXaException() {
+        return xaException;
+    }
+
+    /**
+     *
+     * @param xaException
+     */
+    public void setXaException(String xaException) {
+        this.xaException = xaException;
     }
 
     /**

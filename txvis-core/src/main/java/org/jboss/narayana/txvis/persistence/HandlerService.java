@@ -212,6 +212,7 @@ public class HandlerService {
         }
 
         rec.setVote(Vote.ABORT);
+        rec.setXaException(xaExceptionType);
         participantRecordDAO.update(rec);
     }
 
