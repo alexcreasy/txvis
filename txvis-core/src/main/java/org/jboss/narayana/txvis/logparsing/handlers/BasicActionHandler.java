@@ -18,7 +18,7 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
      *
      */
     public static final String REGEX = "BasicAction::" +
-            "(?<BASICACTION>Begin|End|Abort|phase2Abort|phase2Commit|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"+ PATTERN_TXUID;
+            "(?<BASICACTION>Begin|End|Abort|phase2Abort|phase2Commit|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"+PATTERN_TXUID;
 
     /**
      *
@@ -39,7 +39,7 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
 
         switch (matcher.group("BASICACTION")) {
             case "Begin":
-                service.beginTx(txuid, timestamp);
+                service.beginTx(txuid, timestamp, matcher.group(THREAD_ID));
                 break;
             case "End":
                 service.prepareTx(txuid, timestamp);

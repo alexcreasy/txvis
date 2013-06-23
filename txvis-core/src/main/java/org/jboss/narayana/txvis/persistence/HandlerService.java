@@ -23,6 +23,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -31,7 +33,7 @@ import java.text.MessageFormat;
  * Date: 17/06/2013
  * Time: 12:20
  */
-@Stateless
+@Stateful
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Interceptors({LoggingInterceptor.class, TransactionInterceptor.class})
@@ -48,6 +50,19 @@ public class HandlerService {
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
 
+    private Map<String, String> threadMap = new HashMap<>();
+
+
+    /**
+     *
+     * @param txuid
+     * @param timestamp
+     * @param threadId
+     */
+    public void beginTx(String txuid, Timestamp timestamp, String threadId) {
+        threadMap.put(threadId, txuid);
+        beginTx(txuid, timestamp);
+    }
 
     /**
      *
@@ -191,6 +206,28 @@ public class HandlerService {
         participantRecordDAO.update(rec);
     }
 
+
+    /**
+     *
+     * @param threadId
+     * @param rmJndiName
+     * @param rmProductName
+     * @param rmProductVersion
+     * @param timestamp
+     */
+    public void enlistResourceManagerByThreadID(String threadId, String rmJndiName, String rmProductName,
+                                      String rmProductVersion, Timestamp timestamp) {
+        final String txuid = threadMap.get(threadId);
+
+        if (txuid == null) {
+            logger.error("HandlerService.enlistResourceManagerByThreadID - Thread ID: "+threadId +
+                    " is not currently associated with a transaction");
+            return;
+        }
+        enlistResourceManager(txuid, rmJndiName, rmProductName, rmProductVersion, timestamp);
+    }
+
+
     /**
      *
      * @param txuid
@@ -210,5 +247,24 @@ public class HandlerService {
 
         final ParticipantRecord rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
         participantRecordDAO.create(rec);
+    }
+
+    public void suspendTransaction(String threadId) {
+        final String txuid = threadMap.remove(threadId);
+
+        if (txuid != null)
+            logger.trace("HandlerService.suspendTransaction - Transaction: "+txuid+" suspended on thread: "+threadId);
+        else
+            logger.warn("HandlerService.suspendTransaction - threadId: "+threadId+" is not associated with a transaction");
+    }
+
+    public void resumeTransaction(String threadId, String txuid) {
+        final String previousVal = threadMap.put(threadId, txuid);
+
+        logger.trace("HandlerService.resumeTransaction - Transaction: "+txuid+" resumed on thread: "+threadId);
+
+        if (previousVal != null)
+            logger.warn("HandlerService.resumeTransaction - Thread: "+threadId+" was already associated with Transaction: "
+                    +previousVal);
     }
 }

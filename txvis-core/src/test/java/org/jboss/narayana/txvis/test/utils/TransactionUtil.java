@@ -4,6 +4,7 @@ import com.arjuna.ats.jta.TransactionManager;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.transaction.RollbackException;
+import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 import java.util.UUID;
 
@@ -43,6 +44,14 @@ public class TransactionUtil {
             catch (RollbackException e) {}
     }
 
+    public void createSuspendTransaction() throws Exception {
+        TransactionManager.transactionManager().begin();
+        TransactionManager.transactionManager().getTransaction().enlistResource(new DummyXAResourceWrapper(
+                new DummyXAResource(UUID.randomUUID().toString(), true), "java://suspend/resume"));
+        Transaction t = TransactionManager.transactionManager().suspend();
+        TransactionManager.transactionManager().resume(t);
+        t.commit();
+    }
 
     private XAResource createDummyResource() {
         return createDummyResource(true);

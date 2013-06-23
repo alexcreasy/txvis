@@ -25,16 +25,34 @@ public abstract class JbossAS8AbstractHandler extends AbstractHandler {
      *
      */
     public static final String LOG_LEVEL = "LOGLEVEL";
-
     /**
      *
      */
     public static final String LOG_CLASS = "LOGCLASS";
-
     /**
      *
      */
     public static final String THREAD_ID = "THREADID";
+    /**
+     *
+     */
+    public static final String RM_JNDI_NAME = "RMJNDINAME";
+    /**
+     *
+     */
+    public static final String RM_PRODUCT_NAME = "RMPRODNAME";
+    /**
+     *
+     */
+    public static final String RM_PRODUCT_VERSION = "RMPRODVER";
+    /**
+     *
+     */
+    public static final String PATTERN_XARESOURCEWRAPPERIMPL = "XAResourceWrapperImpl@.*?" +
+            "productName=(?<"+RM_PRODUCT_NAME+">.*?)\\sproductVersion=(?<"+RM_PRODUCT_VERSION+">.*?)\\s" +
+            "jndiName=(?<"+RM_JNDI_NAME+">java:[\\w/]+)";
+
+
 
 
     /*

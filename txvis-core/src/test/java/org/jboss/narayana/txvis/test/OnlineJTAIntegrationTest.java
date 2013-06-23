@@ -17,6 +17,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -74,6 +75,12 @@ public class OnlineJTAIntegrationTest {
     public void setup() throws Exception {
         txUtil = new TransactionUtil();
         dao.deleteAll();
+    }
+
+    @Ignore
+    @Test
+    public void aTest() throws Exception {
+        txUtil.createSuspendTransaction();
     }
 
     @Test
