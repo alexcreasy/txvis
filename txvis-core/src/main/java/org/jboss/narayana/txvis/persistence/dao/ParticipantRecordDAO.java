@@ -6,6 +6,7 @@ import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import javax.persistence.NoResultException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -52,6 +53,8 @@ public class ParticipantRecordDAO implements Serializable {
                     "WHERE e.transaction.txuid=:txuid AND e.resourceManager.jndiName=:jndiName")
                     .setParameter("txuid", txuid).setParameter("jndiName", rmJndiName).getSingleResult();
 
+        } catch (NoResultException e) {
+            return null;
         } finally {
             em.close();
         }

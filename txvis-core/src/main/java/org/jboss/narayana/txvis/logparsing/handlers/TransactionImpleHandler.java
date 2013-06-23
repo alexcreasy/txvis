@@ -11,7 +11,7 @@ public class TransactionImpleHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = "TransactionImple.enlistResource\\s\\(\\s" + PATTERN_XARESOURCEWRAPPERIMPL;
+    public static final String REGEX = "TransactionImple.enlistResource\\s\\(\\s"+PATTERN_XARESOURCEWRAPPERIMPL;
 
     /**
      *
@@ -27,7 +27,10 @@ public class TransactionImpleHandler extends JbossAS8AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.enlistResourceManagerByThreadID(matcher.group(THREAD_ID), matcher.group(RM_JNDI_NAME),
-                matcher.group(RM_PRODUCT_NAME), matcher.group(RM_PRODUCT_VERSION), parseTimestamp(matcher.group(TIMESTAMP)));
+        // Check that this is a JTS TransactionImple, JTA are handled by XAResourceRecordHandler so ignore
+        if (matcher.group(LOG_CLASS).equals("com.arjuna.ats.jtax"))
+            service.enlistResourceManagerByThreadID(matcher.group(THREAD_ID), matcher.group(RM_JNDI_NAME),
+                    matcher.group(RM_PRODUCT_NAME), matcher.group(RM_PRODUCT_VERSION),
+                    parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

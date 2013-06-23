@@ -27,7 +27,10 @@ public final class Configuration {
      */
     public static final Class[] LOG_HANDLERS = new Class[] {
             BasicActionHandler.class,
+            XAResourceRecordHandler.class,
             TransactionImpleHandler.class,
+            JTSSuspendHandler.class,
+            JTSResumeHandler.class,
             ResourcePrepareFailedHandler.class,
             XAResourceRecordTopLevelPrepareHandler.class,
             TransactionReaperHandler.class,
