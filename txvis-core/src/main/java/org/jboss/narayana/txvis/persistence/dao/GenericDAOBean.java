@@ -1,7 +1,6 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
@@ -17,13 +16,12 @@ import java.util.List;
  * Time: 15:57
  */
 @Stateless
-@DependsOn("EntityManagerServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class GenericDAOBean implements GenericDAO {
 
-    @EJB
-    private EntityManagerServiceBean emf;
+    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    private EntityManagerFactory emf;
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 

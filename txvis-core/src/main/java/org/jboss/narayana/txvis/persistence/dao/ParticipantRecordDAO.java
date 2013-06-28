@@ -1,10 +1,11 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
-import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 
 import javax.ejb.*;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,11 +20,11 @@ import java.util.List;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ParticipantRecordDAO implements Serializable {
 
-    @EJB
-    private GenericDAO dao;
+    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    private EntityManagerFactory emf;
 
     @EJB
-    private EntityManagerServiceBean emf;
+    private GenericDAO dao;
 
     public void create(ParticipantRecord rec) throws NullPointerException {
         // update used instead of create to ensure that the changes instigated in the

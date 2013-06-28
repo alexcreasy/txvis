@@ -1,12 +1,13 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
 import org.jboss.narayana.txvis.logparsing.AbstractHandler;
-import org.jboss.narayana.txvis.persistence.EntityManagerServiceBean;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class TransactionDAO implements Serializable{
     @EJB
     private GenericDAO dao;
 
-    @EJB
-    private EntityManagerServiceBean emf;
+    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    private EntityManagerFactory emf;
 
     public void create(Transaction tx) throws NullPointerException {
         dao.create(tx);
