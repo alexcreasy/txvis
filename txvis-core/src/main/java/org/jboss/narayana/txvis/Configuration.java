@@ -29,7 +29,6 @@ public final class Configuration {
             BasicActionHandler.class,
             XAResourceRecordHandler.class,
             TransactionImpleHandler.class,
-            JTSSuspendHandler.class,
             JTSResumeHandler.class,
             ResourcePrepareFailedHandler.class,
             XAResourceRecordTopLevelPrepareHandler.class,

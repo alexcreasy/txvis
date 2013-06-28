@@ -249,22 +249,10 @@ public class HandlerService {
         participantRecordDAO.create(rec);
     }
 
-    public void suspendTransaction(String threadId) {
-        final String txuid = threadMap.remove(threadId);
-
-        if (txuid != null)
-            logger.trace("HandlerService.suspendTransaction - Transaction: "+txuid+" suspended on thread: "+threadId);
-        else
-            logger.warn("HandlerService.suspendTransaction - threadId: "+threadId+" is not associated with a transaction");
-    }
-
     public void resumeTransaction(String threadId, String txuid) {
         final String previousVal = threadMap.put(threadId, txuid);
 
-        logger.trace("HandlerService.resumeTransaction - Transaction: "+txuid+" resumed on thread: "+threadId);
-
-        if (previousVal != null)
-            logger.warn("HandlerService.resumeTransaction - Thread: "+threadId+" was already associated with Transaction: "
-                    +previousVal);
+        if (logger.isTraceEnabled())
+            logger.trace("HandlerService.resumeTransaction - Transaction: "+txuid+" resumed on thread: "+threadId);
     }
 }
