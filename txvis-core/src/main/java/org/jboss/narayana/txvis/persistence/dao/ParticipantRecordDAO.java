@@ -34,6 +34,10 @@ public class ParticipantRecordDAO implements Serializable {
         dao.update(rec);
     }
 
+    public ParticipantRecord retrieve(Long id) {
+        return dao.retrieve(ParticipantRecord.class, id);
+    }
+
     /**
      *
      * @param txuid
@@ -58,6 +62,10 @@ public class ParticipantRecordDAO implements Serializable {
         } finally {
             em.close();
         }
+    }
+
+    public ParticipantRecord retrieveByBranchId(String branchId) throws NullPointerException {
+        return dao.retrieveByField(ParticipantRecord.class, "branchid", branchId);
     }
 
     public List<ParticipantRecord> retrieveAll() {

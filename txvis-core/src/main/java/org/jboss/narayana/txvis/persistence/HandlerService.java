@@ -4,7 +4,6 @@ import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
 import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
-import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
@@ -15,14 +14,8 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
-import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
-import javax.interceptor.InvocationContext;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
 import java.sql.Timestamp;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +43,8 @@ public class HandlerService {
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
 
-    private Map<String, String> threadMap = new HashMap<>();
+    private Map<String, String> threadToTxMap = new HashMap<>();
+    private Map<String, ParticipantRecord> threadToRecMap = new HashMap<>();
 
 
     /**
@@ -60,7 +54,7 @@ public class HandlerService {
      * @param threadId
      */
     public void beginTx(String txuid, Timestamp timestamp, String threadId) {
-        threadMap.put(threadId, txuid);
+        threadToTxMap.put(threadId, txuid);
         beginTx(txuid, timestamp);
     }
 
@@ -171,6 +165,12 @@ public class HandlerService {
         transactionDAO.update(tx);
     }
 
+    public void resourcePreparedJTS(String branchId, Timestamp timestamp) {
+        final ParticipantRecord rec = participantRecordDAO.retrieveByBranchId(branchId);
+        rec.setVote(Vote.COMMIT);
+        participantRecordDAO.update(rec);
+    }
+
     /**
      *
      * @param txuid
@@ -217,14 +217,9 @@ public class HandlerService {
      */
     public void enlistResourceManagerByThreadID(String threadId, String rmJndiName, String rmProductName,
                                       String rmProductVersion, Timestamp timestamp) {
-        final String txuid = threadMap.get(threadId);
 
-        if (txuid == null) {
-            logger.error("HandlerService.enlistResourceManagerByThreadID - Thread ID: "+threadId +
-                    " is not currently associated with a transaction");
-            return;
-        }
-        enlistResourceManager(txuid, rmJndiName, rmProductName, rmProductVersion, timestamp);
+        threadToRecMap.put(threadId, enlistResourceManager(threadToTxMap.get(threadId), rmJndiName, rmProductName,
+                rmProductVersion, timestamp));
     }
 
 
@@ -236,7 +231,7 @@ public class HandlerService {
      * @param rmProductVersion
      * @param timestamp
      */
-    public void enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
+    public ParticipantRecord enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
                                       String rmProductVersion, Timestamp timestamp) {
 
         ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
@@ -247,10 +242,34 @@ public class HandlerService {
 
         final ParticipantRecord rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
         participantRecordDAO.create(rec);
+        return rec;
     }
 
+    /**
+     *
+     * @param threadId
+     * @param branchId
+     */
+    public void registerBranchId(String threadId, String branchId) {
+
+        ParticipantRecord detatchedRec = threadToRecMap.remove(threadId);
+        final ParticipantRecord rec = participantRecordDAO.retrieve(detatchedRec.getTransaction().getTxuid(),
+                detatchedRec.getResourceManager().getJndiName());
+
+        if (logger.isTraceEnabled())
+            logger.trace("HandlerService.registerBranchId threadid: "+threadId+", branchid: "+branchId+" "+rec);
+
+        rec.setBranchid(branchId);
+        participantRecordDAO.update(rec);
+    }
+
+    /**
+     *
+     * @param threadId
+     * @param txuid
+     */
     public void resumeTransaction(String threadId, String txuid) {
-        final String previousVal = threadMap.put(threadId, txuid);
+        final String previousVal = threadToTxMap.put(threadId, txuid);
 
         if (logger.isTraceEnabled())
             logger.trace("HandlerService.resumeTransaction - Transaction: "+txuid+" resumed on thread: "+threadId);

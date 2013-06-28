@@ -19,6 +19,8 @@ public class ParticipantRecord implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String branchid;
+
     @ManyToOne(cascade = CascadeType.MERGE)
     private Transaction transaction;
 
@@ -61,6 +63,22 @@ public class ParticipantRecord implements Serializable {
      */
     public Long getId() {
         return this.id;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getBranchid() {
+        return branchid;
+    }
+
+    /**
+     *
+     * @param branchid
+     */
+    public void setBranchid(String branchid) {
+        this.branchid = branchid;
     }
 
     /**
@@ -122,9 +140,10 @@ public class ParticipantRecord implements Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb
-                .append("ParticipantRecord: Transaction < ").append(transaction)
-                .append(" >, ResourceManager <").append(resourceManager).append(" >")
-                .append(", Vote: ").append(vote);
+                .append("ParticipantRecord: < tx_uid=`").append(transaction.getTxuid())
+                .append("`, RMJndiName=`").append(resourceManager.getJndiName())
+                .append("`, BranchID=`").append(branchid)
+                .append("` >");
         return sb.toString();
     }
 }
