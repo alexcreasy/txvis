@@ -12,7 +12,7 @@ public class XAResourceRecordTopLevelPrepareHandler extends JbossAS8AbstractHand
      *
      */
     public static final String REGEX = "XAResourceRecord.topLevelPrepare.*?jndiName=(?<JNDINAME>java:[\\w/]+).*?" +
-            "tx_uid="+ PATTERN_TXUID;
+            "tx_uid="+PATTERN_TXUID;
 
     /**
      *

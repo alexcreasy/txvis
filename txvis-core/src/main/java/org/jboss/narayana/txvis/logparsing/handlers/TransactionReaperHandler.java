@@ -43,7 +43,6 @@ public class TransactionReaperHandler extends JbossAS8AbstractHandler {
 
         switch(matcher.group("ACTIONSTATUS")) {
             case "COMMITTED":
-                service.commitTx2Phase(txuid, timestamp);
                 break;
             case "ABORT":
                 break;
