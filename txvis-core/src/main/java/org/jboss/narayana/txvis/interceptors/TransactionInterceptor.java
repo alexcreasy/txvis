@@ -6,6 +6,7 @@ import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import java.io.Serializable;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -13,7 +14,7 @@ import javax.persistence.PersistenceUnit;
  * Time: 15:30
  */
 
-public class TransactionInterceptor {
+public class TransactionInterceptor implements Serializable {
 
     @PersistenceUnit
     private EntityManagerFactory emf;

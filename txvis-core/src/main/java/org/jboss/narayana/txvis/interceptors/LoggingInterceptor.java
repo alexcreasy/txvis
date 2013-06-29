@@ -4,13 +4,14 @@ import org.apache.log4j.Logger;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
+import java.io.Serializable;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 29/06/2013
  * Time: 15:37
  */
-public class LoggingInterceptor {
+public class LoggingInterceptor implements Serializable {
 
     @AroundInvoke
     public Object intercept(InvocationContext ctx) throws Exception {
