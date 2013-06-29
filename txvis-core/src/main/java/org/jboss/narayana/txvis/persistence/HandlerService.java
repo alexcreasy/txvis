@@ -39,9 +39,6 @@ public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-    @PersistenceUnit
-    private EntityManagerFactory emf;
-
     @EJB
     private TransactionDAO transactionDAO;
 
@@ -84,10 +81,8 @@ public class HandlerService {
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
-        if (tx == null) {
-            logger.error("HandlerService.prepareTx(), Transaction not found: " + txuid);
-            return;
-        }
+        if (tx == null)
+            throw new IllegalStateException("HandlerService.prepareTx(), Transaction not found: " + txuid);
 
         tx.prepare(timestamp);
         transactionDAO.update(tx);
@@ -102,10 +97,8 @@ public class HandlerService {
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
-        if (tx == null) {
-            logger.error("HandlerService.commitTx2Phase(), Transaction not found: " + txuid);
-            return;
-        }
+        if (tx == null)
+            throw new IllegalStateException("HandlerService.commitTx2Phase(), Transaction not found: " + txuid);
 
         if (tx.getStatus().equals(Status.IN_FLIGHT)) {
             tx.setStatus(Status.COMMIT, timestamp);
@@ -122,10 +115,8 @@ public class HandlerService {
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
-        if (tx == null) {
-            logger.error("HandlerService.commitTx1Phase(), Transaction not found: " + txuid);
-            return;
-        }
+        if (tx  == null)
+            throw new IllegalStateException("HandlerService.commitTx1Phase(), Transaction not found: " + txuid);
 
         tx.setStatus(Status.COMMIT, timestamp);
         tx.setOnePhase(true);
@@ -141,10 +132,9 @@ public class HandlerService {
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
-        if (tx == null) {
-            logger.error("HandlerService.topLevelAbortTx(), Transaction not found: " + txuid);
-            return;
-        }
+        if (tx  == null)
+            throw new IllegalStateException("HandlerService.topLevelAbortTx(), Transaction not found: " + txuid);
+
 
         tx.setStatus(Status.ROLLBACK_CLIENT, timestamp);
         transactionDAO.update(tx);
@@ -159,10 +149,9 @@ public class HandlerService {
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
-        if (tx == null) {
-            logger.error("HandlerService.resourceDrivenAbortTx(), Transaction not found: " + txuid);
-            return;
-        }
+        if (tx == null)
+            throw new IllegalStateException("HandlerService.resourceDrivenAbortTx(), Transaction not found: " + txuid);
+
         tx.setStatus(Status.ROLLBACK_RESOURCE, timestamp);
         transactionDAO.update(tx);
     }
@@ -177,10 +166,8 @@ public class HandlerService {
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
-        if (rec == null) {
-            logger.error("HandlerService.resourcePrepared(), ParticipantRecord not found: " + txuid);
-            return;
-        }
+        if (rec == null)
+            throw new IllegalStateException("HandlerService.resourcePrepared(), ParticipantRecord not found: " + txuid);
 
         rec.setVote(Vote.COMMIT);
         participantRecordDAO.update(rec);
@@ -196,10 +183,8 @@ public class HandlerService {
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
-        if (rec == null) {
-            logger.error("HandlerService.resourceFailedToPrepare(), ParticipantRecord not found: " + txuid);
-            return;
-        }
+        if (rec == null)
+            throw new IllegalStateException("Unable to retrieve ParticipantRecord for tx: "+txuid+", rm: "+rmJndiName);
 
         rec.setVote(Vote.ABORT);
         rec.setXaException(xaExceptionType);
@@ -225,37 +210,5 @@ public class HandlerService {
 
         final ParticipantRecord rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
         participantRecordDAO.create(rec);
-    }
-
-
-
-    //@AroundInvoke
-    public Object intercept(InvocationContext ctx) throws Exception {
-        if (logger.isTraceEnabled()) {
-            final StringBuilder sb = new StringBuilder();
-
-            sb.append(ctx.getMethod().getDeclaringClass().getSimpleName()).append(".")
-                    .append(ctx.getMethod().getName()).append("(");
-
-            for (Object param : ctx.getParameters()) {
-                sb.append(" `").append(param).append("`,");
-            }
-            logger.trace(sb.append(" )").toString());
-        }
-
-        final EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            Object result = ctx.proceed();
-            em.getTransaction().commit();
-            return result;
-        }
-        catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-        finally {
-            em.close();
-        }
     }
 }
