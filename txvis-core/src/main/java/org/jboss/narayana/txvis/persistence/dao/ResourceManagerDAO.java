@@ -22,7 +22,7 @@ public class ResourceManagerDAO implements Serializable{
     @EJB
     private GenericDAO dao;
 
-    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    @PersistenceUnit
     private EntityManagerFactory emf;
 
     public void create(ResourceManager rm) throws NullPointerException {

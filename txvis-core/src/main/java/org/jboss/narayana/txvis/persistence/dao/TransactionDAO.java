@@ -25,7 +25,7 @@ public class TransactionDAO implements Serializable{
     @EJB
     private GenericDAO dao;
 
-    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    @PersistenceUnit
     private EntityManagerFactory emf;
 
     public void create(Transaction tx) throws NullPointerException {

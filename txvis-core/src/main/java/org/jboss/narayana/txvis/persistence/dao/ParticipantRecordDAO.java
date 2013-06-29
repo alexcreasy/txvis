@@ -20,7 +20,7 @@ import java.util.List;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ParticipantRecordDAO implements Serializable {
 
-    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    @PersistenceUnit
     private EntityManagerFactory emf;
 
     @EJB

@@ -32,10 +32,7 @@ public final class Configuration {
             XAResourceRecordTopLevelPrepareHandler.class,
             TransactionReaperHandler.class,
     };
-    /**
-     *
-     */
-    public static final String PERSISTENCE_CONTEXT = "org.jboss.narayana.txvis";
+
     /**
      *
      */

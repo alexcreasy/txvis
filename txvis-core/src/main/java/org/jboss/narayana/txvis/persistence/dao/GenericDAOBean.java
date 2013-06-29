@@ -20,7 +20,7 @@ import java.util.List;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class GenericDAOBean implements GenericDAO {
 
-    @PersistenceUnit(unitName = "org.jboss.narayana.txvis")
+    @PersistenceUnit
     private EntityManagerFactory emf;
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
