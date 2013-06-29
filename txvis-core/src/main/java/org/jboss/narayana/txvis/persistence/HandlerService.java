@@ -46,7 +46,6 @@ public class HandlerService {
     private Map<String, String> threadToTxMap = new HashMap<>();
     private Map<String, ParticipantRecord> threadToRecMap = new HashMap<>();
 
-
     /**
      *
      * @param txuid
@@ -54,8 +53,8 @@ public class HandlerService {
      * @param threadId
      */
     public void beginTx(String txuid, Timestamp timestamp, String threadId) {
-        threadToTxMap.put(threadId, txuid);
         beginTx(txuid, timestamp);
+        threadToTxMap.put(threadId, txuid);
     }
 
     /**
@@ -65,16 +64,27 @@ public class HandlerService {
      */
     public void beginTx(String txuid, Timestamp timestamp) {
 
+        final String nodeid = arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier();
+
+        if (logger.isTraceEnabled())
+            logger.trace("beginTx called from node: "+nodeid);
+
         Transaction tx = transactionDAO.retrieve(txuid);
         if (tx == null) {
+            if (logger.isTraceEnabled())
+                logger.trace("beginTx called new parent transaction, nodeid="+nodeid);
+
             // txuid has not been seen before by log parser -> create tx record.
             tx = new Transaction(txuid, timestamp);
             tx.setNodeId(arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
             transactionDAO.create(tx);
         } else {
+            if (logger.isTraceEnabled())
+                logger.trace("beginTx called new subordinate transaction, nodeid="+nodeid);
+
             // If transaction has already been created we have a JTS transaction, if it originates from,
             // the same node it is a local transaction, from a different node and we have a distributed transaction
-            if (arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier().equals(tx.getNodeId())) {
+            if (nodeid.equals(tx.getNodeId())) {
                 tx.setDistributed(true);
                 transactionDAO.update(tx);
             }
@@ -165,6 +175,11 @@ public class HandlerService {
         transactionDAO.update(tx);
     }
 
+    /**
+     *
+     * @param branchId
+     * @param timestamp
+     */
     public void resourcePreparedJTS(String branchId, Timestamp timestamp) {
         final ParticipantRecord rec = participantRecordDAO.retrieveByBranchId(branchId);
         rec.setVote(Vote.COMMIT);
@@ -186,6 +201,13 @@ public class HandlerService {
 
         rec.setVote(Vote.COMMIT);
         participantRecordDAO.update(rec);
+    }
+
+
+    public void resourceFailedToPrepare(String branchId, String xaException, Timestamp timestamp) {
+        final ParticipantRecord rec = participantRecordDAO.retrieveByBranchId(branchId);
+        resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
+                xaException, timestamp);
     }
 
     /**
@@ -256,9 +278,6 @@ public class HandlerService {
         final ParticipantRecord rec = participantRecordDAO.retrieve(detatchedRec.getTransaction().getTxuid(),
                 detatchedRec.getResourceManager().getJndiName());
 
-        if (logger.isTraceEnabled())
-            logger.trace("HandlerService.registerBranchId threadid: "+threadId+", branchid: "+branchId+" "+rec);
-
         rec.setBranchid(branchId);
         participantRecordDAO.update(rec);
     }
@@ -269,9 +288,8 @@ public class HandlerService {
      * @param txuid
      */
     public void resumeTransaction(String threadId, String txuid) {
-        final String previousVal = threadToTxMap.put(threadId, txuid);
-
-        if (logger.isTraceEnabled())
-            logger.trace("HandlerService.resumeTransaction - Transaction: "+txuid+" resumed on thread: "+threadId);
+        threadToTxMap.put(threadId, txuid);
     }
+
+
 }

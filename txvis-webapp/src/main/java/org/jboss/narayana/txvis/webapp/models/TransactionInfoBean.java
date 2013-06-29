@@ -29,7 +29,7 @@ public class TransactionInfoBean implements Serializable {
 
     public String getTxUID() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        this.txUID = (String) facesContext.getExternalContext().
+        this.txUID = facesContext.getExternalContext().
                 getRequestParameterMap().get("txuid");
         return this.txUID;
     }

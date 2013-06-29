@@ -244,9 +244,9 @@ public class Transaction implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb
-                .append("Transaction: < tx_uid=`").append(txuid)
-                .append("`, nodeid=`").append(nodeId)
-                .append("` >");
+            .append("Transaction: < tx_uid=`").append(txuid)
+            .append("`, nodeid=`").append(nodeId)
+            .append("` >");
         return sb.toString();
     }
 }

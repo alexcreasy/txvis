@@ -168,8 +168,8 @@ public class OnlineJTAIntegrationTest {
 
     private void createAndLogTransactions(int introSleepDelay, int outroSleepDelay, int noOfTx,
                                           int noOfParticipantsPerTx, Status outcome) throws Exception {
-            Thread.sleep(introSleepDelay);
-            txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
-            Thread.sleep(outroSleepDelay);
+        Thread.sleep(introSleepDelay);
+        txUtil.createTx(noOfTx, noOfParticipantsPerTx, outcome);
+        Thread.sleep(outroSleepDelay);
     }
 }

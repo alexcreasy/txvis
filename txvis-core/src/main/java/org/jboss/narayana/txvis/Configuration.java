@@ -33,6 +33,7 @@ public final class Configuration {
             JTSXAResourceRecordHandler.class,
             ResourcePrepareFailedHandler.class,
             XAResourceRecordTopLevelPrepareHandler.class,
+            ArjunaTransactionImpleHandler.class,
             TransactionReaperHandler.class,
     };
 

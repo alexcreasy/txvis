@@ -21,8 +21,6 @@ import java.util.Collection;
 @SessionScoped
 public class TransactionListBean implements Serializable {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
-
     @Inject
     private TransactionDAO dao;
 
@@ -33,29 +31,22 @@ public class TransactionListBean implements Serializable {
 
 
     public Collection<Transaction> getTransactionsList() {
-        logger.info(MessageFormat.format(
-                "TransactionListBean.getTransactionsList, filterByStatus={0}, filterByDuration={1}",
-                filterByStatus, filterByDuration));
 
         filter();
         return transactionsList;
     }
 
     public void filter() {
-        logger.trace("filter, filterByStatus=" + filterByStatus);
         transactionsList = filterByStatus == null
                 ? dao.retrieveAll()
                 : dao.retrieveAllWithStatus(filterByStatus);
     }
 
     public void setFilterByStatus(Status status) {
-        logger.trace("setFilterByStatus, status=" + status);
-
         filterByStatus = status;
     }
 
     public Status getFilterByStatus() {
-        logger.trace("getFilterByStatus, filterByStatus=" + filterByStatus);
         return filterByStatus;
     }
 

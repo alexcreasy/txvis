@@ -121,9 +121,10 @@ public class ResourceManager implements Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb
-                .append("ResourceManager: JNDIName: ").append(jndiName)
-                .append(" Product Name: ").append(productName)
-                .append(" Product Version: ").append(productVersion);
+            .append("ResourceManager: < jndiName=`").append(jndiName)
+            .append("`, productName=`").append(productName)
+            .append("`, productVersion=`").append(productVersion)
+            .append("` >");
         return sb.toString();
     }
 }

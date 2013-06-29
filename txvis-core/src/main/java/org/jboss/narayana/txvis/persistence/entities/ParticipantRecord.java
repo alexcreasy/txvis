@@ -140,10 +140,12 @@ public class ParticipantRecord implements Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb
-                .append("ParticipantRecord: < tx_uid=`").append(transaction.getTxuid())
-                .append("`, RMJndiName=`").append(resourceManager.getJndiName())
-                .append("`, BranchID=`").append(branchid)
-                .append("` >");
+            .append("ParticipantRecord: < tx_uid=`").append(transaction.getTxuid())
+            .append("`, rm_jndiName=`").append(resourceManager.getJndiName())
+            .append("`, branchid=`").append(branchid)
+            .append("`, vote=`").append(vote)
+            .append("`, xaException=`").append(xaException)
+            .append("` >");
         return sb.toString();
     }
 }
