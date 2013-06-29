@@ -86,7 +86,7 @@ public final class LogParser implements TailerListener {
     @Override
     public void handle(Exception ex) {
         logger.error("Exception caught: ", ex);
-        throw new RuntimeException("Unhandled Exception ", ex);
+        throw new RuntimeException(ex);
     }
 
     /*

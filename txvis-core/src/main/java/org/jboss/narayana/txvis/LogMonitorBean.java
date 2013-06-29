@@ -23,9 +23,6 @@ public class LogMonitorBean {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-    @Resource
-    private SessionContext sessionContext;
-
     private File logFile;
     private Tailer tailer;
     private LogParser logParser;
@@ -41,8 +38,7 @@ public class LogMonitorBean {
                 tailer.run();
 
             } catch (Exception e) {
-                logger.fatal("Unhandled exception, stopping logfile monitor", e);
-                sessionContext.getBusinessObject(LogMonitorBean.class).stop();
+                logger.error("Unhandled exception", e);
             }
         }
     }
