@@ -13,6 +13,11 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 
@@ -30,6 +35,9 @@ public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
+    @PersistenceUnit
+    private EntityManagerFactory emf;
+
     @EJB
     private TransactionDAO transactionDAO;
 
@@ -46,8 +54,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void beginTx(String txuid, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.beginTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         Transaction tx = transactionDAO.retrieve(txuid);
         if (tx == null) {
@@ -71,8 +77,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void prepareTx(String txuid, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.prepareTx(), txuid=`{0}`, timestamp=`{1}`", txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -91,9 +95,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void commitTx2Phase(String txuid, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.commitTx2Phase(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -114,9 +115,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void commitTx1Phase(String txuid, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.commitTx1Phase(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -136,9 +134,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void topLevelAbortTx(String txuid, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.topLevelAbortTx(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -157,9 +152,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourceDrivenAbortTx(String txuid, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.resourceDrivenAbortTx(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
 
         final Transaction tx = transactionDAO.retrieve(txuid);
 
@@ -178,9 +170,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourcePrepared(String txuid, String rmJndiName, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.resourcePrepared(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
@@ -200,9 +189,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourceFailedToPrepare(String txuid, String rmJndiName, String xaExceptionType, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.resourceFailedToPrepare(), txuid=`{0}`, timestamp=`{1}`",
-                    txuid, timestamp));
 
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
@@ -226,10 +212,6 @@ public class HandlerService {
      */
     public void enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
                                       String rmProductVersion, Timestamp timestamp) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("HandlerService.enlistResourceManager(), txuid=`{0}`, timestamp=`{1}`, " +
-                    "rmJndiName=`{2}`, rmProductName=`{3}`, rmProductVersion=`{4}`",
-                    txuid, timestamp, rmJndiName, rmProductName, rmProductVersion));
 
         ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
         if (rm == null) {
@@ -239,5 +221,37 @@ public class HandlerService {
 
         final ParticipantRecord rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
         participantRecordDAO.create(rec);
+    }
+
+
+
+    @AroundInvoke
+    public Object intercept(InvocationContext ctx) throws Exception {
+        if (logger.isTraceEnabled()) {
+            final StringBuilder sb = new StringBuilder();
+
+            sb.append(ctx.getMethod().getDeclaringClass().getSimpleName()).append(".")
+                    .append(ctx.getMethod().getName()).append("(");
+
+            for (Object param : ctx.getParameters()) {
+                sb.append(" `").append(param).append("`,");
+            }
+            logger.trace(sb.append(" )").toString());
+        }
+
+        final EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Object result = ctx.proceed();
+            em.getTransaction().commit();
+            return result;
+        }
+        catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
+        finally {
+            em.close();
+        }
     }
 }
