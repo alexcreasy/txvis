@@ -36,8 +36,10 @@ public class GenericDAOTest {
                 + "Dependencies: org.jboss.jts\n";
 
         return ShrinkWrap.create(WebArchive.class, "test.war")
-                .addPackages(true, "org.jboss.narayana.txvis.persistence", "org.jboss.narayana.txvis.test.utils")
-                .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
+                .addPackages(true, "org.jboss.narayana.txvis.persistence", "org.jboss.narayana.txvis.test.utils" ,
+                        "org.jboss.narayana.txvis.interceptors")
+                .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")),
+                        "classes/META-INF/persistence.xml")
                 .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
                 .setManifest(new StringAsset(ManifestMF));
     }

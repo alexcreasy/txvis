@@ -1,10 +1,16 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
+import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.ExcludeClassInterceptors;
+import javax.interceptor.Interceptors;
+import javax.interceptor.InvocationContext;
 import javax.persistence.*;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -18,10 +24,13 @@ import java.util.List;
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Interceptors(LoggingInterceptor.class)
 public class GenericDAOBean implements GenericDAO {
 
     @PersistenceUnit
     private EntityManagerFactory emf;
+
+    private EntityManager em;
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -32,25 +41,7 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public <E> void create(E entity) {
-
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("GenericDAOBean.create() entity=`{0}`", entity));
-
-        final EntityManager em = emf.createEntityManager();
-        final EntityTransaction etx = em.getTransaction();
-        try {
-            etx.begin();
-
-            em.persist(entity);
-
-            etx.commit();
-        } catch (RuntimeException e) {
-            if (etx != null && etx.isActive())
-                em.getTransaction().rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
+        em.persist(entity);
     }
 
     /**
@@ -64,24 +55,11 @@ public class GenericDAOBean implements GenericDAO {
     @Override
     public <E, K> E retrieve(Class<E> entityClass, K primaryKey) {
 
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("GenericDAOBean.retrieve() entityClass=`{0}`, primaryKey=`{1}`",
-                    entityClass, primaryKey));
-
-        final EntityManager em = emf.createEntityManager();
         try {
-
             return em.find(entityClass, primaryKey);
-
-        } catch (NoResultException e) {
-
-            logger.warn(MessageFormat.format(
-                    "GenericDAOBean.retrieve: No result found for search: class=`{0}`, primaryKey=`{1}`",
-                    entityClass, primaryKey));
-
+        }
+        catch (NoResultException e) {
             return null;
-        } finally {
-            em.close();
         }
     }
 
@@ -94,22 +72,12 @@ public class GenericDAOBean implements GenericDAO {
     @Override
     @SuppressWarnings("unchecked")
     public <E> List<E> retrieveAll(Class<E> entityClass) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("GenericDAOBean.retrieveAll() entityClass=`{0}`", entityClass));
 
-        final EntityManager em = emf.createEntityManager();
         try {
-
             return em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList();
-
-        } catch (NoResultException e) {
-
-            if (logger.isTraceEnabled())
-                logger.trace(MessageFormat.format("GenericDAOBean.retrieveAll: No result found for search: class=`{0}`",
-                        entityClass));
+        }
+        catch (NoResultException e) {
             return null;
-        } finally {
-            em.close();
         }
     }
 
@@ -129,26 +97,12 @@ public class GenericDAOBean implements GenericDAO {
     public <E, V> E retrieveByField(Class<E> entityClass, String field, V value)
             throws NonUniqueResultException, NoSuchEntityException {
 
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format(
-                    "GenericDAOBean.retrieveByField() entityClass=`{0}`, field=`{1}`, value=`{2}`",
-                    entityClass, field, value));
-
-        final EntityManager em = emf.createEntityManager();
         try {
-
             return (E) em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value")
                     .setParameter("value", value).getSingleResult();
-
-        } catch (NoResultException e) {
-
-            if (logger.isTraceEnabled())
-                logger.trace(MessageFormat.format(
-                        "GenericDAOBean.retrieveByField: No result found for search: " +
-                                "class=`{0}`, field=`{1}`, value=`{2}`", entityClass, field, value));
+        }
+        catch (NoResultException e) {
             return null;
-        } finally {
-            em.close();
         }
     }
 
@@ -159,24 +113,7 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public <E> void update(E entity) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("GenericDAOBean.update() entity=`{0}`", entity));
-
-        final EntityManager em = emf.createEntityManager();
-        final EntityTransaction etx = em.getTransaction();
-        try {
-            etx.begin();
-
-            em.merge(entity);
-
-            etx.commit();
-        } catch (RuntimeException e) {
-            if (etx != null && etx.isActive())
-                etx.rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
+        em.merge(entity);
     }
 
     /**
@@ -186,24 +123,7 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public <E> void delete(E entity) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("GenericDAOBean.delete() entity=`{0}`", entity));
-
-        final EntityManager em = emf.createEntityManager();
-        final EntityTransaction etx = em.getTransaction();
-        try {
-            etx.begin();
-
-            em.remove(em.merge(entity));
-
-            etx.commit();
-        } catch (RuntimeException e) {
-            if (etx != null && etx.isActive())
-                etx.rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
+        em.remove(em.merge(entity));
     }
 
     /**
@@ -214,25 +134,9 @@ public class GenericDAOBean implements GenericDAO {
     @SuppressWarnings("unchecked")
     @Override
     public <E> void deleteAll(Class<E> entityClass) {
-        if (logger.isTraceEnabled())
-            logger.trace(MessageFormat.format("GenericDAOBean.deleteAll() entityClass=`{0}`", entityClass));
 
-        final EntityManager em = emf.createEntityManager();
-        final EntityTransaction etx = em.getTransaction();
-        try {
-            etx.begin();
-
-            for (E e : (Collection<E>) em.createQuery("FROM "+entityClass.getSimpleName()+" e").getResultList())
-                em.remove(e);
-
-            etx.commit();
-        } catch (RuntimeException e) {
-            if (etx != null && etx.isActive())
-                etx.rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
+        for (E e : (Collection<E>) em.createQuery("FROM "+entityClass.getSimpleName()+" e").getResultList())
+            em.remove(e);
     }
 
     /**
@@ -240,41 +144,35 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public void deleteAll() {
-        final EntityManager em = emf.createEntityManager();
-        final EntityTransaction etx = em.getTransaction();
-        try {
-            etx.begin();
+        em.createQuery("DELETE FROM Event").executeUpdate();
+        em.createQuery("DELETE FROM ParticipantRecord").executeUpdate();
+        em.createQuery("DELETE FROM ResourceManager").executeUpdate();
+        em.createQuery("DELETE FROM Transaction").executeUpdate();
 
-            em.createQuery("DELETE FROM Event").executeUpdate();
-            em.createQuery("DELETE FROM ParticipantRecord").executeUpdate();
-            em.createQuery("DELETE FROM ResourceManager").executeUpdate();
-            em.createQuery("DELETE FROM Transaction").executeUpdate();
-
-            etx.commit();
-        } catch (RuntimeException e) {
-            if (etx != null && etx.isActive())
-                etx.rollback();
-            throw e;
-        } finally {
-            em.close();
-        }
     }
 
-    /**
-     *
-     * @param status
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Transaction> retrieveTransactionsWithStatus(Status status) {
-        final EntityManager em = emf.createEntityManager();
+    @AroundInvoke
+    public Object intercept(InvocationContext ctx) throws Exception {
+        if (em == null || !em.isOpen())
+            this.em = emf.createEntityManager();
+
+        final boolean notActive = !em.getTransaction().isActive();
         try {
+            if (notActive)
+                em.getTransaction().begin();
+            Object result = ctx.proceed();
 
-            return em.createQuery("FROM "+Transaction.class.getSimpleName()+" e WHERE status=:status")
-                    .setParameter("status", status).getResultList();
+            if (notActive && em.getTransaction().isActive())
+                em.getTransaction().commit();
 
-        } finally {
+            return result;
+        }
+        catch (Exception e) {
+            if (em.getTransaction().isActive())
+                em.getTransaction().rollback();
+            throw e;
+        }
+        finally {
             em.close();
         }
     }

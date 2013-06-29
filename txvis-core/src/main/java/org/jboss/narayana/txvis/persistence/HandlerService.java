@@ -2,6 +2,8 @@ package org.jboss.narayana.txvis.persistence;
 
 import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
+import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
@@ -14,6 +16,7 @@ import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
 import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -31,6 +34,7 @@ import java.text.MessageFormat;
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Interceptors({LoggingInterceptor.class, TransactionInterceptor.class})
 public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
@@ -225,7 +229,7 @@ public class HandlerService {
 
 
 
-    @AroundInvoke
+    //@AroundInvoke
     public Object intercept(InvocationContext ctx) throws Exception {
         if (logger.isTraceEnabled()) {
             final StringBuilder sb = new StringBuilder();

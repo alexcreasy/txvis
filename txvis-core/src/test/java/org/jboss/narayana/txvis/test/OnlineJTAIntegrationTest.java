@@ -45,7 +45,8 @@ public class OnlineJTAIntegrationTest {
         return ShrinkWrap.create(WebArchive.class, "OnlineJTAIntegrationTest.war")
                 .addPackages(true, "org.jboss.narayana.txvis")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")), "classes/META-INF/persistence.xml")
+                .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")),
+                        "classes/META-INF/persistence.xml")
                 .addAsManifestResource(new FileAsset(new File("src/test/resources/txvis-test-ds.xml")), "txvis-test-ds.xml")
                 .addAsLibraries(libs)
                 .setManifest(new StringAsset(ManifestMF));

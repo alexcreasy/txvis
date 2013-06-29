@@ -34,8 +34,5 @@ public interface GenericDAO extends Serializable {
 
     <E> void deleteAll(Class<E> entityClass);
 
-    @SuppressWarnings("unchecked")
-    List<Transaction> retrieveTransactionsWithStatus(Status status);
-
     void deleteAll();
 }
