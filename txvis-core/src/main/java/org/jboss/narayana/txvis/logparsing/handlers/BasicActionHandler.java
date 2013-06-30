@@ -18,7 +18,7 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
      *
      */
     public static final String REGEX = "BasicAction::" +
-            "(?<BASICACTION>Begin|End|Abort|phase2Abort|phase2Commit|onePhaseCommit)\\(\\)\\sfor\\saction-id\\s"+PATTERN_TXUID;
+            "(?<BASICACTION>Begin|End|Abort|phase2Abort|phase2Commit|onePhaseCommit|addChildThread).*?action.*?"+PATTERN_TXUID;
 
 
     //13:19:25,765 TRACE [com.arjuna.ats.arjuna] (RequestProcessor-9) BasicAction::addChildThread () action 0:ffff0597491d:226c89eb:51cf87cd:3804 adding Thread[RequestProcessor-9,10,main] result = true
