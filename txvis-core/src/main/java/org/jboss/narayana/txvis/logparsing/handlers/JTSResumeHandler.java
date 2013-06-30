@@ -11,8 +11,8 @@ public class JTSResumeHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = "CurrentImple::resumeWrapper\\s\\(\\s"+PATTERN_TXUID;
-
+    public static final String REGEX = "CurrentImple::(?:resumeWrapper|resumeImple).+"+PATTERN_TXUID;
+    //CurrentImple::resumeImple ( ServerControl < 0:ffff0597491d:226c89eb:51cf87cd:3622 > )
     /**
      *
      */
