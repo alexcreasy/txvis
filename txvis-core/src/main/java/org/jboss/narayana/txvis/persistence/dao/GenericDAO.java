@@ -26,7 +26,9 @@ public interface GenericDAO extends Serializable {
     <E> List<E> retrieveAll(Class<E> entityClass);
 
     @SuppressWarnings("unchecked")
-    <E, V> E retrieveByField(Class<E> entityClass, String field, V value);
+    <E, V> E retrieveSingleByField(Class<E> entityClass, String field, V value);
+
+    <E, V> List<E> retrieveMultipleByField(Class<E> entityClass, String field, V value);
 
     <E> E update(E entity);
 

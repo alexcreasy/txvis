@@ -2,17 +2,12 @@ package org.jboss.narayana.txvis.persistence.dao;
 
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
-import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
-import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
 import javax.interceptor.AroundInvoke;
-import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 import javax.persistence.*;
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -94,12 +89,24 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <E, V> E retrieveByField(Class<E> entityClass, String field, V value)
+    public <E, V> E retrieveSingleByField(Class<E> entityClass, String field, V value)
             throws NonUniqueResultException, NoSuchEntityException {
 
         try {
             return (E) em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value")
                     .setParameter("value", value).getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E, V> List<E> retrieveMultipleByField(Class<E> entityClass, String field, V value) {
+        try {
+            return em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value")
+                    .setParameter("value", value).getResultList();
         }
         catch (NoResultException e) {
             return null;

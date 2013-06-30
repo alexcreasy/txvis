@@ -20,6 +20,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -206,9 +207,10 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourcePreparedJTS(String branchId, Timestamp timestamp) {
-        final ParticipantRecord rec = participantRecordDAO.retrieveByBranchId(branchId);
-        rec.setVote(Vote.COMMIT);
-        participantRecordDAO.update(rec);
+        for (ParticipantRecord rec : participantRecordDAO.retrieveByBranchId(branchId)) {
+            rec.setVote(Vote.COMMIT);
+            participantRecordDAO.update(rec);
+        }
     }
 
     /**
@@ -230,9 +232,9 @@ public class HandlerService {
 
 
     public void resourceFailedToPrepare(String branchId, String xaException, Timestamp timestamp) {
-        final ParticipantRecord rec = participantRecordDAO.retrieveByBranchId(branchId);
-        resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
-                xaException, timestamp);
+        for (ParticipantRecord rec : participantRecordDAO.retrieveByBranchId(branchId))
+            resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
+                    xaException, timestamp);
     }
 
     /**
