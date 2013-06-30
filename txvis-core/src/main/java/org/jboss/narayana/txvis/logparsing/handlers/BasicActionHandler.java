@@ -60,6 +60,9 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
             case "onePhaseCommit":
                 service.commitTx1Phase(txuid, timestamp);
                 break;
+            case "addChildThread":
+                service.resumeTransaction(matcher.group(THREAD_ID), matcher.group(TXUID));
+                break;
         }
     }
 }
