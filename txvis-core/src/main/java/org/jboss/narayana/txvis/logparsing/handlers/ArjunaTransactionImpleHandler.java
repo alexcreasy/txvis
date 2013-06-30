@@ -10,8 +10,7 @@ import java.util.regex.Matcher;
 public class ArjunaTransactionImpleHandler extends JbossAS8AbstractHandler {
 
     private static final String REGEX = "ArjunaTransactionImple::get_status\\sfor\\s"+PATTERN_TXUID+
-            "\\sreturning\\sCosTransactions::StatusCommitted ";
-            //"ArjunaTransactionImple::get_status for 0:ffff0597491d:-93ade6e:51cf13af:3b returning CosTransactions::StatusCommitted";
+            "\\sreturning\\sCosTransactions::StatusCommitted";
 
     public ArjunaTransactionImpleHandler() {
         super(REGEX);

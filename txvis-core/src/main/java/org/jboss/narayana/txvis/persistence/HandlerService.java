@@ -15,6 +15,9 @@ import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,10 +32,13 @@ import java.util.Map;
 @Stateful
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-@Interceptors({LoggingInterceptor.class, TransactionInterceptor.class})
+@Interceptors({LoggingInterceptor.class})
 public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
+
+    @PersistenceUnit
+    private EntityManagerFactory emf;
 
     @EJB
     private TransactionDAO transactionDAO;
@@ -69,25 +75,44 @@ public class HandlerService {
         if (logger.isTraceEnabled())
             logger.trace("beginTx called from node: "+nodeid);
 
-        Transaction tx = transactionDAO.retrieve(txuid);
-        if (tx == null) {
-            if (logger.isTraceEnabled())
-                logger.trace("beginTx called new parent transaction, nodeid="+nodeid);
+        final EntityManager em = emf.createEntityManager();
 
-            // txuid has not been seen before by log parser -> create tx record.
-            tx = new Transaction(txuid, timestamp);
-            tx.setNodeId(arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
-            transactionDAO.create(tx);
-        } else {
-            if (logger.isTraceEnabled())
-                logger.trace("beginTx called new subordinate transaction, nodeid="+nodeid);
+        try
+        {
+            em.getTransaction().begin();
 
-            // If transaction has already been created we have a JTS transaction, if it originates from,
-            // the same node it is a local transaction, from a different node and we have a distributed transaction
-            if (nodeid.equals(tx.getNodeId())) {
-                tx.setDistributed(true);
-                transactionDAO.update(tx);
+            Transaction tx = transactionDAO.retrieve(txuid);
+            if (tx == null) {
+                if (logger.isTraceEnabled())
+                    logger.trace("beginTx called new parent transaction, nodeid="+nodeid);
+
+                // txuid has not been seen before by log parser -> create tx record.
+                tx = new Transaction(txuid, timestamp);
+                tx.setNodeId(arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+                transactionDAO.create(tx);
+            } else {
+                if (logger.isTraceEnabled())
+                    logger.trace("beginTx called new subordinate transaction, nodeid="+nodeid);
+
+                // If transaction has already been created we have a JTS transaction, if it originates from,
+                // the same node it is a local transaction, from a different node and we have a distributed transaction
+                if (!nodeid.equals(tx.getNodeId())) {
+                    tx.setDistributed(true);
+                    transactionDAO.update(tx);
+                }
             }
+            em.getTransaction().commit();
+        }
+        catch(Exception e)
+        {
+            if (em.getTransaction().isActive())
+                em.getTransaction().rollback();
+
+            logger.warn("BeginTx: Transaction Rolled Back");
+        }
+        finally
+        {
+            em.close();
         }
     }
 
@@ -228,6 +253,10 @@ public class HandlerService {
         participantRecordDAO.update(rec);
     }
 
+
+    public void cleanup(String txuid, Timestamp timestamp) {
+
+    }
 
     /**
      *
