@@ -72,8 +72,8 @@ public class ParticipantRecordDAO implements Serializable {
         return dao.retrieveAll(ParticipantRecord.class);
     }
 
-    public void update(ParticipantRecord rec) throws NullPointerException {
-        dao.update(rec);
+    public ParticipantRecord update(ParticipantRecord rec) throws NullPointerException {
+        return dao.update(rec);
     }
 
     public void delete(ParticipantRecord rec) throws NullPointerException {

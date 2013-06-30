@@ -32,6 +32,8 @@ public class ParticipantRecord implements Serializable {
     @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
 
+    private int noTimesEnlisted;
+
     // Restrict default constructor to EJB container
     protected ParticipantRecord() {}
 
@@ -132,6 +134,18 @@ public class ParticipantRecord implements Serializable {
         this.vote = vote;
     }
 
+    public int incrementNoTimesEnlisted() {
+        return noTimesEnlisted++;
+    }
+
+    public int getNoTimesEnlisted() {
+        return noTimesEnlisted;
+    }
+
+    public void setNoTimesEnlisted(int noTimesEnlisted) {
+        this.noTimesEnlisted = noTimesEnlisted;
+    }
+
     /**
      *
      * @return
@@ -145,6 +159,7 @@ public class ParticipantRecord implements Serializable {
             .append("`, branchid=`").append(branchid)
             .append("`, vote=`").append(vote)
             .append("`, xaException=`").append(xaException)
+            .append("`, noTimesEnlisted=`").append(noTimesEnlisted)
             .append("` >");
         return sb.toString();
     }

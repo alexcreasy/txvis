@@ -112,8 +112,8 @@ public class GenericDAOBean implements GenericDAO {
      * @param <E>
      */
     @Override
-    public <E> void update(E entity) {
-        em.merge(entity);
+    public <E> E update(E entity) {
+        return em.merge(entity);
     }
 
     /**

@@ -50,7 +50,7 @@ public class HandlerService {
     private ParticipantRecordDAO participantRecordDAO;
 
     private Map<String, String> threadToTxMap = new HashMap<>();
-    private Map<String, ParticipantRecord> threadToRecMap = new HashMap<>();
+    private Map<String, Long> threadToRecMap = new HashMap<>();
 
     /**
      *
@@ -270,7 +270,7 @@ public class HandlerService {
                                       String rmProductVersion, Timestamp timestamp) {
 
         threadToRecMap.put(threadId, enlistResourceManager(threadToTxMap.get(threadId), rmJndiName, rmProductName,
-                rmProductVersion, timestamp));
+                rmProductVersion, timestamp).getId());
     }
 
 
@@ -285,15 +285,49 @@ public class HandlerService {
     public ParticipantRecord enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
                                       String rmProductVersion, Timestamp timestamp) {
 
-        ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
-        if (rm == null) {
-            rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
-            resourceManagerDAO.create(rm);
-        }
 
-        final ParticipantRecord rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
-        participantRecordDAO.create(rec);
-        return rec;
+
+        final EntityManager em = emf.createEntityManager();
+        try
+        {
+
+            em.getTransaction().begin();
+
+
+            ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
+
+            if (rec != null) {
+                // If the RM has already been enlisted in this transaction before, increment the counter
+                rec.incrementNoTimesEnlisted();
+            }
+            else {
+                ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
+                if (rm == null) {
+                    // Create the RM is it hasn't been enlisted before.
+                    rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
+                    resourceManagerDAO.create(rm);
+                }
+
+                // Enlist the RM as a Participant of this transaction
+                rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
+            }
+
+            rec = participantRecordDAO.update(rec);
+
+            em.getTransaction().commit();
+
+            return rec;
+
+        }
+        catch (Throwable t)
+        {
+            em.getTransaction().rollback();
+            throw t;
+        }
+        finally
+        {
+            em.close();
+        }
     }
 
     /**
@@ -303,9 +337,7 @@ public class HandlerService {
      */
     public void registerBranchId(String threadId, String branchId) {
 
-        ParticipantRecord detatchedRec = threadToRecMap.remove(threadId);
-        final ParticipantRecord rec = participantRecordDAO.retrieve(detatchedRec.getTransaction().getTxuid(),
-                detatchedRec.getResourceManager().getJndiName());
+        final ParticipantRecord rec = participantRecordDAO.retrieve(threadToRecMap.remove(threadId));
 
         rec.setBranchid(branchId);
         participantRecordDAO.update(rec);

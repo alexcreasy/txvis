@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis;
 
+import com.arjuna.ats.arjuna.common.CoreEnvironmentBeanException;
 import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
 
@@ -7,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import java.io.File;
+import java.util.UUID;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -27,13 +29,19 @@ public class StartupServiceBean {
 
     @PostConstruct
     protected void setup() {
+        try {
+            arjPropertyManager.getCoreEnvironmentBean().setNodeIdentifier(UUID.randomUUID().toString());
+        }
+        catch (CoreEnvironmentBeanException e) {
+            logger.fatal("Unable to set unique node identifier, shutting down", e);
+            throw new RuntimeException(e);
+        }
+
         if (logger.isInfoEnabled()) {
-            logger.info("-------------------------------------------------------");
-            logger.info("      TxVis: JBoss Transaction Visualization Tool      ");
-            logger.info("-------------------------------------------------------");
+            logger.info("TxVis: JBoss Transaction Visualization Tool");
+            logger.info("Bootstrapping...");
             logger.info("Server Node Id: "+arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
             logger.info("Logfile: "+Configuration.LOGFILE_PATH);
-            logger.info("-------------------------------------------------------");
         }
         logMonitor.setFile(new File(Configuration.LOGFILE_PATH));
         logMonitor.start();
