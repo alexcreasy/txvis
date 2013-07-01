@@ -12,8 +12,8 @@ public class XAResourceRecordHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
-    public static final String REGEX = "XAResourceRecord\\.(?<RECORDACTION>XAResourceRecord|topLevelPrepare).*?" +
-            "tx_uid="+PATTERN_TXUID+".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\s" +
+    public static final String REGEX = "XAResourceRecord\\.XAResourceRecord.*?" + "tx_uid="+PATTERN_TXUID +
+            ".*?productName=(?<PRODUCTNAME>.*?)\\sproductVersion=(?<PRODUCTVERSION>.*?)\\s" +
             "jndiName=(?<JNDINAME>java:[\\w/]+)";
 
     /**
@@ -30,18 +30,7 @@ public class XAResourceRecordHandler extends JbossAS8AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        final String txuid = matcher.group(TXUID);
-        final Timestamp timestamp = parseTimestamp(matcher.group(TIMESTAMP));
-        final String jndiName = matcher.group("JNDINAME");
-        final String productName = matcher.group("PRODUCTNAME");
-        final String productVer = matcher.group("PRODUCTVERSION");
-
-        switch (matcher.group("RECORDACTION")) {
-            case "XAResourceRecord":
-                service.enlistResourceManager(txuid, jndiName, productName, productVer, timestamp);
-                break;
-            case "topLevelPrepare":
-                break;
-        }
+            service.enlistResourceManager(matcher.group(TXUID),  matcher.group("JNDINAME"), matcher.group("PRODUCTNAME"),
+                    matcher.group("PRODUCTNAME"), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }
