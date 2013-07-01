@@ -30,7 +30,6 @@ public final class Configuration {
             XAResourceRecordHandler.class,
             ResourcePrepareFailedHandler.class,
             XAResourceRecordTopLevelPrepareHandler.class,
-            TransactionReaperHandler.class,
             JTSResourceEnlistHandler.class,
             JTSResourceExceptionHandler.class,
             JTSResourcePrepareHandler.class,
