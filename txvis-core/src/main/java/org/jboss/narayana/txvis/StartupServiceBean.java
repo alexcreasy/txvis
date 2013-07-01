@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import java.io.File;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -29,18 +30,11 @@ public class StartupServiceBean {
 
     @PostConstruct
     protected void setup() {
-        try {
-            arjPropertyManager.getCoreEnvironmentBean().setNodeIdentifier(UUID.randomUUID().toString());
-        }
-        catch (CoreEnvironmentBeanException e) {
-            logger.fatal("Unable to set unique node identifier, shutting down", e);
-            throw new RuntimeException(e);
-        }
 
         if (logger.isInfoEnabled()) {
             logger.info("TxVis: JBoss Transaction Visualization Tool");
             logger.info("Bootstrapping...");
-            logger.info("Server Node Id: "+arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+            logger.info("Server Node Id: "+System.getProperty("jboss.node.name"));
             logger.info("Logfile: "+Configuration.LOGFILE_PATH);
         }
         logMonitor.setFile(new File(Configuration.LOGFILE_PATH));
@@ -49,6 +43,12 @@ public class StartupServiceBean {
 
     @PreDestroy
     protected void tearDown() {
+        if (logger.isInfoEnabled())
+            logger.info("Txvis tool cease monitoring");
+
         logMonitor.stop();
+
+        if (logger.isInfoEnabled())
+            logger.info("Txvis tool shutting down");
     }
 }

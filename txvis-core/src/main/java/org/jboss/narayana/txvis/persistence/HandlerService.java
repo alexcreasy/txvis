@@ -71,7 +71,8 @@ public class HandlerService {
      */
     public void beginTx(String txuid, Timestamp timestamp) {
 
-        final String nodeid = arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier();
+        final String nodeid = System.getProperty("jboss.node.name");
+        //arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier();
 
         if (logger.isTraceEnabled())
             logger.trace("beginTx called from node: "+nodeid);
@@ -89,7 +90,7 @@ public class HandlerService {
 
                 // txuid has not been seen before by log parser -> create tx record.
                 tx = new Transaction(txuid, timestamp);
-                tx.setNodeId(arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+                tx.setNodeId(nodeid);
                 transactionDAO.create(tx);
             } else {
                 if (logger.isTraceEnabled())
