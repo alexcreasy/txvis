@@ -231,7 +231,7 @@ public class HandlerService {
     }
 
 
-    public void resourceFailedToPrepare(String branchId, String xaException, Timestamp timestamp) {
+    public void resourceFailedToPrepareJTS(String branchId, String xaException, Timestamp timestamp) {
         for (ParticipantRecord rec : participantRecordDAO.retrieveByBranchId(branchId))
             resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
                     xaException, timestamp);

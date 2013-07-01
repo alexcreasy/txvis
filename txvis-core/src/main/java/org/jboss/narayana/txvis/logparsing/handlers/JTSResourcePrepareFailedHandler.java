@@ -31,7 +31,7 @@ public class JTSResourcePrepareFailedHandler extends JbossAS8AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        service.resourceFailedToPrepare(matcher.group("BRANCHID"), matcher.group("XAEXCEPTION"),
+        service.resourceFailedToPrepareJTS(matcher.group("BRANCHID"), matcher.group("XAEXCEPTION"),
                 parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

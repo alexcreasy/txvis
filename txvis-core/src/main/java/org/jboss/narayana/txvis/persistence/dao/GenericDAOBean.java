@@ -36,7 +36,16 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public <E> void create(E entity) {
+
+        final boolean notActive = !em.getTransaction().isActive();
+
+        if (notActive)
+            em.getTransaction().begin();
+
         em.persist(entity);
+
+        if (notActive)
+            em.getTransaction().commit();
     }
 
     /**
@@ -120,7 +129,18 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public <E> E update(E entity) {
-        return em.merge(entity);
+
+        final boolean notActive = !em.getTransaction().isActive();
+
+        if (notActive)
+            em.getTransaction().begin();
+
+        final E merged = em.merge(entity);
+
+        if (notActive)
+            em.getTransaction().commit();
+
+        return merged;
     }
 
     /**
@@ -130,7 +150,16 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public <E> void delete(E entity) {
+
+        final boolean notActive = !em.getTransaction().isActive();
+
+        if (notActive)
+            em.getTransaction().begin();
+
         em.remove(em.merge(entity));
+
+        if (notActive)
+            em.getTransaction().commit();
     }
 
     /**
@@ -142,8 +171,16 @@ public class GenericDAOBean implements GenericDAO {
     @Override
     public <E> void deleteAll(Class<E> entityClass) {
 
+        final boolean notActive = !em.getTransaction().isActive();
+
+        if (notActive)
+            em.getTransaction().begin();
+
         for (E e : (Collection<E>) em.createQuery("FROM "+entityClass.getSimpleName()+" e").getResultList())
             em.remove(e);
+
+        if (notActive)
+            em.getTransaction().commit();
     }
 
     /**
@@ -151,33 +188,53 @@ public class GenericDAOBean implements GenericDAO {
      */
     @Override
     public void deleteAll() {
+        final boolean notActive = !em.getTransaction().isActive();
+
+        if (notActive)
+            em.getTransaction().begin();
+
         em.createQuery("DELETE FROM Event").executeUpdate();
         em.createQuery("DELETE FROM ParticipantRecord").executeUpdate();
         em.createQuery("DELETE FROM ResourceManager").executeUpdate();
         em.createQuery("DELETE FROM Transaction").executeUpdate();
 
+        if (notActive)
+            em.getTransaction().commit();
     }
+
+//    @AroundInvoke
+//    public Object intercept(InvocationContext ctx) throws Exception {
+//        if (em == null || !em.isOpen())
+//            this.em = emf.createEntityManager();
+//
+//        final boolean notActive = !em.getTransaction().isActive();
+//        try {
+//            if (notActive)
+//                em.getTransaction().begin();
+//            Object result = ctx.proceed();
+//
+//            if (notActive && em.getTransaction().isActive())
+//                em.getTransaction().commit();
+//
+//            return result;
+//        }
+//        catch (Exception e) {
+//            if (em.getTransaction().isActive())
+//                em.getTransaction().rollback();
+//            throw e;
+//        }
+//        finally {
+//            em.close();
+//        }
+//    }
 
     @AroundInvoke
     public Object intercept(InvocationContext ctx) throws Exception {
         if (em == null || !em.isOpen())
             this.em = emf.createEntityManager();
 
-        final boolean notActive = !em.getTransaction().isActive();
         try {
-            if (notActive)
-                em.getTransaction().begin();
-            Object result = ctx.proceed();
-
-            if (notActive && em.getTransaction().isActive())
-                em.getTransaction().commit();
-
-            return result;
-        }
-        catch (Exception e) {
-            if (em.getTransaction().isActive())
-                em.getTransaction().rollback();
-            throw e;
+            return ctx.proceed();
         }
         finally {
             em.close();

@@ -7,6 +7,7 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceUnit;
 import java.io.Serializable;
 import java.util.List;
@@ -36,8 +37,19 @@ public class TransactionDAO implements Serializable{
         return dao.retrieve(Transaction.class, txuid);
     }
 
+    @SuppressWarnings("unchecked")
     public List<Transaction> retrieveAll() {
-        return dao.retrieveAll(Transaction.class);
+        final EntityManager em = emf.createEntityManager();
+
+        try {
+            return em.createQuery("FROM Transaction t ORDER BY t.startTime").getResultList();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
+        finally {
+            em.close();
+        }
     }
 
     public void update(Transaction tx) throws NullPointerException {

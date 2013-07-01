@@ -105,6 +105,14 @@ public class Transaction implements Serializable {
         this.status = status;
         events.add(new Event(this, EventType.END, status.toString(), timestamp));
         setEndTime(timestamp);
+
+        switch (status) {
+            case COMMIT:
+                // If result is commit then ALL participants must have voted commit.
+                for (ParticipantRecord rec : getParticipantRecords())
+                    rec.setVote(Vote.COMMIT);
+                break;
+        }
     }
 
     /**

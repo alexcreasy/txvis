@@ -12,7 +12,8 @@ public class JTSXAResourceRecordHandler extends JbossAS8AbstractHandler {
     XAResourceRecord.XAResourceRecord ( < 131072, 35, 36, 0000000000-1-1-8417-126-38-7936695181-5210414007783698286698249,
             353535353535353535353434-4952-91-3-447110486116-1713949353542421181041171211041178435 > )
      */
-    private static final String REGEX = "XAResourceRecord\\.(?<RECTYPE>XAResourceRecord|prepare|commit).*?(?<BRANCHID>[\\d-]+)\\s>";
+    private static final String REGEX = "XAResourceRecord\\.(?<RECTYPE>XAResourceRecord|prepare|commit|rollback).*?" +
+            "(?<BRANCHID>[\\d-]+)\\s>";
 
     public JTSXAResourceRecordHandler() {
         super(REGEX);
@@ -26,6 +27,10 @@ public class JTSXAResourceRecordHandler extends JbossAS8AbstractHandler {
                 break;
             case "prepare":
                 service.resourcePreparedJTS(matcher.group("BRANCHID"), parseTimestamp(matcher.group(TIMESTAMP)));
+                break;
+            case "rollback":
+                service.resourceFailedToPrepareJTS(matcher.group("BRANCHID"), "", parseTimestamp(matcher.group(TIMESTAMP)));
+                break;
         }
     }
 }
