@@ -68,7 +68,7 @@
         <hr />
         <div>
             <h3>Event Timeline</h3>
-            <h:dataTable value="#{transactionInfoBean.transaction.events}" var="event"
+            <h:dataTable value="#{transactionInfoBean.transaction.eventsInTemporalOrder}" var="event"
                          styleClass="table table-striped">
                 <h:column>
                     <f:facet name="header">Time</f:facet>
