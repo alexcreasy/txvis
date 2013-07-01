@@ -13,7 +13,7 @@ import java.util.Date;
  * Time: 22:57
  */
 @Entity
-public class Event implements Serializable {
+public class Event implements Serializable, Comparable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -109,5 +109,13 @@ public class Event implements Serializable {
     public String getEventValue() {
         return eventValue;
     }
-
+    @Override
+    public int compareTo(Object o) {
+        // Unchecked cast as implicitly throwing ClassCastException conforms
+        // with interface contract.
+        Event e = (Event) o;
+        final long dif = getTimestamp().getTime() - e.getTimestamp().getTime();
+        // Avoids casting from long to int
+        return dif == 0 ? 0 : (dif < 0 ? -1 : 1);
+    }
 }
