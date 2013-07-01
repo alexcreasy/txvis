@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.persistence;
 
-import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
 import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
@@ -19,9 +18,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -49,20 +45,6 @@ public class HandlerService {
 
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
-
-    private Map<String, String> threadToTxMap = new HashMap<>();
-    private Map<String, Long> threadToRecMap = new HashMap<>();
-
-    /**
-     *
-     * @param txuid
-     * @param timestamp
-     * @param threadId
-     */
-    public void beginTx(String txuid, Timestamp timestamp, String threadId) {
-        beginTx(txuid, timestamp);
-        threadToTxMap.put(threadId, txuid);
-    }
 
     /**
      *
@@ -204,14 +186,14 @@ public class HandlerService {
 
     /**
      *
-     * @param branchId
+     * @param rmuid
      * @param timestamp
      */
-    public void resourcePreparedJTS(String branchId, Timestamp timestamp) {
-        for (ParticipantRecord rec : participantRecordDAO.retrieveByBranchId(branchId)) {
-            rec.setVote(Vote.COMMIT);
-            participantRecordDAO.update(rec);
-        }
+    @Interceptors(TransactionInterceptor.class)
+    public void resourcePreparedJTS(String rmuid, Timestamp timestamp) {
+        final ParticipantRecord rec = participantRecordDAO.retrieveByUID(rmuid);
+        rec.setVote(Vote.COMMIT);
+        participantRecordDAO.update(rec);
     }
 
     /**
@@ -231,9 +213,9 @@ public class HandlerService {
         participantRecordDAO.update(rec);
     }
 
-
-    public void resourceFailedToPrepareJTS(String branchId, String xaException, Timestamp timestamp) {
-        for (ParticipantRecord rec : participantRecordDAO.retrieveByBranchId(branchId))
+    @Interceptors(TransactionInterceptor.class)
+    public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
+            ParticipantRecord rec = participantRecordDAO.retrieveByUID(rmuid);
             resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
                     xaException, timestamp);
     }
@@ -256,24 +238,31 @@ public class HandlerService {
         participantRecordDAO.update(rec);
     }
 
-
-    public void cleanup(String txuid, Timestamp timestamp) {
-
-    }
-
     /**
      *
-     * @param threadId
+     * @param txuid
      * @param rmJndiName
      * @param rmProductName
      * @param rmProductVersion
      * @param timestamp
      */
-    public void enlistResourceManagerByThreadID(String threadId, String rmJndiName, String rmProductName,
-                                      String rmProductVersion, Timestamp timestamp) {
+    @Interceptors(TransactionInterceptor.class)
+    public void enlistResourceManagerByUID(String txuid, String rmuid, String rmJndiName, String rmProductName,
+                                           String rmProductVersion, Timestamp timestamp) {
 
-        threadToRecMap.put(threadId, enlistResourceManager(threadToTxMap.get(threadId), rmJndiName, rmProductName,
-                rmProductVersion, timestamp).getId());
+        final ParticipantRecord rec = enlistResourceManager(txuid, rmJndiName, rmProductName, rmProductVersion, timestamp);
+        rec.setRmuid(rmuid);
+        participantRecordDAO.update(rec);
+    }
+
+    @Interceptors(TransactionInterceptor.class)
+    public void cleanup(String txuid) {
+        final Transaction tx =  transactionDAO.retrieve(txuid);
+
+        if (tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
+            transactionDAO.delete(tx);
+            logger.info("Cleand up phantom transaction: "+txuid);
+        }
     }
 
 
@@ -286,74 +275,26 @@ public class HandlerService {
      * @param timestamp
      */
     public ParticipantRecord enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
-                                      String rmProductVersion, Timestamp timestamp) {
+                                                   String rmProductVersion, Timestamp timestamp) {
 
+        ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
-
-        final EntityManager em = emf.createEntityManager();
-        try
-        {
-
-            em.getTransaction().begin();
-
-
-            ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
-
-            if (rec != null) {
-                // If the RM has already been enlisted in this transaction before, increment the counter
-                rec.incrementNoTimesEnlisted();
-            }
-            else {
-                ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
-                if (rm == null) {
-                    // Create the RM is it hasn't been enlisted before.
-                    rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
-                    resourceManagerDAO.create(rm);
-                }
-
-                // Enlist the RM as a Participant of this transaction
-                rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
+        if (rec != null) {
+            logger.error("ParticipantRecord already created: "+rec);
+        }
+        else {
+            ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
+            if (rm == null) {
+                // Create the RM is it hasn't been enlisted before.
+                rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
+                resourceManagerDAO.create(rm);
             }
 
-            rec = participantRecordDAO.update(rec);
-
-            em.getTransaction().commit();
-
-            return rec;
-
+            // Enlist the RM as a Participant of this transaction
+            rec = new ParticipantRecord(transactionDAO.retrieve(txuid), rm, timestamp);
         }
-        catch (Throwable t)
-        {
-            em.getTransaction().rollback();
-            throw t;
-        }
-        finally
-        {
-            em.close();
-        }
+
+        rec = participantRecordDAO.update(rec);
+        return rec;
     }
-
-    /**
-     *
-     * @param threadId
-     * @param branchId
-     */
-    public void registerBranchId(String threadId, String branchId) {
-
-        final ParticipantRecord rec = participantRecordDAO.retrieve(threadToRecMap.remove(threadId));
-
-        rec.setBranchid(branchId);
-        participantRecordDAO.update(rec);
-    }
-
-    /**
-     *
-     * @param threadId
-     * @param txuid
-     */
-    public void resumeTransaction(String threadId, String txuid) {
-        threadToTxMap.put(threadId, txuid);
-    }
-
-
 }

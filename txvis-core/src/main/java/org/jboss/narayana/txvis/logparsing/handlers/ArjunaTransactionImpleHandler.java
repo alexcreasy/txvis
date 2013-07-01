@@ -18,6 +18,6 @@ public class ArjunaTransactionImpleHandler extends JbossAS8AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        service.commitTx2Phase(matcher.group(TXUID), parseTimestamp(matcher.group(TIMESTAMP)));
+        service.cleanup(matcher.group(TXUID));
     }
 }

@@ -43,7 +43,7 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
 
         switch (matcher.group("BASICACTION")) {
             case "Begin":
-                service.beginTx(txuid, timestamp, matcher.group(THREAD_ID));
+                service.beginTx(txuid, timestamp);
                 break;
             case "prepare":
                 service.prepareTx(txuid, timestamp);
@@ -59,9 +59,6 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
                 break;
             case "onePhaseCommit":
                 service.commitTx1Phase(txuid, timestamp);
-                break;
-            case "addChildThread":
-                service.resumeTransaction(matcher.group(THREAD_ID), matcher.group(TXUID));
                 break;
         }
     }

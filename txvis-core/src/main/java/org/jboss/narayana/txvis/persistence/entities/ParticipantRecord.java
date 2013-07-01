@@ -19,7 +19,8 @@ public class ParticipantRecord implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String branchid;
+    @Column(nullable = true, unique = true)
+    private String rmuid;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     private Transaction transaction;
@@ -32,7 +33,6 @@ public class ParticipantRecord implements Serializable {
     @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
 
-    private int noTimesEnlisted;
 
     // Restrict default constructor to EJB container
     protected ParticipantRecord() {}
@@ -71,16 +71,16 @@ public class ParticipantRecord implements Serializable {
      *
      * @return
      */
-    public String getBranchid() {
-        return branchid;
+    public String getRmuid() {
+        return rmuid;
     }
 
     /**
      *
      * @param branchid
      */
-    public void setBranchid(String branchid) {
-        this.branchid = branchid;
+    public void setRmuid(String branchid) {
+        this.rmuid = branchid;
     }
 
     /**
@@ -134,17 +134,6 @@ public class ParticipantRecord implements Serializable {
         this.vote = vote;
     }
 
-    public int incrementNoTimesEnlisted() {
-        return noTimesEnlisted++;
-    }
-
-    public int getNoTimesEnlisted() {
-        return noTimesEnlisted;
-    }
-
-    public void setNoTimesEnlisted(int noTimesEnlisted) {
-        this.noTimesEnlisted = noTimesEnlisted;
-    }
 
     /**
      *
@@ -156,10 +145,9 @@ public class ParticipantRecord implements Serializable {
         sb
             .append("ParticipantRecord: < tx_uid=`").append(transaction.getTxuid())
             .append("`, rm_jndiName=`").append(resourceManager.getJndiName())
-            .append("`, branchid=`").append(branchid)
+            .append("`, rm_uid=`").append(rmuid)
             .append("`, vote=`").append(vote)
             .append("`, xaException=`").append(xaException)
-            .append("`, noTimesEnlisted=`").append(noTimesEnlisted)
             .append("` >");
         return sb.toString();
     }

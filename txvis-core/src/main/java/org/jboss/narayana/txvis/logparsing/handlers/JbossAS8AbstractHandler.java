@@ -52,6 +52,12 @@ public abstract class JbossAS8AbstractHandler extends AbstractHandler {
             "productName=(?<"+RM_PRODUCT_NAME+">.*?)\\sproductVersion=(?<"+RM_PRODUCT_VERSION+">.*?)\\s" +
             "jndiName=(?<"+RM_JNDI_NAME+">java:[\\w/]+)";
 
+    public static final String RMUID = "RMUID";
+    /**
+     *
+     */
+    public static final String PATTERN_RMUID = "(?<"+RMUID+">(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
+
 
 
 

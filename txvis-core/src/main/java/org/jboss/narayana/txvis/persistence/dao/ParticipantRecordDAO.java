@@ -64,8 +64,8 @@ public class ParticipantRecordDAO implements Serializable {
         }
     }
 
-    public List<ParticipantRecord> retrieveByBranchId(String branchId) throws NullPointerException {
-        return dao.retrieveMultipleByField(ParticipantRecord.class, "branchid", branchId);
+    public ParticipantRecord retrieveByUID(String rmuid) throws NullPointerException {
+        return dao.retrieveSingleByField(ParticipantRecord.class, "rmuid", rmuid);
     }
 
     public List<ParticipantRecord> retrieveAll() {
