@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.interceptors;
 
+import org.apache.log4j.Logger;
+
 import javax.ejb.Stateless;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
@@ -22,24 +24,31 @@ public class TransactionInterceptor implements Serializable {
     @AroundInvoke
     public Object intercept(InvocationContext ctx) throws Exception {
 
+        final Logger logger = Logger.getLogger(ctx.getMethod().getDeclaringClass().getName());
         final EntityManager em = emf.createEntityManager();
 
+        final boolean notActive = !em.getTransaction().isActive();
+        Object result = null;
         try {
-            em.getTransaction().begin();
+            if (notActive)
+                em.getTransaction().begin();
 
-            Object result = ctx.proceed();
+            result = ctx.proceed();
 
-            em.getTransaction().commit();
+            if (notActive)
+                em.getTransaction().commit();
 
-            return result;
+
         }
         catch (Exception e) {
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            throw e;
+
+            logger.warn("TransactionInterceptor: Transaction rolled back", e);
         }
         finally {
             em.close();
         }
+        return result;
     }
 }

@@ -32,6 +32,8 @@ public class Transaction implements Serializable {
     private Long startTime;
     private Long endTime;
 
+    private boolean prepared = false;
+
     @OneToMany(mappedBy = "transaction", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();
@@ -105,14 +107,6 @@ public class Transaction implements Serializable {
         this.status = status;
         events.add(new Event(this, EventType.END, status.toString(), timestamp));
         setEndTime(timestamp);
-
-        switch (status) {
-            case COMMIT:
-                // If result is commit then ALL participants must have voted commit.
-                for (ParticipantRecord rec : getParticipantRecords())
-                    rec.setVote(Vote.COMMIT);
-                break;
-        }
     }
 
     /**
@@ -233,6 +227,11 @@ public class Transaction implements Serializable {
      * @param timestamp
      */
     public void prepare(Timestamp timestamp) {
+        if (prepared)
+            distributed = true;
+        else
+            prepared = true;
+
         events.add(new Event(this, EventType.PREPARE, "N/A", timestamp));
     }
 

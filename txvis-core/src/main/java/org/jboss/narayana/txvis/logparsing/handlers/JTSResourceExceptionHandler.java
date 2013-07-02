@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 public class JTSResourceExceptionHandler extends JbossAS8AbstractHandler {
 
     private static final String REGEX = "XAResourceRecord\\.(?<RECTYPE>prepare|commit|rollback)\\sexception\\sXAException\\." +
-            "(?<XAEXCEPTION>[A-Z_]+).*?resource uid="+PATTERN_RMUID;
+            "(?<XAEXCEPTION>[A-Z_]+).*?resource\\suid="+PATTERN_RMUID;
 
     public JTSResourceExceptionHandler() {
         super(REGEX);
