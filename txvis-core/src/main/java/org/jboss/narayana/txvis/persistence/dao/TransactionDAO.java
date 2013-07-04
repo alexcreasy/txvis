@@ -1,13 +1,10 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
-import org.jboss.narayana.txvis.logparsing.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceUnit;
 import java.io.Serializable;
 import java.util.List;
@@ -33,23 +30,24 @@ public class TransactionDAO implements Serializable{
         dao.create(tx);
     }
 
-    public Transaction retrieve(String txuid) throws NullPointerException {
-        return dao.retrieve(Transaction.class, txuid);
+    public Transaction retrieve(Long primaryKeyId) throws NullPointerException {
+        return dao.retrieve(Transaction.class, primaryKeyId);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Transaction> retrieveAll() {
-        final EntityManager em = emf.createEntityManager();
+    public Transaction retrieve(String nodeid, String txuid) {
+        return dao.querySingle(Transaction.class, "FROM Transaction t WHERE t.jbossNodeid='"+nodeid+"' AND t.txuid='"+txuid+"'");
+    }
 
-        try {
-            return em.createQuery("FROM Transaction t ORDER BY t.startTime").getResultList();
-        }
-        catch (NoResultException e) {
-            return null;
-        }
-        finally {
-            em.close();
-        }
+//    public Transaction retrieve(String txuid) {
+//        return dao.querySingle(Transaction.class, "FROM Transaction t WHERE t.txuid='"+txuid+"'");
+//    }
+
+    public List<Transaction> retrieveAllWithTxUID(String txuid) {
+        return dao.queryMultiple(Transaction.class, "FROM Transaction t WHERE t.txuid='"+txuid+"'");
+    }
+
+    public List<Transaction> retrieveAll() {
+        return dao.queryMultiple(Transaction.class, "FROM Transaction t ORDER BY t.startTime");
     }
 
     public void update(Transaction tx) throws NullPointerException {
@@ -64,22 +62,8 @@ public class TransactionDAO implements Serializable{
         dao.deleteAll(Transaction.class);
     }
 
-    @SuppressWarnings("unchecked")
     public List<Transaction> retrieveAllWithStatus(Status status) {
-        final EntityManager em = emf.createEntityManager();
-        try {
-
-            return em.createQuery("FROM "+Transaction.class.getSimpleName()+" e WHERE status=:status")
-                    .setParameter("status", status).getResultList();
-
-        } finally {
-            em.close();
-        }
+        return dao.queryMultiple(Transaction.class, "FROM " + Transaction.class.getSimpleName() + " e WHERE status='" + status + "'");
     }
-
-    private boolean validateTxId(String txId) throws NullPointerException {
-        return txId.matches(AbstractHandler.PATTERN_TXUID);
-    }
-
 
 }

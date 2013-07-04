@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.logparsing;
+package org.jboss.narayana.txvis.logparsing.common;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;

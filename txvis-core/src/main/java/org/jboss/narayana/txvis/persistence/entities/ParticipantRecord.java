@@ -1,7 +1,7 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
 import org.jboss.narayana.txvis.persistence.enums.EventType;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
+import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -31,7 +31,7 @@ public class ParticipantRecord implements Serializable {
     private String xaException = null;
 
     @Enumerated(EnumType.STRING)
-    private Vote vote = Vote.UNKNOWN;
+    private ResourceOutcome resourceOutcome = ResourceOutcome.UNKNOWN;
 
 
     // Restrict default constructor to EJB container
@@ -119,19 +119,31 @@ public class ParticipantRecord implements Serializable {
      *
      * @return
      */
-    public Vote getVote() {
-        return this.vote;
+    public ResourceOutcome getResourceOutcome() {
+        return this.resourceOutcome;
     }
 
     /**
      *
-     * @param vote
+     * @param resourceOutcome
      * @throws NullPointerException
      */
-    public void setVote(Vote vote) throws NullPointerException {
-        if (vote == null)
-            throw new NullPointerException("Method called with null parameter: vote");
-        this.vote = vote;
+    public void setResourceOutcome(ResourceOutcome resourceOutcome, Timestamp timestamp) {
+        this.resourceOutcome = resourceOutcome;
+
+        Event e = null;
+        switch (resourceOutcome) {
+            case PREPARE:
+                e = new Event(EventType.PREPARE, resourceManager.getJndiName(), timestamp);
+                break;
+            case ONE_PHASE_COMMIT: case COMMIT:
+                e = new Event(EventType.COMMIT, resourceManager.getJndiName(), timestamp);
+                break;
+            case ABORT:
+                e = new Event(EventType.ABORT, resourceManager.getJndiName(), timestamp);
+                break;
+        }
+        transaction.addEvent(e);
     }
 
 
@@ -146,7 +158,7 @@ public class ParticipantRecord implements Serializable {
             .append("ParticipantRecord: < tx_uid=`").append(transaction.getTxuid())
             .append("`, rm_jndiName=`").append(resourceManager.getJndiName())
             .append("`, rm_uid=`").append(rmuid)
-            .append("`, vote=`").append(vote)
+            .append("`, resourceOutcome=`").append(resourceOutcome)
             .append("`, xaException=`").append(xaException)
             .append("` >");
         return sb.toString();

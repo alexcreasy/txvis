@@ -31,7 +31,7 @@
                        <f:facet name="header">Transaction ID</f:facet>
                        <h:link value="#{transaction.txuid}" outcome="txinfo" >
                            <f:param name="includeViewParams" value="true" />
-                           <f:param name="txuid" value="#{transaction.txuid}" />
+                           <f:param name="txid" value="#{transaction.id}" />
                        </h:link>
                    </h:column>
                    <h:column>

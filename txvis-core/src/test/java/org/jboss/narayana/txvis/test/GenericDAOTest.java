@@ -74,11 +74,11 @@ public class GenericDAOTest {
         Transaction t = new Transaction(txUID);
         dao.create(t);
 
-        t = dao.retrieve(Transaction.class, txUID);
+        t = dao.retrieve(Transaction.class, t.getId());
         t.setStatus(Status.COMMIT, timestamp);
         dao.update(t);
 
-        t = dao.retrieve(Transaction.class, txUID);
+        t = dao.retrieve(Transaction.class, t.getId());
         assertEquals("Retrieved transaction entity did not report correct status", Status.COMMIT, t.getStatus());
     }
 

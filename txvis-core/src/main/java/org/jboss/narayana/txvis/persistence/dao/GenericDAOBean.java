@@ -8,7 +8,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,8 +26,6 @@ public class GenericDAOBean implements GenericDAO {
     private EntityManagerFactory emf;
 
     private EntityManager em;
-
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     /**
      *
@@ -74,14 +72,13 @@ public class GenericDAOBean implements GenericDAO {
      * @return
      */
     @Override
-    @SuppressWarnings("unchecked")
     public <E> List<E> retrieveAll(Class<E> entityClass) {
 
         try {
-            return em.createQuery("FROM " + entityClass.getSimpleName() + " e").getResultList();
+            return em.createQuery("FROM " + entityClass.getSimpleName() + " e", entityClass).getResultList();
         }
         catch (NoResultException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -97,12 +94,11 @@ public class GenericDAOBean implements GenericDAO {
      * @throws NoSuchEntityException
      */
     @Override
-    @SuppressWarnings("unchecked")
     public <E, V> E retrieveSingleByField(Class<E> entityClass, String field, V value)
             throws NonUniqueResultException, NoSuchEntityException {
 
         try {
-            return (E) em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value")
+            return em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value", entityClass)
                     .setParameter("value", value).getSingleResult();
         }
         catch (NoResultException e) {
@@ -111,14 +107,13 @@ public class GenericDAOBean implements GenericDAO {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <E, V> List<E> retrieveMultipleByField(Class<E> entityClass, String field, V value) {
         try {
-            return em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value")
+            return em.createQuery("FROM "+entityClass.getSimpleName()+" e WHERE e."+field+"=:value", entityClass)
                     .setParameter("value", value).getResultList();
         }
         catch (NoResultException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -167,7 +162,6 @@ public class GenericDAOBean implements GenericDAO {
      * @param entityClass
      * @param <E>
      */
-    @SuppressWarnings("unchecked")
     @Override
     public <E> void deleteAll(Class<E> entityClass) {
 
@@ -176,7 +170,7 @@ public class GenericDAOBean implements GenericDAO {
         if (notActive)
             em.getTransaction().begin();
 
-        for (E e : (Collection<E>) em.createQuery("FROM "+entityClass.getSimpleName()+" e").getResultList())
+        for (E e : em.createQuery("FROM "+entityClass.getSimpleName()+" e", entityClass).getResultList())
             em.remove(e);
 
         if (notActive)
@@ -200,6 +194,26 @@ public class GenericDAOBean implements GenericDAO {
 
         if (notActive)
             em.getTransaction().commit();
+    }
+
+    @Override
+    public <E> E querySingle(Class<E> entityType, String query) {
+        try {
+            return em.createQuery(query, entityType).getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <E> List<E> queryMultiple(Class<E> entityType, String query) {
+        try {
+            return em.createQuery(query, entityType).getResultList();
+        }
+        catch (NoResultException e) {
+            return Collections.emptyList();
+        }
     }
 
 //    @AroundInvoke
@@ -233,11 +247,14 @@ public class GenericDAOBean implements GenericDAO {
         if (em == null || !em.isOpen())
             this.em = emf.createEntityManager();
 
+        Object o = null;
+
         try {
-            return ctx.proceed();
+            o = ctx.proceed();
         }
         finally {
             em.close();
         }
+        return o;
     }
 }

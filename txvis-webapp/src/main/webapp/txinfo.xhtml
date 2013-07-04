@@ -23,13 +23,11 @@
                 <dt>Transaction UID: </dt>
                 <dd>#{transactionInfoBean.transaction.txuid}</dd>
                 <dt>Node ID:</dt>
-                <dd>#{transactionInfoBean.transaction.nodeId}</dd>
+                <dd>#{transactionInfoBean.transaction.jbossNodeid}</dd>
                 <dt>Distributed:</dt>
                 <dd>#{transactionInfoBean.transaction.distributed}</dd>
                 <dt>Outcome: </dt>
                 <dd>#{transactionInfoBean.transaction.status}</dd>
-                <dt>One Phase:</dt>
-                <dd>#{transactionInfoBean.transaction.onePhase}</dd>
                 <dt>Start Time: </dt>
                 <dd>#{transactionInfoBean.transaction.startTime}</dd>
                 <dt>End Time: </dt>
@@ -57,7 +55,7 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header">Outcome</f:facet>
-                    #{rec.vote}
+                    #{rec.resourceOutcome}
                 </h:column>
                 <h:column>
                     <f:facet name="header">XAException</f:facet>
@@ -80,7 +78,7 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header">Action</f:facet>
-                    #{event.eventValue}
+                    #{event.eventEntity}
                 </h:column>
             </h:dataTable>
         </div>

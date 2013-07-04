@@ -5,7 +5,6 @@ import org.jboss.narayana.txvis.persistence.enums.EventType;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -23,7 +22,7 @@ public class Event implements Serializable, Comparable {
     private Long timestamp;
     @Enumerated(EnumType.STRING)
     private EventType eventType;
-    private String eventValue;
+    private String eventEntity;
 
     // Restrict default constructor to EJB container
     protected Event() {}
@@ -32,25 +31,25 @@ public class Event implements Serializable, Comparable {
      *
      * @param transaction
      * @param eventType
-     * @param eventValue
+     * @param eventEntity
      * @param timestamp
      */
-    public Event(Transaction transaction, EventType eventType, String eventValue, Timestamp timestamp) {
+    public Event(Transaction transaction, EventType eventType, String eventEntity, Timestamp timestamp) {
         this.transaction = transaction;
         this.eventType = eventType;
-        this.eventValue = eventValue;
+        this.eventEntity = eventEntity;
         setTimestamp(timestamp);
     }
 
     /**
      *
      * @param eventType
-     * @param eventValue
+     * @param eventEntity
      * @param timestamp
      */
-    public Event(EventType eventType, String eventValue, Timestamp timestamp) {
+    public Event(EventType eventType, String eventEntity, Timestamp timestamp) {
         this.eventType = eventType;
-        this.eventValue = eventValue;
+        this.eventEntity = eventEntity;
         setTimestamp(timestamp);
     }
 
@@ -106,8 +105,8 @@ public class Event implements Serializable, Comparable {
      *
      * @return
      */
-    public String getEventValue() {
-        return eventValue;
+    public String getEventEntity() {
+        return eventEntity;
     }
     @Override
     public int compareTo(Object o) {

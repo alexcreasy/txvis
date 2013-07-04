@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.logparsing.handlers;
+package org.jboss.narayana.txvis.logparsing.as8.handlers;
 
 import java.util.regex.Matcher;
 
@@ -18,6 +18,6 @@ public class JTSIsDistributedHandler extends JbossAS8AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-
+        //service.isDistributed(matcher.group(TXUID));
     }
 }

@@ -37,4 +37,8 @@ public interface GenericDAO extends Serializable {
     <E> void deleteAll(Class<E> entityClass);
 
     void deleteAll();
+
+    <E> E querySingle(Class<E> entityType, String query);
+
+    <E> List<E> queryMultiple(Class<E> entityType, String query);
 }

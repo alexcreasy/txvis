@@ -25,7 +25,7 @@ public class TransactionUtil {
     public void createTx(int noOfParticipantsPerTx, Status outcome) throws Exception {
         TransactionManager.transactionManager().begin();
 
-        if (outcome.equals(Status.ROLLBACK_RESOURCE)) {
+        if (outcome.equals(Status.PHASE_TWO_ABORT)) {
             TransactionManager.transactionManager().getTransaction().enlistResource(
                     createDummyResource(false));
             noOfParticipantsPerTx--;
@@ -35,7 +35,7 @@ public class TransactionUtil {
             TransactionManager.transactionManager().getTransaction().enlistResource(
                     createDummyResource());
 
-        if (outcome.equals(Status.ROLLBACK_CLIENT))
+        if (outcome.equals(Status.PHASE_ONE_ABORT))
             TransactionManager.transactionManager().rollback();
         else
             try {

@@ -2,9 +2,9 @@ package org.jboss.narayana.txvis.persistence.enums;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
- * Date: 22/05/2013
- * Time: 23:02
+ * Date: 02/07/2013
+ * Time: 16:39
  */
-public enum EventType {
-    BEGIN, ENLIST, PREPARE, COMMIT, ABORT;
+public enum TransactionType {
+    JTA, JTS, WSAT
 }

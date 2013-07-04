@@ -6,5 +6,5 @@ package org.jboss.narayana.txvis.persistence.enums;
  * Time: 11:51
  */
 public enum Status {
-    IN_FLIGHT, COMMIT, ROLLBACK_CLIENT, ROLLBACK_RESOURCE
+    IN_FLIGHT, PREPARE, COMMIT, ONE_PHASE_COMMIT, PHASE_ONE_ABORT, PHASE_TWO_ABORT
 }

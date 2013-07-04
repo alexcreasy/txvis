@@ -7,8 +7,8 @@ import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
 import org.jboss.narayana.txvis.persistence.enums.Status;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.test.utils.TransactionUtil;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -17,7 +17,6 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  * Time: 14:41
  */
 @RunWith(Arquillian.class)
-public class OnlineJTAIntegrationTest {
+public class CentralisedAS8IntegrationTest {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -43,7 +42,7 @@ public class OnlineJTAIntegrationTest {
                 .loadPomFromFile("pom.xml").resolve("commons-io:commons-io")
                 .withTransitivity().asFile();
 
-        return ShrinkWrap.create(WebArchive.class, "OnlineJTAIntegrationTest.war")
+        return ShrinkWrap.create(WebArchive.class, "CentralisedAS8IntegrationTest.war")
                 .addPackages(true, "org.jboss.narayana.txvis")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/persistence.xml")),
@@ -57,7 +56,7 @@ public class OnlineJTAIntegrationTest {
     private static final int NO_OF_PARTICIPANTS = 3;
     private static final int INTRO_DELAY = 0;
     private static final int OUTRO_DELAY = 1000;
-    private static final int EXPECTED_NO_OF_EVENTS = 3 + NO_OF_PARTICIPANTS;
+    private static final int EXPECTED_NO_OF_EVENTS = 3 + (2 * NO_OF_PARTICIPANTS);
 
 
     @EJB
@@ -70,17 +69,13 @@ public class OnlineJTAIntegrationTest {
     private LogMonitorBean mon;
 
     private TransactionUtil txUtil;
+
+    private String nodeid = System.getProperty("jboss.node.name");
     
     @Before
     public void setup() throws Exception {
         txUtil = new TransactionUtil();
         dao.deleteAll();
-    }
-
-    @Ignore
-    @Test
-    public void aTest() throws Exception {
-        txUtil.createSuspendTransaction();
     }
 
     @Test
@@ -110,55 +105,55 @@ public class OnlineJTAIntegrationTest {
 
         for (Transaction tx : transactionDAO.retrieveAll()) {
             assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status", Status.COMMIT,
-                    transactionDAO.retrieve(tx.getTxuid()).getStatus());
+                    transactionDAO.retrieve(nodeid, tx.getTxuid()).getStatus());
 
             assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(), EXPECTED_NO_OF_EVENTS,
                     tx.getEvents().size());
 
             for (ParticipantRecord rec : tx.getParticipantRecords())
                 assertEquals("ParticipantRecord did not report the correct vote: Transaction: "+rec.getTransaction().getTxuid()+
-                        ", ResourceManager: "+rec.getResourceManager().getJndiName(), Vote.COMMIT, rec.getVote());
+                        ", ResourceManager: "+rec.getResourceManager().getJndiName(), ResourceOutcome.COMMIT, rec.getResourceOutcome());
         }
     }
 
     @Test
     public void clientDrivenRollbackTest() throws Exception {
-        createAndLogTransactions(Status.ROLLBACK_CLIENT);
+        createAndLogTransactions(Status.PHASE_ONE_ABORT);
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
         for (Transaction tx : transactionDAO.retrieveAll()) {
-            assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status", Status.ROLLBACK_CLIENT,
-                    transactionDAO.retrieve(tx.getTxuid()).getStatus());
+            assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status", Status.PHASE_ONE_ABORT,
+                    transactionDAO.retrieve(nodeid, tx.getTxuid()).getStatus());
 
-            // Expected number of events is one less as the client will initiate a rollback without asking
-            // the participants to prepare.
+            // Expected number of events is four less as the client will initiate a rollback without asking
+            // the participants to prepare, therefore the transaction and the participants will not have a prepare event.
             assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(),
-                    (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());
+                    (EXPECTED_NO_OF_EVENTS - 4), tx.getEvents().size());
         }
     }
 
     @Test
     public void resourceDrivenRollbackTest() throws Exception {
-        createAndLogTransactions(Status.ROLLBACK_RESOURCE);
+        createAndLogTransactions(Status.PHASE_TWO_ABORT);
 
         assertEquals("Incorrect number of transaction parsed", NO_OF_TX, transactionDAO.retrieveAll().size());
 
         for (Transaction tx : transactionDAO.retrieveAll()) {
             assertEquals("Transaction "+tx.getTxuid()+" did not report the correct status",
-                    Status.ROLLBACK_RESOURCE, transactionDAO.retrieve(tx.getTxuid()).getStatus());
+                    Status.PHASE_TWO_ABORT, transactionDAO.retrieve(nodeid, tx.getTxuid()).getStatus());
 
             int abortVotes = 0;
             for (ParticipantRecord rec : tx.getParticipantRecords()) {
-                if (rec.getVote().equals(Vote.ABORT))
+                if (rec.getResourceOutcome().equals(ResourceOutcome.ABORT))
                     abortVotes++;
             }
 
-            assertEquals("Participants of transaction: "+tx.getTxuid()+" did not report correct number of votes: "+Vote.ABORT,
-                    1, abortVotes);
+            assertEquals("Participants of transaction: "+tx.getTxuid()+" did not report correct number of votes: "
+                    + ResourceOutcome.ABORT, 1, abortVotes);
 
             assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(),
-                    EXPECTED_NO_OF_EVENTS, tx.getEvents().size());
+                    (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());
         }
     }
 

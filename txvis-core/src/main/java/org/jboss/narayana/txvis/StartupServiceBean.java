@@ -31,11 +31,18 @@ public class StartupServiceBean {
     @PostConstruct
     protected void setup() {
 
+        System.err.println("NODE IDENTIFIER: " + arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+
         if (logger.isInfoEnabled()) {
             logger.info("TxVis: JBoss Transaction Visualization Tool");
             logger.info("Bootstrapping...");
             logger.info("Server Node Id: "+System.getProperty("jboss.node.name"));
             logger.info("Logfile: "+Configuration.LOGFILE_PATH);
+
+            logger.info("System Properties");
+            for (String propName : System.getProperties().stringPropertyNames())
+                logger.info(propName + " = " + System.getProperty(propName));
+            logger.info("");
         }
         logMonitor.setFile(new File(Configuration.LOGFILE_PATH));
         logMonitor.start();

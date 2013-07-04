@@ -1,11 +1,8 @@
-package org.jboss.narayana.txvis.logparsing;
+package org.jboss.narayana.txvis.logparsing.common;
 
-import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.logparsing.common.Handler;
 import org.jboss.narayana.txvis.persistence.HandlerService;
 
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 

@@ -2,10 +2,9 @@ package org.jboss.narayana.txvis.persistence.entities;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.jboss.narayana.txvis.logparsing.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.common.AbstractHandler;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
-import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,14 +20,17 @@ import java.util.*;
 public class Transaction implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String txuid;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
 
-    private boolean onePhase = false;
     private boolean distributed;
-    private String nodeId;
+    private boolean topLevel;
+    private String jbossNodeid;
     private Long startTime;
     private Long endTime;
 
@@ -75,11 +77,21 @@ public class Transaction implements Serializable {
 
         this.txuid = txuid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, "N/A", timestamp));
+        events.add(new Event(this, EventType.BEGIN, "Node id: " + jbossNodeid, timestamp));
     }
 
-    public String getId() {
-        return getTxuid();
+    public Transaction(String txuid, String jbossNodeid, Timestamp timestamp) {
+        if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
+            throw new IllegalArgumentException("Illegal transactionId: " + txuid);
+
+        this.txuid = txuid;
+        this.jbossNodeid = jbossNodeid;
+        setStartTime(timestamp);
+        events.add(new Event(this, EventType.BEGIN, "Node: " + jbossNodeid, timestamp));
+    }
+
+    public Long getId() {
+        return id;
     }
 
     /**
@@ -88,6 +100,14 @@ public class Transaction implements Serializable {
      */
     public String getTxuid() {
         return this.txuid;
+    }
+
+    public boolean isTopLevel() {
+        return topLevel;
+    }
+
+    public void setTopLevel(boolean topLevel) {
+        this.topLevel = topLevel;
     }
 
     /**
@@ -105,26 +125,22 @@ public class Transaction implements Serializable {
      */
     public void setStatus(Status status, Timestamp timestamp) {
         this.status = status;
-        events.add(new Event(this, EventType.END, status.toString(), timestamp));
-        setEndTime(timestamp);
-    }
 
-    /**
-     *
-     * @return
-     */
-    public boolean isOnePhase() {
-        return onePhase;
-    }
-
-    /**
-     *
-     * @param isOnePhase
-     */
-    public void setOnePhase(boolean isOnePhase) {
-        for (ParticipantRecord rec : participantRecords)
-            rec.setVote(Vote.COMMIT);
-        this.onePhase = isOnePhase;
+        Event e = null;
+        switch (status) {
+            case PREPARE:
+                e = new Event(this, EventType.PREPARE, jbossNodeid, timestamp);
+                break;
+            case COMMIT: case ONE_PHASE_COMMIT:
+                e = new Event(this, EventType.COMMIT, jbossNodeid, timestamp);
+                setEndTime(timestamp);
+                break;
+            case PHASE_ONE_ABORT: case PHASE_TWO_ABORT:
+                e = new Event(this, EventType.ABORT, jbossNodeid, timestamp);
+                setEndTime(timestamp);
+                break;
+        }
+        events.add(e);
     }
 
     /**
@@ -147,16 +163,16 @@ public class Transaction implements Serializable {
      *
      * @return
      */
-    public String getNodeId() {
-        return nodeId;
+    public String getJbossNodeid() {
+        return jbossNodeid;
     }
 
     /**
      *
      * @param nodeId
      */
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
+    public void setJbossNodeid(String nodeId) {
+        this.jbossNodeid = nodeId;
     }
 
     /**
@@ -208,7 +224,8 @@ public class Transaction implements Serializable {
     }
 
     public Collection<Event> getEventsInTemporalOrder() {
-        //FIXME - Problem with hibernate compatibilty with JPA2.0 OrderBy annotation, this hack will incur a performance penalty
+        //FIXME - Problem with hibernate compatibilty with JPA2.0 OrderBy annotation, this hack will probably
+        //FIXME - incur a performance penalty
         Collections.sort((List<Event>) events);
         return events;
     }
@@ -252,7 +269,7 @@ public class Transaction implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb
             .append("Transaction: < tx_uid=`").append(txuid)
-            .append("`, nodeid=`").append(nodeId)
+            .append("`, nodeid=`").append(jbossNodeid)
             .append("` >");
         return sb.toString();
     }

@@ -1,11 +1,9 @@
-package org.jboss.narayana.txvis.logparsing.handlers;
+package org.jboss.narayana.txvis.logparsing.as8.handlers;
 
-import org.jboss.narayana.txvis.logparsing.AbstractHandler;
+import org.jboss.narayana.txvis.logparsing.common.AbstractHandler;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**

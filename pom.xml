@@ -47,6 +47,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <version.maven.surefire>2.15</version.maven.surefire>
+
         <jboss.version>8.0.0.Alpha1-SNAPSHOT</jboss.version>
 
         <version.jboss.maven.plugin>7.3.Final</version.jboss.maven.plugin>

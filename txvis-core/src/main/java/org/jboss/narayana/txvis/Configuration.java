@@ -1,6 +1,8 @@
 package org.jboss.narayana.txvis;
 
-import org.jboss.narayana.txvis.logparsing.handlers.*;
+import org.jboss.narayana.txvis.logparsing.*;
+import org.jboss.narayana.txvis.logparsing.as8.*;
+import org.jboss.narayana.txvis.logparsing.as8.handlers.*;
 
 import java.io.File;
 
@@ -21,7 +23,7 @@ public final class Configuration {
     /**
      *
      */
-    public static final int LOGFILE_POLL_INTERVAL = 500;
+    public static final int LOGFILE_POLL_INTERVAL = 50;
     /**
      *
      */

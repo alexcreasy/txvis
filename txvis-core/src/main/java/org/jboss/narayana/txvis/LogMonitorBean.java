@@ -2,8 +2,8 @@ package org.jboss.narayana.txvis;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.log4j.Logger;
-import org.jboss.narayana.txvis.logparsing.LogParser;
-import org.jboss.narayana.txvis.logparsing.LogParserFactory;
+import org.jboss.narayana.txvis.logparsing.common.LogParser;
+import org.jboss.narayana.txvis.logparsing.common.LogParserFactory;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
@@ -25,7 +25,10 @@ public class LogMonitorBean {
 
     private File logFile;
     private Tailer tailer;
-    private LogParser logParser;
+    public LogParser logParser;
+
+    @Resource
+    private SessionContext sessionContext;
 
     /**
      *
@@ -39,6 +42,7 @@ public class LogMonitorBean {
 
             } catch (Exception e) {
                 logger.error("Unhandled exception", e);
+                sessionContext.getBusinessObject(LogMonitorBean.class).stop();
             }
         }
     }

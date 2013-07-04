@@ -15,6 +15,6 @@
         <xa-datasource-property name="Password">
             d8mmANpFJVQUXMtb
         </xa-datasource-property>
-        <driver>MySQLXA</driver>
+        <driver>MySqlXA</driver>
     </xa-datasource>
 </datasources>

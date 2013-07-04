@@ -5,6 +5,6 @@ package org.jboss.narayana.txvis.persistence.enums;
  * Date: 23/04/2013
  * Time: 15:10
  */
-public enum Vote {
-    COMMIT, ABORT, UNKNOWN;
+public enum ResourceOutcome {
+    UNKNOWN, PREPARE, COMMIT, ONE_PHASE_COMMIT, ABORT, HEUR_COMMIT, HEUR_ABORT, HEUR_MIXED, HEUR_HAZARD
 }

@@ -19,23 +19,23 @@ import java.io.Serializable;
 @RequestScoped
 public class TransactionInfoBean implements Serializable {
 
-    @ManagedProperty(value="#{param.txuid}")
-    private String txUID;
+    @ManagedProperty(value="#{param.txid}")
+    private String txID;
 
     @Inject
     private TransactionDAO dao;
 
     private Transaction tx;
 
-    public String getTxUID() {
+    public String getTxID() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        this.txUID = facesContext.getExternalContext().
-                getRequestParameterMap().get("txuid");
-        return this.txUID;
+        this.txID = facesContext.getExternalContext().
+                getRequestParameterMap().get("txid");
+        return this.txID;
     }
 
-    public void setTxUID(String txUID) {
-        this.txUID = txUID;
+    public void setTxID(String txID) {
+        this.txID = txID;
     }
 
     public Transaction getTransaction() {
@@ -43,6 +43,6 @@ public class TransactionInfoBean implements Serializable {
     }
 
     public void init() {
-        tx = dao.retrieve(getTxUID());
+        tx = dao.retrieve(Long.parseLong(getTxID()));
     }
 }

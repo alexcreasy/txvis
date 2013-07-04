@@ -1,4 +1,4 @@
-package org.jboss.narayana.txvis.logparsing.handlers;
+package org.jboss.narayana.txvis.logparsing.as8.handlers;
 
 import java.sql.Timestamp;
 import java.util.regex.Matcher;
@@ -18,7 +18,8 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
      *
      */
     public static final String REGEX = "BasicAction::" +
-            "(?<BASICACTION>Begin|prepare|End|Abort|phase2Abort|phase2Commit|onePhaseCommit|addChildThread).*?action.*?"+PATTERN_TXUID;
+            "(?<BASICACTION>Begin|prepare|End|Abort|phase2Abort|phase2Commit|onePhaseCommit|addChildThread)" +
+            ".*?action.*?"+PATTERN_TXUID;
 
 
     //13:19:25,765 TRACE [com.arjuna.ats.arjuna] (RequestProcessor-9) BasicAction::addChildThread () action 0:ffff0597491d:226c89eb:51cf87cd:3804 adding Thread[RequestProcessor-9,10,main] result = true
@@ -43,22 +44,22 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
 
         switch (matcher.group("BASICACTION")) {
             case "Begin":
-                service.beginTx(txuid, timestamp);
+                service.begin(txuid, timestamp);
                 break;
             case "prepare":
-                service.prepareTx(txuid, timestamp);
+                service.prepare(txuid, timestamp);
                 break;
             case "Abort":
-                service.topLevelAbortTx(txuid, timestamp);
+                service.abort(txuid, timestamp);
                 break;
             case "phase2Abort":
-                service.resourceDrivenAbortTx(txuid, timestamp);
+                service.phase2Abort(txuid, timestamp);
                 break;
             case "phase2Commit":
-                service.commitTx2Phase(txuid, timestamp);
+                service.phase2Commit(txuid, timestamp);
                 break;
             case "onePhaseCommit":
-                service.commitTx1Phase(txuid, timestamp);
+                service.onePhaseCommit(txuid, timestamp);
                 break;
         }
     }

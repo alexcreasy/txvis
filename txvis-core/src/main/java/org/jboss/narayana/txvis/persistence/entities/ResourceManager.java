@@ -113,6 +113,24 @@ public class ResourceManager implements Serializable {
         return Collections.unmodifiableCollection(participantRecords);
     }
 
+
+    @Override
+    public int hashCode() {
+        return 31 * 17 + jndiName.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+
+        if (!(obj instanceof ResourceManager))
+            return false;
+
+        ResourceManager rm = (ResourceManager) obj;
+        return rm.jndiName.equals(jndiName);
+    }
+
     /**
      *
      * @return

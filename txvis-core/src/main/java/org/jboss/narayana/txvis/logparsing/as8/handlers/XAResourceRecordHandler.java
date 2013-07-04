@@ -1,6 +1,5 @@
-package org.jboss.narayana.txvis.logparsing.handlers;
+package org.jboss.narayana.txvis.logparsing.as8.handlers;
 
-import java.sql.Timestamp;
 import java.util.regex.Matcher;
 
 /**
