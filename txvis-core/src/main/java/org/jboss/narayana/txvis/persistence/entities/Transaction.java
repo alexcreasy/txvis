@@ -29,12 +29,13 @@ public class Transaction implements Serializable {
     private Status status = Status.IN_FLIGHT;
 
     private boolean distributed;
+
     private boolean topLevel;
+
     private String jbossNodeid;
     private Long startTime;
     private Long endTime;
 
-    private boolean prepared = false;
 
     @OneToMany(mappedBy = "transaction", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)

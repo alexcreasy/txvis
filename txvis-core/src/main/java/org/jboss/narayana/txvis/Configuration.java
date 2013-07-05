@@ -35,7 +35,7 @@ public final class Configuration {
             JTSResourceEnlistHandler.class,
             JTSResourceExceptionHandler.class,
             JTSResourcePrepareHandler.class,
-            JTSIsDistributedHandler.class,
+            JTSInterpositionHandler.class,
             ArjunaTransactionImpleHandler.class,
     };
 
