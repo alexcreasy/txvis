@@ -85,13 +85,12 @@
             <artifactId>hibernate-annotations</artifactId>
             <version>3.5.6-Final</version>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
             <artifactId>narayana-jta</artifactId>
             <version>5.0.0.M2</version>
+            <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.spec.javax.transaction</groupId>
             <artifactId>jboss-transaction-api_1.1_spec</artifactId>
@@ -124,13 +123,13 @@
             <artifactId>arquillian-protocol-servlet</artifactId>
             <scope>test</scope>
         </dependency>
-
+<!--
         <dependency>
             <groupId>org.jboss.jbossts.jta</groupId>
             <artifactId>narayana-jta</artifactId>
             <version>4.17.4.Final</version>
         </dependency>
-
+-->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -158,6 +157,18 @@
                     <ejbVersion>3.1</ejbVersion>
                 </configuration>
             </plugin>
+   <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <version>2.3.1</version>
+      <configuration>
+         <archive>
+            <manifestEntries>
+               <Dependencies>org.jboss.logging, org.jboss.jts</Dependencies>
+            </manifestEntries>
+         </archive>
+     </configuration>
+   </plugin>
         </plugins>
     </build>
 
