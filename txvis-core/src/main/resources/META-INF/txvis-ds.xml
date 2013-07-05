@@ -13,7 +13,7 @@
             txvis
         </xa-datasource-property>
         <xa-datasource-property name="Password">
-            d8mmANpFJVQUXMtb
+            txvis
         </xa-datasource-property>
         <driver>MySqlXA</driver>
     </xa-datasource>
