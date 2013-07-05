@@ -62,9 +62,6 @@ public class HandlerService {
     @Interceptors(TransactionInterceptor.class)
     public void begin(String txuid, Timestamp timestamp) {
 
-//        final String nodeid = System.getProperty("jboss.node.name");
-        //arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier();
-
         Transaction parent = transactionDAO.retrieve(nodeid, txuid);
 
         Transaction tx = new Transaction(txuid, nodeid, timestamp);
@@ -77,30 +74,6 @@ public class HandlerService {
         transactionDAO.create(tx);
     }
 
-//    public void isDistributed(String txuid) {
-//        Transaction tx = transactionDAO.retrieve(txuid);
-//
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
-//
-//        if (tx == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//        tx.setDistributed(true);
-//        transactionDAO.update(tx);
-//    }
-
     /**
      *
      * @param txuid
@@ -109,19 +82,6 @@ public class HandlerService {
     public void prepare(String txuid, Timestamp timestamp) {
 
         Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
 
         if (tx == null) {
             logger.warn("Could not retrieve, exitting after back off");
@@ -141,19 +101,6 @@ public class HandlerService {
 
         Transaction tx = transactionDAO.retrieve(nodeid, txuid);
 
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
-
         if (tx == null) {
             logger.warn("Could not retrieve, exitting after back off");
             return;
@@ -171,19 +118,6 @@ public class HandlerService {
     public void onePhaseCommit(String txuid, Timestamp timestamp) {
 
         Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
 
         if (tx == null) {
             logger.warn("Could not retrieve, exitting after back off");
@@ -203,19 +137,6 @@ public class HandlerService {
 
         Transaction tx = transactionDAO.retrieve(nodeid, txuid);
 
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
-
         if (tx == null) {
             logger.warn("Could not retrieve, exitting after back off");
             return;
@@ -233,19 +154,6 @@ public class HandlerService {
     public void phase2Abort(String txuid, Timestamp timestamp) {
 
         Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
 
         if (tx == null) {
             logger.warn("Could not retrieve, exitting after back off");
@@ -271,19 +179,6 @@ public class HandlerService {
     @Interceptors(TransactionInterceptor.class)
     public void resourcePreparedJTS(String rmuid, Timestamp timestamp) {
         ParticipantRecord rec = participantRecordDAO.retrieveByUID(rmuid);
-
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (rec == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            rec = participantRecordDAO.retrieveByUID(rmuid);
-//            tries++;
-//        }
 
         if (rec  == null) {
             logger.warn("Could not retrieve, exitting after back off");
@@ -315,26 +210,13 @@ public class HandlerService {
     public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
         ParticipantRecord rec = participantRecordDAO.retrieveByUID(rmuid);
 
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (rec == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            rec = participantRecordDAO.retrieveByUID(rmuid);
-//            tries++;
-//        }
-
         if (rec == null) {
             logger.warn("Could not retrieve, exitting after back off");
             return;
         }
 
         resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
-            xaException, timestamp);
+                xaException, timestamp);
     }
 
     /**
@@ -370,19 +252,6 @@ public class HandlerService {
                                            String rmProductVersion, Timestamp timestamp) {
         Transaction tx =  transactionDAO.retrieve(nodeid, txuid);
 
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
-
         if (tx == null) {
             logger.warn("Could not retrieve, exitting after back off");
             return;
@@ -397,26 +266,11 @@ public class HandlerService {
     public void cleanup(String txuid) {
         Transaction tx =  transactionDAO.retrieve(nodeid, txuid);
 
-//        //FIXME back off logic needs to be replaced by shadow tabling
-//        int tries = 0;
-//        while (tx == null && tries < MAX_RETRIES) {
-//            try {
-//                Thread.sleep(rand.nextInt(RAND_FACTOR) + BACKOFF_MULTIPLIER  * tries);
-//            }
-//            catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tx = transactionDAO.retrieve(txuid);
-//            tries++;
-//        }
-
-
         if (tx != null && tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
             transactionDAO.delete(tx);
             logger.info("Cleaned up phantom transaction: "+txuid);
         }
     }
-
 
     /**
      *
