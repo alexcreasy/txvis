@@ -35,6 +35,10 @@
                        </h:link>
                    </h:column>
                    <h:column>
+                       <f:facet name="header">Node</f:facet>
+                       #{transaction.jbossNodeid}
+                   </h:column>
+                   <h:column>
                        <f:facet name="header">Distributed</f:facet>
                        #{transaction.distributed}
                    </h:column>
