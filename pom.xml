@@ -7,7 +7,11 @@
     <artifactId>txvis</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Transaction Visualization Tool</name>
+    <name>Txvis: Transaction Profiling and Visualization Tool</name>
+    <description>
+        TxVis is a prototype transaction profiling and visualisation tool for WildFly / JBoss EAP for highlighting
+        possible performance issues with transactional applications.
+    </description>
 
     <profiles>
         <profile>

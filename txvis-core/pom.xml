@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>txvis-core</artifactId>
+    <name>Txvis Core Module</name>
+    <description>Contains the core log parsing and persistence components of the tool</description>
     <properties />
 
     <distributionManagement>

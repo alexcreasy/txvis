@@ -25,6 +25,8 @@
 </parent>
 
   <artifactId>txvis-webapp</artifactId>
+  <name>Txvis User Interface</name>
+  <description>Contains the web based user interface component of the tool</description>
   <packaging>war</packaging>
 
     <dependencyManagement>

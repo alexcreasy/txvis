@@ -12,6 +12,8 @@
     </parent>
 
     <artifactId>txvis-full</artifactId>
+    <name>Txvis Full Package</name>
+    <description>A deployable EAR containing the core module and the web user interface and associated dependencies</description>
     <packaging>ear</packaging>
 
 
