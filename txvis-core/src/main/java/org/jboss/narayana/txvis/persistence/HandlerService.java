@@ -1,6 +1,8 @@
 package org.jboss.narayana.txvis.persistence;
 
+import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
 import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
@@ -32,14 +34,8 @@ public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-//    private static final int MAX_RETRIES = 5;
-//    private static final int BACKOFF_MULTIPLIER = 15;
-//    private static final int RAND_FACTOR = 250;
-//
-//    private final Random rand = new Random();
 
-
-    private final String nodeid = System.getProperty("jboss.node.name");
+    private final String nodeid = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
 
     @EJB
     private TransactionDAO transactionDAO;

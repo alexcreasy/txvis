@@ -1,7 +1,9 @@
 package org.jboss.narayana.txvis.test;
 
+import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.HandlerService;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
@@ -72,7 +74,7 @@ public class HandlerServiceTest {
 
     @Before
     public void setup() throws Exception {
-        jbossNodeId = System.getProperty("jboss.node.name");
+        jbossNodeId = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
 
         if (jbossNodeId == null)
             fail("JBoss node name is not set, unable to complete test. Start jboss with command line param: " +

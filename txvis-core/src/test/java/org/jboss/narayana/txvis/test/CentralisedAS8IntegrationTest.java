@@ -1,7 +1,9 @@
 package org.jboss.narayana.txvis.test;
 
+import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.LogMonitorBean;
 import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
@@ -70,7 +72,7 @@ public class CentralisedAS8IntegrationTest {
 
     private TransactionUtil txUtil;
 
-    private String nodeid = System.getProperty("jboss.node.name");
+    private String nodeid = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
     
     @Before
     public void setup() throws Exception {

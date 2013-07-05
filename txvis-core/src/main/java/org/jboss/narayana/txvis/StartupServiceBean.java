@@ -31,12 +31,31 @@ public class StartupServiceBean {
     @PostConstruct
     protected void setup() {
 
-        System.err.println("NODE IDENTIFIER: " + arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+        // Get this jboss instances unique identifier. It is imperative for distributed JTS mode that we have an accessible
+        // unique node identifier for each node. This is not essential in a centralised JTA setup where any non null value
+        // will suffice.
+        String nodeid = null;
+
+        try {
+            nodeid = arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier();
+        }
+        catch (Exception e) {
+            logger.warn("Unable to retrieve Node Identifier from CoreEnvironmentBean");
+        }
+
+        if (nodeid == null || nodeid.equals("1"));
+            nodeid = System.getProperty("jboss.tx.node.id");
+
+        if (nodeid == null)
+            nodeid = System.getProperty("jboss.node.id");
+
+        System.setProperty(Configuration.NODEID_SYS_PROP_NAME, nodeid);
+
 
         if (logger.isInfoEnabled()) {
             logger.info("TxVis: JBoss Transaction Visualization Tool");
             logger.info("Bootstrapping...");
-            logger.info("Server Node Id: "+System.getProperty("jboss.node.name"));
+            logger.info("Server Node Id: "+System.getProperty(Configuration.NODEID_SYS_PROP_NAME));
             logger.info("Logfile: "+Configuration.LOGFILE_PATH);
 
             logger.info("System Properties");
