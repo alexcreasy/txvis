@@ -77,7 +77,7 @@ public class Transaction implements Serializable {
 
         this.txuid = txuid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, "Node id: " + jbossNodeid, timestamp));
+        events.add(new Event(this, EventType.BEGIN, jbossNodeid, timestamp));
     }
 
     public Transaction(String txuid, String jbossNodeid, Timestamp timestamp) {
@@ -87,7 +87,7 @@ public class Transaction implements Serializable {
         this.txuid = txuid;
         this.jbossNodeid = jbossNodeid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, "Node: " + jbossNodeid, timestamp));
+        events.add(new Event(this, EventType.BEGIN, jbossNodeid, timestamp));
     }
 
     public Long getId() {
@@ -237,19 +237,6 @@ public class Transaction implements Serializable {
     public void addEvent(Event event) {
         this.events.add(event);
         event.setTransaction(this);
-    }
-
-    /**
-     *
-     * @param timestamp
-     */
-    public void prepare(Timestamp timestamp) {
-        if (prepared)
-            distributed = true;
-        else
-            prepared = true;
-
-        events.add(new Event(this, EventType.PREPARE, "N/A", timestamp));
     }
 
     /**

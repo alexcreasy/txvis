@@ -88,7 +88,7 @@ public class HandlerService {
             return;
         }
 
-        tx.prepare(timestamp);
+        tx.setStatus(Status.PREPARE, timestamp);
         transactionDAO.update(tx);
     }
 
