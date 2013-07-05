@@ -25,6 +25,7 @@ public class JTSInterpositionHandler extends JbossAS8AbstractHandler {
             case "send_request":
                 break;
             case "receive_request":
+                service.receiveInterposition(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")));
                 break;
         }
     }

@@ -17,6 +17,8 @@ import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -34,8 +36,11 @@ public class HandlerService {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-
     private final String nodeid = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
+
+    private final Map<String, Long> interposThreadMap = new HashMap<>();
+
+
 
     @EJB
     private TransactionDAO transactionDAO;
@@ -48,11 +53,35 @@ public class HandlerService {
 
 
 
+    public void receiveInterposition(String threadId, long requestId) {
+        interposThreadMap.put(threadId, requestId);
+    }
+
+
     /*
      * These methods provide the logic for handling log lines output by
      * com.arjuna.ats.arjuna.coordinator.BasicAction
      *
      */
+
+    @Interceptors(TransactionInterceptor.class)
+    public void begin(String txuid, Timestamp timestamp, String threadId) {
+
+        Transaction tx = new Transaction(txuid, nodeid, timestamp);
+        Transaction parent;
+
+        Long requestId = interposThreadMap.remove(threadId);
+
+        if (requestId != null) {
+            tx.setDistributed(true);
+            for (Transaction distTx : transactionDAO.retrieveAllWithTxUID(txuid)) {
+                distTx.setDistributed(true);
+                transactionDAO.update(distTx);
+            }
+        }
+        transactionDAO.create(tx);
+    }
+
 
     /**
      *

@@ -44,7 +44,7 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
 
         switch (matcher.group("BASICACTION")) {
             case "Begin":
-                service.begin(txuid, timestamp);
+                service.begin(txuid, timestamp, matcher.group(THREAD_ID));
                 break;
             case "prepare":
                 service.prepare(txuid, timestamp);
