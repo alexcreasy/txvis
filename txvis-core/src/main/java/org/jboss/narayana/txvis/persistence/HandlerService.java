@@ -67,7 +67,10 @@ public class HandlerService {
         if (rec != null) {
             Transaction subordinate = transactionDAO.retrieve(rec.getNodeid(), rec.getTxuid());
             Transaction parent = transactionDAO.retrieve(nodeId, rec.getTxuid());
+            parent.addSubordinate(subordinate);
+            transactionDAO.update(parent);
             interpositionRecordDAO.delete(rec);
+
             if (logger.isTraceEnabled())
                 logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
         }
@@ -101,13 +104,14 @@ public class HandlerService {
             }
             else {
                 Transaction parent = transactionDAO.retrieve(rec.getNodeid(), txuid);
+                parent.addSubordinate(tx);
                 interpositionRecordDAO.delete(rec);
 
                 if (logger.isTraceEnabled())
                     logger.trace("Hierarchy detected: "+tx+" is a subordinate of"+parent);
             }
         }
-        transactionDAO.create(tx);
+        transactionDAO.update(tx);
     }
 
 
@@ -116,20 +120,11 @@ public class HandlerService {
      * @param txuid
      * @param timestamp
      */
-    @Interceptors(TransactionInterceptor.class)
-    public void begin(String txuid, Timestamp timestamp) {
-
-        Transaction parent = transactionDAO.retrieve(nodeid, txuid);
-
-        Transaction tx = new Transaction(txuid, nodeid, timestamp);
-
-        if (parent == null)
-            tx.setTopLevel(true);
-        else
-            tx.setDistributed(true);
-
-        transactionDAO.create(tx);
-    }
+//    @Interceptors(TransactionInterceptor.class)
+//    public void begin(String txuid, Timestamp timestamp) {
+//        Transaction tx = new Transaction(txuid, nodeid, timestamp);
+//        transactionDAO.create(tx);
+//    }
 
     /**
      *

@@ -86,7 +86,7 @@ public class HandlerServiceTest {
     public void beginTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
 
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
 
@@ -99,7 +99,7 @@ public class HandlerServiceTest {
     @Test
     public void prepareTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.prepare(txuid, timestamp);
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
 
@@ -109,7 +109,7 @@ public class HandlerServiceTest {
     @Test
     public void phase2CommitTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.phase2Commit(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -121,7 +121,7 @@ public class HandlerServiceTest {
     @Test
     public void commitTx1PhaseTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.onePhaseCommit(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -133,7 +133,7 @@ public class HandlerServiceTest {
     @Test
     public void topLevelAbortTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.abort(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -145,7 +145,7 @@ public class HandlerServiceTest {
     @Test
     public void resourceDrivenAbortTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.phase2Abort(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -157,7 +157,7 @@ public class HandlerServiceTest {
     @Test
     public void enlistResourceManagerTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         // Test that the service creates a new ResourceManager if it does not already exist
         final String jndiName1 = idGen.getUniqueJndiName();
@@ -183,7 +183,7 @@ public class HandlerServiceTest {
     @Test
     public void resourcePreparedTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
@@ -198,7 +198,7 @@ public class HandlerServiceTest {
         final String xaException = "XAER_RMERR";
 
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);

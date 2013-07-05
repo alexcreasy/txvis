@@ -28,10 +28,6 @@ public class Transaction implements Serializable {
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
 
-    private boolean distributed;
-
-    private boolean topLevel;
-
     private String jbossNodeid;
     private Long startTime;
     private Long endTime;
@@ -45,6 +41,13 @@ public class Transaction implements Serializable {
                fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<Event> events = new LinkedList<>();
+
+    @ManyToOne
+    private Transaction parent = null;
+
+    @OneToMany(mappedBy = "parent", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private Collection<Transaction> subordinates = new HashSet<>();
 
 
     // Restrict default constructor to EJB container
@@ -103,13 +106,15 @@ public class Transaction implements Serializable {
         return this.txuid;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isTopLevel() {
-        return topLevel;
+        return parent == null;
     }
 
-    public void setTopLevel(boolean topLevel) {
-        this.topLevel = topLevel;
-    }
+
 
     /**
      *
@@ -149,15 +154,7 @@ public class Transaction implements Serializable {
      * @return
      */
     public boolean isDistributed() {
-        return distributed;
-    }
-
-    /**
-     *
-     * @param distributed
-     */
-    public void setDistributed(boolean distributed) {
-        this.distributed = distributed;
+        return parent != null || !subordinates.isEmpty();
     }
 
     /**
@@ -196,6 +193,10 @@ public class Transaction implements Serializable {
         return (endTime != null) ? new Timestamp(endTime) : null;
     }
 
+    /**
+     *
+     * @param timestamp
+     */
     private void setEndTime(Timestamp timestamp) {
         this.endTime = timestamp.getTime();
     }
@@ -220,10 +221,47 @@ public class Transaction implements Serializable {
      *
      * @return
      */
+    public Collection<Transaction> getSubordinates() {
+        return subordinates;
+    }
+
+    /**
+     *
+     * @param tx
+     */
+    public void addSubordinate(Transaction tx) {
+        subordinates.add(tx);
+        tx.setParent(this);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Transaction getParent() {
+        return parent;
+    }
+
+    /**
+     *
+     * @param parent
+     */
+    public void setParent(Transaction parent) {
+        this.parent = parent;
+    }
+
+    /**
+     *
+     * @return
+     */
     public Collection<Event> getEvents() {
         return events;
     }
 
+    /**
+     *
+     * @return
+     */
     public Collection<Event> getEventsInTemporalOrder() {
         //FIXME - Problem with hibernate compatibilty with JPA2.0 OrderBy annotation, this hack will probably
         //FIXME - incur a performance penalty
