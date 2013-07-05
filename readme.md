@@ -30,9 +30,9 @@ In order for MySQL to work with JBoss you will need to install the Connector/J M
 2. Extract the archive and copy mysql-connector-java-[version]-bin.jar to `$JBOSS_HOME/modules/com/mysql/main` recursively creating the directories if they don't exist.
 3. Copy module.xml from `[project-root]/etc` to the same directory as above; NOTE: if you downloaded a version of Connector/J other than 5.1.25 you will need to edit module.xml and update the resource-root path property to point to the correct connector/J jar file.
 4. Add the following lines to your JBoss standalone.xml file:
-    <driver name="MySqlXA" module="com.mysql">
+    `<driver name="MySqlXA" module="com.mysql">
         <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
-    </driver>
+    </driver>`
 This should be placed inside the `<datasources><drivers>` tags.
 
 ### Maven
