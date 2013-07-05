@@ -18,7 +18,7 @@ public class BasicActionHandler extends JbossAS8AbstractHandler {
      *
      */
     public static final String REGEX = "BasicAction::" +
-            "(?<BASICACTION>Begin|prepare|End|Abort|phase2Abort|phase2Commit|onePhaseCommit|addChildThread)" +
+            "(?<BASICACTION>Begin|prepare|End|Abort|phase2Abort|phase2Commit|onePhaseCommit)" +
             ".*?action.*?"+PATTERN_TXUID;
 
 

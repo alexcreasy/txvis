@@ -5,9 +5,11 @@ import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
 import org.jboss.narayana.txvis.interceptors.TransactionInterceptor;
+import org.jboss.narayana.txvis.persistence.dao.InterpositionRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
+import org.jboss.narayana.txvis.persistence.entities.InterpositionRecord;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -40,8 +42,6 @@ public class HandlerService {
 
     private final Map<String, Long> interposThreadMap = new HashMap<>();
 
-
-
     @EJB
     private TransactionDAO transactionDAO;
 
@@ -51,10 +51,30 @@ public class HandlerService {
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
 
+    @EJB
+    private InterpositionRecordDAO interpositionRecordDAO;
+
 
 
     public void receiveInterposition(String threadId, long requestId) {
         interposThreadMap.put(threadId, requestId);
+    }
+
+    @Interceptors(TransactionInterceptor.class)
+    public void sendInterposition(String nodeId, long requestId) {
+        InterpositionRecord rec = interpositionRecordDAO.retrieve(requestId);
+
+        if (rec != null) {
+            Transaction subordinate = transactionDAO.retrieve(rec.getNodeid(), rec.getTxuid());
+            Transaction parent = transactionDAO.retrieve(nodeId, rec.getTxuid());
+            interpositionRecordDAO.delete(rec);
+            if (logger.isTraceEnabled())
+                logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
+        }
+        else {
+            rec = new InterpositionRecord(nodeid, requestId);
+            interpositionRecordDAO.create(rec);
+        }
     }
 
 
@@ -68,15 +88,23 @@ public class HandlerService {
     public void begin(String txuid, Timestamp timestamp, String threadId) {
 
         Transaction tx = new Transaction(txuid, nodeid, timestamp);
-        Transaction parent;
 
-        Long requestId = interposThreadMap.remove(threadId);
 
-        if (requestId != null) {
-            tx.setDistributed(true);
-            for (Transaction distTx : transactionDAO.retrieveAllWithTxUID(txuid)) {
-                distTx.setDistributed(true);
-                transactionDAO.update(distTx);
+        if (interposThreadMap.containsKey(threadId)) {
+            Long requestId = interposThreadMap.remove(threadId);
+            InterpositionRecord rec = interpositionRecordDAO.retrieve(requestId);
+
+            if (rec == null) {
+                rec = new InterpositionRecord(nodeid, requestId);
+                rec.setTxuid(txuid);
+                interpositionRecordDAO.create(rec);
+            }
+            else {
+                Transaction parent = transactionDAO.retrieve(rec.getNodeid(), txuid);
+                interpositionRecordDAO.delete(rec);
+
+                if (logger.isTraceEnabled())
+                    logger.trace("Hierarchy detected: "+tx+" is a subordinate of"+parent);
             }
         }
         transactionDAO.create(tx);
