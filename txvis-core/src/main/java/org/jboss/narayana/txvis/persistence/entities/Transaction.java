@@ -245,7 +245,7 @@ public class Transaction implements Serializable {
      * @return
      */
     public long getDuration() {
-        return status == null ? System.currentTimeMillis() - startTime : endTime - startTime;
+        return endTime == null ? System.currentTimeMillis() - startTime : endTime - startTime;
     }
 
     /**
