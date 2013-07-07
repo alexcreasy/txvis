@@ -245,7 +245,7 @@ public class Transaction implements Serializable {
      * @return
      */
     public long getDuration() {
-        return status.equals(Status.IN_FLIGHT) ? System.currentTimeMillis() - startTime : endTime - startTime;
+        return status == null ? System.currentTimeMillis() - startTime : endTime - startTime;
     }
 
     /**
