@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.test;
 
-import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.Configuration;
@@ -9,7 +8,7 @@ import org.jboss.narayana.txvis.persistence.dao.GenericDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
+import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.test.utils.TransactionUtil;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -114,7 +113,7 @@ public class CentralisedAS8IntegrationTest {
 
             for (ParticipantRecord rec : tx.getParticipantRecords())
                 assertEquals("ParticipantRecord did not report the correct vote: Transaction: "+rec.getTransaction().getTxuid()+
-                        ", ResourceManager: "+rec.getResourceManager().getJndiName(), ResourceOutcome.COMMIT, rec.getResourceOutcome());
+                        ", ResourceManager: "+rec.getResourceManager().getJndiName(), Vote.COMMIT, rec.getVote());
         }
     }
 
@@ -147,12 +146,12 @@ public class CentralisedAS8IntegrationTest {
 
             int abortVotes = 0;
             for (ParticipantRecord rec : tx.getParticipantRecords()) {
-                if (rec.getResourceOutcome().equals(ResourceOutcome.ABORT))
+                if (rec.getVote().equals(Vote.ABORT))
                     abortVotes++;
             }
 
             assertEquals("Participants of transaction: "+tx.getTxuid()+" did not report correct number of votes: "
-                    + ResourceOutcome.ABORT, 1, abortVotes);
+                    + Vote.ABORT, 1, abortVotes);
 
             assertEquals("Incorrect number of Events created for Transaction: "+tx.getTxuid(),
                     (EXPECTED_NO_OF_EVENTS - 1), tx.getEvents().size());

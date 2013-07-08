@@ -10,6 +10,7 @@
         <class>org.jboss.narayana.txvis.persistence.entities.ResourceManager</class>
         <class>org.jboss.narayana.txvis.persistence.entities.ParticipantRecord</class>
         <class>org.jboss.narayana.txvis.persistence.entities.Event</class>
+        <class>org.jboss.narayana.txvis.persistence.entities.InterpositionRecord</class>
             <properties>
                 <!-- Properties for Hibernate -->
                 <property name="hibernate.hbm2ddl.auto" value="create" />

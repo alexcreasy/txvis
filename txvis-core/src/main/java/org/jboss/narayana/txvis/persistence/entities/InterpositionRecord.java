@@ -1,9 +1,6 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -11,6 +8,10 @@ import javax.persistence.Id;
  * Time: 17:11
  */
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "InterpositionRecord.findByRequestId",
+                query = "FROM InterpositionRecord r WHERE r.requestid=:requestid"),
+})
 public class InterpositionRecord {
 
     @Id

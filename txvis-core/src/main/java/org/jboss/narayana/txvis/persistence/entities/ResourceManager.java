@@ -12,11 +12,11 @@ import java.util.HashSet;
  * Time: 22:29
  */
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "ResourceManager.findByJndiName",
+                query = "FROM ResourceManager r WHERE r.jndiName=:jndiName"),
+})
 public class ResourceManager implements Serializable {
-
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
 
     @OneToMany(mappedBy = "resourceManager", fetch = FetchType.EAGER)
     private Collection<ParticipantRecord> participantRecords = new HashSet<>();

@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.test;
 
-import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.narayana.txvis.Configuration;
@@ -13,7 +12,7 @@ import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
-import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
+import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.test.utils.UniqueIdGenerator;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -189,8 +188,8 @@ public class HandlerServiceTest {
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourcePrepared(txuid, jndiName, timestamp);
 
-        assertEquals("ParticipantRecord contained incorrect vote" , ResourceOutcome.COMMIT,
-                participantRecordDAO.retrieve(txuid, jndiName).getResourceOutcome());
+        assertEquals("ParticipantRecord contained incorrect vote" , Vote.COMMIT,
+                participantRecordDAO.retrieve(txuid, jndiName).getVote());
     }
 
     @Test
@@ -204,8 +203,8 @@ public class HandlerServiceTest {
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourceFailedToPrepare(txuid, jndiName, xaException, timestamp);
 
-        assertEquals("ParticipantRecord contained incorrect vote" , ResourceOutcome.ABORT,
-                participantRecordDAO.retrieve(txuid, jndiName).getResourceOutcome());
+        assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
+                participantRecordDAO.retrieve(txuid, jndiName).getVote());
 
         assertEquals("ParticipantRecord contained incorrect XAException" , xaException,
                 participantRecordDAO.retrieve(txuid, jndiName).getXaException());

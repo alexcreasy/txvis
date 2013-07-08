@@ -17,6 +17,13 @@ import java.util.*;
  * Time: 14:09
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "Transaction.findByNodeidAndTxuid",
+            query = "SELECT t FROM Transaction t WHERE t.jbossNodeid=:nodeid AND t.txuid=:txuid"),
+
+//    @NamedQuery(name = )
+
+})
 public class Transaction implements Serializable {
 
     @Id
