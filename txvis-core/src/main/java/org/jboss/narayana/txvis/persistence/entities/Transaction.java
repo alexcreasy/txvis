@@ -300,7 +300,29 @@ public class Transaction implements Serializable {
             .append("`, nodeid=`").append(jbossNodeid)
             .append("`, parent=`").append(parent)
             .append("`, status=`").append(status)
-            .append("` >");
+            .append("`, Subordinate Nodes=`");
+
+        for (Transaction tx : subordinates)
+            sb.append(tx.getJbossNodeid()).append(", ");
+
+        sb.append("` >");
         return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + txuid.hashCode();
+        result = 31 * result + jbossNodeid.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Transaction))
+            return false;
+        Transaction tx = (Transaction) obj;
+
+        return txuid.equals(tx.txuid) && jbossNodeid.equals(tx.jbossNodeid);
     }
 }

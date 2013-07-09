@@ -27,7 +27,7 @@ import java.util.Map;
  * Date: 17/06/2013
  * Time: 12:20
  */
-@Stateless
+@Stateful
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Interceptors(LoggingInterceptor.class)
@@ -59,9 +59,7 @@ public class HandlerService {
     }
 
     public void checkIfParent(String nodeid, Long requestId) {
-        if (em.isOpen()) {
-            logger.trace("em.isOpen == true");
-        }
+
         em = emf.createEntityManager();
         try
         {
@@ -76,7 +74,7 @@ public class HandlerService {
                         em.flush();
 
                     em.getTransaction().commit();
-
+                    em.close();
                 }
                 catch (PersistenceException ee)
                 {
@@ -93,27 +91,49 @@ public class HandlerService {
             // rec == null => we just created a new record, therefore we don't have enough information to create
             // the hierarchy yet.
             if (rec != null) {
+                if (!em.isOpen())
+                    em = emf.createEntityManager();
 
                 em.getTransaction().begin();
 
-                Transaction parent = findTransaction(nodeid, rec.getTxuid());
+                Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                        .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+                // findTransaction(nodeid, rec.getTxuid());
 
-                Transaction subordinate = findTransaction(rec.getNodeid(), rec.getTxuid());
+                Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                        .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
 
-                parent.addSubordinate(subordinate);
                 subordinate.setParent(parent);
+                parent.addSubordinate(subordinate);
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent: Before Flush: parent=`"+parent+"`, subordinate=`"
+                            + subordinate+"`");
+
+                em.flush();
+
+                em.refresh(subordinate);
+                em.refresh(parent);
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent: After Refresh parent=`"+parent+"`, subordinate=`"
+                            + subordinate+"`");
 
                 em.remove(rec);
 
                 em.getTransaction().commit();
 
-                if (logger.isTraceEnabled())
+                if (logger.isTraceEnabled()) {
                     logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
+                }
             }
         }
         finally
         {
-            em.close();
+            if (em.isOpen())
+                em.close();
         }
     }
 
