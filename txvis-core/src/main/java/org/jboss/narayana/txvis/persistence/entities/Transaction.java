@@ -20,9 +20,6 @@ import java.util.*;
 @NamedQueries({
     @NamedQuery(name = "Transaction.findByNodeidAndTxuid",
             query = "SELECT t FROM Transaction t WHERE t.jbossNodeid=:nodeid AND t.txuid=:txuid"),
-
-//    @NamedQuery(name = )
-
 })
 public class Transaction implements Serializable {
 
@@ -52,10 +49,9 @@ public class Transaction implements Serializable {
     @ManyToOne
     private Transaction parent = null;
 
-    @OneToMany(mappedBy = "parent", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<Transaction> subordinates = new HashSet<>();
-
 
     // Restrict default constructor to EJB container
     protected Transaction() {}
@@ -238,7 +234,6 @@ public class Transaction implements Serializable {
      */
     public void addSubordinate(Transaction tx) {
         subordinates.add(tx);
-        tx.setParent(this);
     }
 
     /**
@@ -303,6 +298,8 @@ public class Transaction implements Serializable {
         sb
             .append("Transaction: < tx_uid=`").append(txuid)
             .append("`, nodeid=`").append(jbossNodeid)
+            .append("`, parent=`").append(parent)
+            .append("`, status=`").append(status)
             .append("` >");
         return sb.toString();
     }

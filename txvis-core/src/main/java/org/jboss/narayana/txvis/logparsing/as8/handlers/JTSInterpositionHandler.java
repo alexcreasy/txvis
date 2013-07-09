@@ -23,10 +23,10 @@ public class JTSInterpositionHandler extends JbossAS8AbstractHandler {
     public void handle(Matcher matcher, String line) {
         switch (matcher.group("METHOD")) {
             case "send_request":
-                service.sendInterposition(matcher.group("NODEID"), Long.parseLong(matcher.group("REQID")));
+                service.checkIfParent(matcher.group("NODEID"), Long.parseLong(matcher.group("REQID")));
                 break;
             case "receive_request":
-                service.receiveInterposition(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")));
+                service.associateRequestId(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")));
                 break;
         }
     }

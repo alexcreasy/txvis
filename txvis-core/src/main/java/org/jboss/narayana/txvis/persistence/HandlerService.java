@@ -3,11 +3,10 @@ package org.jboss.narayana.txvis.persistence;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
-import org.jboss.narayana.txvis.persistence.dao.InterpositionRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
-import org.jboss.narayana.txvis.persistence.entities.InterpositionRecord;
+import org.jboss.narayana.txvis.persistence.entities.RequestRecord;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
@@ -19,6 +18,7 @@ import javax.interceptor.Interceptors;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 /**
  *
@@ -53,71 +53,77 @@ public class HandlerService {
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
 
-    @EJB
-    private InterpositionRecordDAO interpositionRecordDAO;
 
-
-
-    public void receiveInterposition(String threadId, long requestId) {
+    public void associateRequestId(String threadId, Long requestId) {
         interposThreadMap.put(threadId, requestId);
     }
 
-    public void sendInterposition(String nodeid, long requestId) {
-//        InterpositionRecord rec = interpositionRecordDAO.retrieve(requestId);
-//
-//        if (rec != null) {
-//            Transaction subordinate = transactionDAO.retrieve(rec.getNodeid(), rec.getTxuid());
-//            Transaction parent = transactionDAO.retrieve(nodeId, rec.getTxuid());
-//            parent.addSubordinate(subordinate);
-//            transactionDAO.update(parent);
-//            interpositionRecordDAO.delete(rec);
-//
-//            if (logger.isTraceEnabled())
-//                logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
-//        }
-//        else {
-//            rec = new InterpositionRecord(nodeid, requestId);
-//            interpositionRecordDAO.create(rec);
-//        }
-
+    public void checkIfParent(String nodeid, Long requestId) {
+        if (em.isOpen()) {
+            logger.trace("em.isOpen == true");
+        }
         em = emf.createEntityManager();
         try
         {
-            em.getTransaction().begin();
+            RequestRecord rec = em.find(RequestRecord.class, requestId);
 
-            InterpositionRecord rec = null;
-            try
-            {
-                rec = em.createNamedQuery("InterpositionRecord.findByRequestId", InterpositionRecord.class)
-                        .setParameter("requestid", requestId).getSingleResult();
+            if (rec == null) {
+                try
+                {
+                    em.getTransaction().begin();
+
+                        em.persist(new RequestRecord(requestId, nodeid));
+                        em.flush();
+
+                    em.getTransaction().commit();
+
+                }
+                catch (PersistenceException ee)
+                {
+                    logger.warn("PersistenceException: ", ee);
+
+                    if (em.getTransaction().isActive())
+                        em.getTransaction().rollback();
+
+                    // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
+                    rec = em.find(RequestRecord.class, requestId);
+                }
             }
-            catch (NoResultException e)
-            {
-                // implicit rec = null
-            }
 
-            if (rec != null)
-            {
-                Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                        .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid()).getSingleResult();
+            // rec == null => we just created a new record, therefore we don't have enough information to create
+            // the hierarchy yet.
+            if (rec != null) {
 
-                Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                        .setParameter("nodeid", nodeid).setParameter("txuid", rec.getTxuid()).getSingleResult();
+                em.getTransaction().begin();
+
+                Transaction parent = findTransaction(nodeid, rec.getTxuid());
+
+                Transaction subordinate = findTransaction(rec.getNodeid(), rec.getTxuid());
 
                 parent.addSubordinate(subordinate);
+                subordinate.setParent(parent);
+
                 em.remove(rec);
+
+                em.getTransaction().commit();
 
                 if (logger.isTraceEnabled())
                     logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
             }
-            else
-                em.persist(new InterpositionRecord(nodeid, requestId));
-
-            em.getTransaction().commit();
         }
         finally
         {
             em.close();
+        }
+    }
+
+    private Transaction findTransaction(String nodeid, String txuid) {
+        try {
+            return em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                    .setParameter("nodeid", nodeid).setParameter("txuid", txuid).getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
         }
     }
 
@@ -129,72 +135,66 @@ public class HandlerService {
      */
     public void begin(String txuid, Timestamp timestamp, String threadId) {
 
-//        Transaction tx = new Transaction(txuid, nodeid, timestamp);
-//
-//
-//        if (interposThreadMap.containsKey(threadId)) {
-//            Long requestId = interposThreadMap.remove(threadId);
-//            InterpositionRecord rec = interpositionRecordDAO.retrieve(requestId);
-//
-//            if (rec == null) {
-//                rec = new InterpositionRecord(nodeid, requestId);
-//                rec.setTxuid(txuid);
-//                interpositionRecordDAO.create(rec);
-//            }
-//            else {
-//                Transaction parent = transactionDAO.retrieve(rec.getNodeid(), txuid);
-//                parent.addSubordinate(tx);
-//                interpositionRecordDAO.delete(rec);
-//
-//                if (logger.isTraceEnabled())
-//                    logger.trace("Hierarchy detected: "+tx+" is a subordinate of"+parent);
-//            }
-//        }
-//        transactionDAO.update(tx);
-
-
         em = emf.createEntityManager();
         try
         {
             em.getTransaction().begin();
-
             Transaction tx = new Transaction(txuid, nodeid, timestamp);
             em.persist(tx);
+            em.getTransaction().commit();
+
 
             if (interposThreadMap.containsKey(threadId))
             {
                 Long requestId = interposThreadMap.remove(threadId);
 
-                InterpositionRecord rec = null;
-                try
-                {
-                    rec = em.createNamedQuery("InterpositionRecord.findByRequestId", InterpositionRecord.class)
-                            .setParameter("requestid", requestId).getSingleResult();
-                }
-                catch (NoResultException e)
-                {
-                    // Implicit rec = null;
-                }
+                RequestRecord rec = em.find(RequestRecord.class, requestId);
 
                 if (rec == null)
                 {
-                    rec = new InterpositionRecord(nodeid, requestId);
-                    rec.setTxuid(txuid);
-                    em.persist(rec);
+                    try {
+                        em.getTransaction().begin();
+                        em.persist(new RequestRecord(requestId, nodeid, txuid));
+                        em.flush();
+                        em.getTransaction().commit();
+                    }
+                    catch (PersistenceException ee) {
+
+                        logger.warn("PersistenceException: ", ee);
+
+                        if (em.getTransaction().isActive())
+                            em.getTransaction().rollback();
+
+                        // Another node has written a record in the meantime as we must have gotten
+                        // a primary key violation, retrieve a fresh copy.
+                        rec = em.find(RequestRecord.class, requestId);
+
+                        if (rec == null)
+                            throw new IllegalStateException("Unable to retrieve a RequestRecord after EntityExistsException");
+                    }
                 }
-                else
+
+                // rec == null => we just created a new record, therefore we don't have enough information to create
+                // the hierarchy yet.
+                if (rec != null)
                 {
-                    Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                            .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", txuid).getSingleResult();
-                    parent.addSubordinate(tx);
+                    em.getTransaction().begin();
+
+                    Transaction parent = findTransaction(rec.getNodeid(), txuid);
+
+                    Transaction subordinate = em.merge(tx);
+
+                    parent.addSubordinate(subordinate);
+                    subordinate.setParent(parent);
+                    em.flush();
+
                     em.remove(rec);
+                    em.getTransaction().commit();
 
                     if (logger.isTraceEnabled())
                         logger.trace("Hierarchy detected: "+tx+" is a subordinate of "+parent);
                 }
             }
-
-            em.getTransaction().commit();
         }
         finally
         {
@@ -209,17 +209,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void prepare(String txuid, Timestamp timestamp) {
-
-//        Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-//
-//        if (tx == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//        tx.setStatus(Status.PREPARE, timestamp);
-//        transactionDAO.update(tx);
-
         setStatus(txuid, Status.PREPARE, timestamp);
     }
 
@@ -229,16 +218,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void phase2Commit(String txuid, Timestamp timestamp) {
-
-//        Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-//
-//        if (tx == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//            tx.setStatus(Status.COMMIT, timestamp);
-//            transactionDAO.update(tx);
         setStatus(txuid, Status.COMMIT, timestamp);
     }
 
@@ -248,17 +227,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void onePhaseCommit(String txuid, Timestamp timestamp) {
-
-//        Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-//
-//        if (tx == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//        tx.setStatus(Status.ONE_PHASE_COMMIT, timestamp);
-//        transactionDAO.update(tx);
-
         setStatus(txuid, Status.ONE_PHASE_COMMIT, timestamp);
     }
 
@@ -268,16 +236,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void abort(String txuid, Timestamp timestamp) {
-
-//        Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-//
-//        if (tx == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//        tx.setStatus(Status.PHASE_ONE_ABORT, timestamp);
-//        transactionDAO.update(tx);
         setStatus(txuid, Status.PHASE_ONE_ABORT, timestamp);
     }
 
@@ -287,17 +245,6 @@ public class HandlerService {
      * @param timestamp
      */
     public void phase2Abort(String txuid, Timestamp timestamp) {
-
-//        Transaction tx = transactionDAO.retrieve(nodeid, txuid);
-//
-//        if (tx == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//        tx.setStatus(Status.PHASE_TWO_ABORT, timestamp);
-//        transactionDAO.update(tx);
-
         setStatus(txuid, Status.PHASE_TWO_ABORT, timestamp);
     }
 
@@ -306,14 +253,14 @@ public class HandlerService {
         em = emf.createEntityManager();
         try
         {
+            em.getTransaction().begin();
 
             Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
+                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid)
+                    .getSingleResult();
 
             tx.setStatus(status, timestamp);
 
-            em.getTransaction().begin();
-            em.merge(tx);
             em.getTransaction().commit();
         }
         catch (NoResultException e)
@@ -361,16 +308,6 @@ public class HandlerService {
         {
             em.close();
         }
-
-//        ParticipantRecord rec = participantRecordDAO.retrieveByUID(rmuid);
-//
-//        if (rec  == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//        rec.setResourceOutcome(Vote.COMMIT, timestamp);
-//        participantRecordDAO.update(rec);
     }
 
     /**
@@ -391,15 +328,6 @@ public class HandlerService {
     }
 
     public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
-//        ParticipantRecord rec = participantRecordDAO.retrieveByUID(rmuid);
-//
-//        if (rec == null) {
-//            logger.warn("Could not retrieve, exitting after back off");
-//            return;
-//        }
-//
-//        resourceFailedToPrepare(rec.getTransaction().getTxuid(), rec.getResourceManager().getJndiName(),
-//                xaException, timestamp);
 
         em = emf.createEntityManager();
         try
@@ -478,9 +406,7 @@ public class HandlerService {
 
             final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
             rec.setRmuid(rmuid);
-
-            em.merge(rec);
-
+            em.persist(rec);
             em.getTransaction().commit();
         }
         catch (NoResultException e)
@@ -534,16 +460,16 @@ public class HandlerService {
         em = emf.createEntityManager();
         try
         {
-            em.getTransaction().begin();
-
             Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                     .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
 
             if (tx != null && tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
+                em.getTransaction().begin();
                 em.remove(tx);
+                em.getTransaction().commit();
                 logger.info("Cleaned up phantom transaction: "+txuid);
             }
-            em.getTransaction().commit();
+
         }
         catch (NoResultException e)
         {
