@@ -38,8 +38,8 @@ public class TransactionListBean implements Serializable {
 
     public void filter() {
         transactionsList = filterByStatus == null
-                ? dao.retrieveAll()
-                : dao.retrieveAllWithStatus(filterByStatus);
+                ? dao.findAllTopLevel()
+                : dao.findAllTopLevelWithStatus(filterByStatus);
     }
 
     public void setFilterByStatus(Status status) {

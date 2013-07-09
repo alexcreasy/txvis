@@ -39,6 +39,7 @@
         <hr />
         <div>
             <h3>Enlisted Participants</h3>
+            <h4>Resources</h4>
             <h:dataTable value="#{transactionInfoBean.transaction.participantRecords}" var="rec"
                          styleClass="table table-striped">
                 <h:column>
@@ -54,12 +55,28 @@
                    #{rec.resourceManager.productVersion}
                 </h:column>
                 <h:column>
-                    <f:facet name="header">Outcome</f:facet>
+                    <f:facet name="header">Vote</f:facet>
                     #{rec.vote}
                 </h:column>
                 <h:column>
                     <f:facet name="header">XAException</f:facet>
                     #{rec.xaException}
+                </h:column>
+            </h:dataTable>
+            <h4>Subordinate Transactions</h4>
+            <h:dataTable value="#{transactionInfoBean.transaction.subordinates}" var="tx"
+                         styleClass="table table-striped">
+                <h:column>
+                    <f:facet name="header">Node ID</f:facet>
+                    <h:link value="#{tx.jbossNodeid}" outcome="txinfo" >
+                        <f:param name="includeViewParams" value="true" />
+                        <f:param name="txid" value="#{tx.id}" />
+                    </h:link>
+
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Outcome</f:facet>
+                    #{tx.status}
                 </h:column>
             </h:dataTable>
         </div>

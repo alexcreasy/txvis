@@ -4,6 +4,7 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import java.io.Serializable;
@@ -64,6 +65,27 @@ public class TransactionDAO implements Serializable{
 
     public List<Transaction> retrieveAllWithStatus(Status status) {
         return dao.queryMultiple(Transaction.class, "FROM " + Transaction.class.getSimpleName() + " e WHERE status='" + status + "'");
+    }
+
+    public List<Transaction> findAllTopLevel() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createNamedQuery("Transaction.findAllTopLevel", Transaction.class).getResultList();
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    public List<Transaction> findAllTopLevelWithStatus(Status status) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createNamedQuery("Transaction.findAllTopLevelWithStatus", Transaction.class)
+                    .setParameter("status", status).getResultList();
+        }
+        finally {
+            em.close();
+        }
     }
 
 }
