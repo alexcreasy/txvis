@@ -58,11 +58,11 @@ public class HandlerService {
     }
 
     public void checkIfParent(String nodeid, Long requestId) {
-
+        RequestRecord rec = null;
         em = emf.createEntityManager();
         try
         {
-            RequestRecord rec = em.find(RequestRecord.class, requestId);
+            rec = em.find(RequestRecord.class, requestId);
 
             if (rec == null) {
                 try
@@ -95,13 +95,12 @@ public class HandlerService {
 
                 em.getTransaction().begin();
 
-                Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                        .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
-                // findTransaction(nodeid, rec.getTxuid());
-
                 Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                         .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
+                        .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+
+                Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                        .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
                         .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
 
                 subordinate.setParent(parent);
@@ -112,13 +111,6 @@ public class HandlerService {
                             + subordinate+"`");
 
                 em.flush();
-
-                em.refresh(subordinate);
-                em.refresh(parent);
-
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent: After Refresh parent=`"+parent+"`, subordinate=`"
-                            + subordinate+"`");
 
                 em.remove(rec);
 
@@ -133,6 +125,20 @@ public class HandlerService {
         {
             if (em.isOpen())
                 em.close();
+        }
+
+        if (rec != null) {
+
+            em = emf.createEntityManager();
+            try {
+                Transaction parent = findTransaction(nodeid, rec.getTxuid());
+                Transaction subordinate = findTransaction(rec.getNodeid(), rec.getTxuid());
+
+                logger.trace("Hierarchy test: Parent=`"+parent+"`, subordinate=`"+subordinate);
+            }
+            finally {
+                em.close();
+            }
         }
     }
 
@@ -199,9 +205,9 @@ public class HandlerService {
                 {
                     em.getTransaction().begin();
 
-                    Transaction parent = findTransaction(rec.getNodeid(), txuid);
-
                     Transaction subordinate = em.merge(tx);
+
+                    Transaction parent = findTransaction(rec.getNodeid(), txuid);
 
                     parent.addSubordinate(subordinate);
                     subordinate.setParent(parent);
@@ -275,11 +281,11 @@ public class HandlerService {
             em.getTransaction().begin();
 
             Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid)
-                    .getSingleResult();
+                    .setParameter("nodeid", this.nodeid).setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                    .setParameter("txuid", txuid).getSingleResult();
 
             tx.setStatus(status, timestamp);
-
+            em.flush();
             em.getTransaction().commit();
         }
         catch (NoResultException e)
@@ -292,8 +298,6 @@ public class HandlerService {
             em.close();
         }
     }
-
-
 
     /*
      * The below methods deal with Transaction Participants
