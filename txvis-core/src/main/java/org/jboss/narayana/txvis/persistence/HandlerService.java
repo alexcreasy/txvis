@@ -58,11 +58,10 @@ public class HandlerService {
     }
 
     public void checkIfParent(String nodeid, Long requestId) {
-        RequestRecord rec = null;
         em = emf.createEntityManager();
         try
         {
-            rec = em.find(RequestRecord.class, requestId);
+            RequestRecord rec = em.find(RequestRecord.class, requestId);
 
             if (rec == null) {
                 try
@@ -106,9 +105,9 @@ public class HandlerService {
                 subordinate.setParent(parent);
                 parent.addSubordinate(subordinate);
 
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent: Before Flush: parent=`"+parent+"`, subordinate=`"
-                            + subordinate+"`");
+//                if (logger.isTraceEnabled())
+//                    logger.trace("HandlerService.checkIfParent: Before Flush: parent=`"+parent+"`, subordinate=`"
+//                            + subordinate+"`");
 
                 em.flush();
 
@@ -125,20 +124,6 @@ public class HandlerService {
         {
             if (em.isOpen())
                 em.close();
-        }
-
-        if (rec != null) {
-
-            em = emf.createEntityManager();
-            try {
-                Transaction parent = findTransaction(nodeid, rec.getTxuid());
-                Transaction subordinate = findTransaction(rec.getNodeid(), rec.getTxuid());
-
-                logger.trace("Hierarchy test: Parent=`"+parent+"`, subordinate=`"+subordinate);
-            }
-            finally {
-                em.close();
-            }
         }
     }
 
@@ -302,8 +287,6 @@ public class HandlerService {
     /*
      * The below methods deal with Transaction Participants
      */
-
-
 
     /**
      *
@@ -503,8 +486,6 @@ public class HandlerService {
             em.close();
         }
     }
-
-
 
 //    @AroundInvoke
 //    public Object intercept(InvocationContext ctx) throws Exception {

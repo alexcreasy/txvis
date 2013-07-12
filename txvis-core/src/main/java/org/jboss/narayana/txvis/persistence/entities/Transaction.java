@@ -298,18 +298,16 @@ public class Transaction implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb
-            .append("Transaction: < tx_uid=`").append(txuid)
-            .append("`, nodeid=`").append(jbossNodeid)
-            .append("`, parent=`").append(parent)
-            .append("`, status=`").append(status)
-            .append("`, Subordinate Nodes=`");
+        sb.append("Transaction: < tx_uid=`").append(txuid)
+                .append("`, nodeid=`").append(jbossNodeid)
+                .append("`, parentNodeId=`").append(parent != null ? parent.jbossNodeid : "null")
+                .append("`, status=`").append(status)
+                .append("`, subordinateNodeIds=`");
 
         for (Transaction tx : subordinates)
-            sb.append(tx.getJbossNodeid()).append(", ");
+            sb.append(tx.jbossNodeid).append(", ");
 
-        sb.append("` >");
-        return sb.toString();
+        return sb.append("` >").toString();
     }
 
     @Override
@@ -325,7 +323,6 @@ public class Transaction implements Serializable {
         if (!(obj instanceof Transaction))
             return false;
         Transaction tx = (Transaction) obj;
-
         return txuid.equals(tx.txuid) && jbossNodeid.equals(tx.jbossNodeid);
     }
 }
