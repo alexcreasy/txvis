@@ -66,6 +66,8 @@ public class HandlerService {
             if (rec == null) {
                 try
                 {
+                    if (logger.isTraceEnabled())
+                        logger.trace("HandlerService.checkIfParent - create request record");
                     em.getTransaction().begin();
 
                         em.persist(new RequestRecord(requestId, nodeid));
@@ -76,7 +78,8 @@ public class HandlerService {
                 }
                 catch (PersistenceException ee)
                 {
-                    logger.warn("PersistenceException: ", ee);
+                    if (logger.isTraceEnabled())
+                        logger.trace("HandlerService.checkIfParent - request record already created, retrieve");
 
                     if (em.getTransaction().isActive())
                         em.getTransaction().rollback();
@@ -94,9 +97,17 @@ public class HandlerService {
 
                 em.getTransaction().begin();
 
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent - retrieve subordinate with node id: "+rec.getNodeid() +
+                    ", txuid: "+rec.getTxuid());
+
                 Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                         .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
                         .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent - retrieve parent with node id: "+nodeid +
+                            ", txuid: "+rec.getTxuid());
 
                 Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                         .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
@@ -105,11 +116,10 @@ public class HandlerService {
                 subordinate.setParent(parent);
                 parent.addSubordinate(subordinate);
 
-//                if (logger.isTraceEnabled())
-//                    logger.trace("HandlerService.checkIfParent: Before Flush: parent=`"+parent+"`, subordinate=`"
-//                            + subordinate+"`");
-
                 em.flush();
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent - remove request record: "+rec);
 
                 em.remove(rec);
 
@@ -164,13 +174,16 @@ public class HandlerService {
                 {
                     try {
                         em.getTransaction().begin();
+                        if (logger.isTraceEnabled())
+                            logger.trace("HandlerService.begin - create request record");
                         em.persist(new RequestRecord(requestId, nodeid, txuid));
                         em.flush();
                         em.getTransaction().commit();
                     }
                     catch (PersistenceException ee) {
 
-                        logger.warn("PersistenceException: ", ee);
+                        if (logger.isTraceEnabled())
+                            logger.trace("HandlerService.begin - record already exists, retrieve");
 
                         if (em.getTransaction().isActive())
                             em.getTransaction().rollback();
@@ -189,15 +202,21 @@ public class HandlerService {
                 if (rec != null)
                 {
                     em.getTransaction().begin();
+                    if (logger.isTraceEnabled())
+                        logger.trace("HandlerService.begin - retrieve subordinate");
 
                     Transaction subordinate = em.merge(tx);
 
+                    if (logger.isTraceEnabled())
+                        logger.trace("HandlerService.begin - retrieve parent");
                     Transaction parent = findTransaction(rec.getNodeid(), txuid);
 
                     parent.addSubordinate(subordinate);
                     subordinate.setParent(parent);
                     em.flush();
 
+                    if (logger.isTraceEnabled())
+                        logger.trace("HandlerService.begin - remove record: "+rec);
                     em.remove(rec);
                     em.getTransaction().commit();
 
