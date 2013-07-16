@@ -38,10 +38,6 @@ public class TransactionDAO implements Serializable{
         return dao.querySingle(Transaction.class, "FROM Transaction t WHERE t.jbossNodeid='"+nodeid+"' AND t.txuid='"+txuid+"'");
     }
 
-//    public Transaction retrieve(String txuid) {
-//        return dao.querySingle(Transaction.class, "FROM Transaction t WHERE t.txuid='"+txuid+"'");
-//    }
-
     public List<Transaction> retrieveAllWithTxUID(String txuid) {
         return dao.queryMultiple(Transaction.class, "FROM Transaction t WHERE t.txuid='"+txuid+"'");
     }
