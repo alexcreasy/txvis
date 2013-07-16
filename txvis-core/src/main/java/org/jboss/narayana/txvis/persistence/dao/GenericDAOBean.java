@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
-import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
 
 import javax.ejb.*;
@@ -12,6 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * This bean provides some common code for DAOs to use. It is inherently not type safe
+ * and as such caution should be exercised if calling its methods directly from
+ * business logic.
+ *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 03/05/2013
  * Time: 15:57
@@ -216,32 +219,15 @@ public class GenericDAOBean implements GenericDAO {
         }
     }
 
-//    @AroundInvoke
-//    public Object intercept(InvocationContext ctx) throws Exception {
-//        if (em == null || !em.isOpen())
-//            this.em = emf.createEntityManager();
-//
-//        final boolean notActive = !em.getTransaction().isActive();
-//        try {
-//            if (notActive)
-//                em.getTransaction().begin();
-//            Object result = ctx.proceed();
-//
-//            if (notActive && em.getTransaction().isActive())
-//                em.getTransaction().commit();
-//
-//            return result;
-//        }
-//        catch (Exception e) {
-//            if (em.getTransaction().isActive())
-//                em.getTransaction().rollback();
-//            throw e;
-//        }
-//        finally {
-//            em.close();
-//        }
-//    }
 
+    /*
+     * This interceptor will populate the bean with an EntityManager before
+     * method invocation. This produces cleaner code and allows calling other
+     * internal methods without the error prone problem of multiple EntityManagers.
+     * This wouldn't be necessary if we were able to let the container manage the
+     * transactions, but this isn't possible as we would then end up monitoring
+     * our own transactions, resulting in a recursive loop.
+     */
     @AroundInvoke
     public Object intercept(InvocationContext ctx) throws Exception {
         if (em == null || !em.isOpen())
