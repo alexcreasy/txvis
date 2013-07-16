@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis;
 
-import com.arjuna.ats.arjuna.common.CoreEnvironmentBeanException;
 import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
 
@@ -8,8 +7,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import java.io.File;
-import java.util.Properties;
-import java.util.UUID;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;

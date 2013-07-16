@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.webapp.models;
 
-import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -9,7 +8,6 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.Collection;
 
 /**

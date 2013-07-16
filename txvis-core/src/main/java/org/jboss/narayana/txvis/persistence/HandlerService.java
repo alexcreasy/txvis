@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.persistence;
 
-import com.arjuna.ats.arjuna.common.arjPropertyManager;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
@@ -13,15 +12,14 @@ import org.jboss.narayana.txvis.persistence.entities.InterpositionRecord;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
+import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  *

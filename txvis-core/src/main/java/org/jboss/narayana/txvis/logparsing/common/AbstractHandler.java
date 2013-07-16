@@ -1,6 +1,5 @@
 package org.jboss.narayana.txvis.logparsing.common;
 
-import org.jboss.narayana.txvis.logparsing.common.Handler;
 import org.jboss.narayana.txvis.persistence.HandlerService;
 
 import java.util.regex.Pattern;
