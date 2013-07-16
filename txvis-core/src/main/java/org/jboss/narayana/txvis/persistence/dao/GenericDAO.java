@@ -1,13 +1,7 @@
 package org.jboss.narayana.txvis.persistence.dao;
 
-import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
-import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
-import org.jboss.narayana.txvis.persistence.entities.Transaction;
-import org.jboss.narayana.txvis.persistence.enums.Status;
-
 import javax.ejb.Local;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -28,8 +22,6 @@ public interface GenericDAO extends Serializable {
     @SuppressWarnings("unchecked")
     <E, V> E retrieveSingleByField(Class<E> entityClass, String field, V value);
 
-    <E, V> List<E> retrieveMultipleByField(Class<E> entityClass, String field, V value);
-
     <E> E update(E entity);
 
     <E> void delete(E entity);
@@ -41,4 +33,6 @@ public interface GenericDAO extends Serializable {
     <E> E querySingle(Class<E> entityType, String query);
 
     <E> List<E> queryMultiple(Class<E> entityType, String query);
+
+    <E, V> List<E> retrieveMultipleByField(Class<E> entityClass, String field, V value);
 }
