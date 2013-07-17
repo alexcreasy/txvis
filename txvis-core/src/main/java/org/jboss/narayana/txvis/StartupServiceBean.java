@@ -50,7 +50,8 @@ public class StartupServiceBean {
          * transaction. Uniqueness is dependent on the user correctly configuring their application
          * server!
          */
-        System.setProperty(Configuration.NODEID_SYS_PROP_NAME, arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
+        System.setProperty(Configuration.NODEID_SYS_PROP_NAME,
+                arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
 
 
         if (logger.isInfoEnabled()) {

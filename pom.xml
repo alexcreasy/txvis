@@ -22,7 +22,7 @@
             </activation>
             <modules>
                 <module>txvis-core</module>
-                <module>txvis-analysis</module>
+                <module>txvis-plugins</module>
                 <module>txvis-webapp</module>
                 <module>txvis-full</module>
                 <module>txvis-lite</module>
@@ -43,7 +43,7 @@
             <id>distributed</id>
             <modules>
                 <module>txvis-core</module>
-                <module>txvis-analysis</module>
+                <module>txvis-plugins</module>
                 <module>txvis-webapp</module>
                 <module>txvis-full</module>
                 <module>txvis-lite</module>
@@ -87,7 +87,7 @@
 
             <dependency>
                 <groupId>org.jboss.narayana</groupId>
-                <artifactId>txvis-analysis</artifactId>
+                <artifactId>txvis-plugins</artifactId>
                 <version>${project.version}</version>
                 <type>ejb</type>
             </dependency>
