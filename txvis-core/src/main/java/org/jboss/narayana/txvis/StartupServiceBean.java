@@ -9,10 +9,27 @@ import javax.ejb.*;
 import java.io.File;
 
 /**
+ * This bean ensures that txvis-core is correctly bootstrapped and will begin logging
+ * once it is deployed in the application container. It contains no user invokable methods
+ * as these should only be called by the EJB container.
+ *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 31/05/2013
  * Time: 11:33
  */
+
+
+/*
+ * The bean is a startup singleton which causes the application container to invoke
+ * the PostConstruct method as soon as the application is deployed.
+ *
+ * As with all EJBs used in Txvis, transaction management MUST be disabled as
+ * below. This application is monitoring the transactions produced on the
+ * server it's deployed on so as well as dirtying the data the tool will collect,
+ * it can cause a recursive loop, which will rapidly result in the JVM running
+ * out of memory!
+ */
+
 @Singleton
 @Startup
 @DependsOn("LogMonitorBean")
@@ -27,7 +44,12 @@ public class StartupServiceBean {
 
     @PostConstruct
     protected void setup() {
-
+        /*
+         * Get the ID of the server we're running on, for the tool to function correctly when
+         * monitoring JTS transactions this must be unique as it is essential to identifying a
+         * transaction. Uniqueness is dependent on the user correctly configuring their application
+         * server!
+         */
         System.setProperty(Configuration.NODEID_SYS_PROP_NAME, arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
 
 
@@ -42,6 +64,11 @@ public class StartupServiceBean {
                 logger.info(propName + " = " + System.getProperty(propName));
             logger.info("");
         }
+
+        /*
+         * FIXME The logfile is currently hardwired to "server.log" in the Jboss logfile directory.
+         * Ideally this should be able to be overridden by giving a system property to the application server.
+         */
         logMonitor.setFile(new File(Configuration.LOGFILE_PATH));
         logMonitor.start();
     }

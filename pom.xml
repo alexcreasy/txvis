@@ -6,9 +6,7 @@
     <groupId>org.jboss.narayana</groupId>
     <artifactId>txvis</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>txvis-analysis</module>
-    </modules>
+
     <packaging>pom</packaging>
     <name>Txvis: Transaction Profiling and Visualization Tool</name>
     <description>
@@ -24,6 +22,7 @@
             </activation>
             <modules>
                 <module>txvis-core</module>
+                <module>txvis-analysis</module>
                 <module>txvis-webapp</module>
                 <module>txvis-full</module>
                 <module>txvis-lite</module>
@@ -44,6 +43,7 @@
             <id>distributed</id>
             <modules>
                 <module>txvis-core</module>
+                <module>txvis-analysis</module>
                 <module>txvis-webapp</module>
                 <module>txvis-full</module>
                 <module>txvis-lite</module>
@@ -78,8 +78,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Define the version of the EJB jar so that we don't need
-                to repeat ourselves in every module -->
             <dependency>
                 <groupId>org.jboss.narayana</groupId>
                 <artifactId>txvis-core</artifactId>
@@ -87,8 +85,13 @@
                 <type>ejb</type>
             </dependency>
 
-            <!-- Define the version of the WAR so that we don't need to repeat
-                ourselves in every module -->
+            <dependency>
+                <groupId>org.jboss.narayana</groupId>
+                <artifactId>txvis-analysis</artifactId>
+                <version>${project.version}</version>
+                <type>ejb</type>
+            </dependency>
+
             <dependency>
                 <groupId>org.jboss.narayana</groupId>
                 <artifactId>txvis-webapp</artifactId>

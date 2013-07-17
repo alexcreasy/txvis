@@ -50,29 +50,24 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Import the CDI API, we use provided scope as the API is included in JBoss AS 7 -->
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Import the Common Annotations API (JSR-250), we use provided scope 
-            as the API is included in JBoss AS 7 -->
         <dependency>
             <groupId>org.jboss.spec.javax.annotation</groupId>
             <artifactId>jboss-annotations-api_1.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
 
-      <!-- Import the JSF API, we use provided scope as the API is included in JBoss AS 7 -->
         <dependency>
             <groupId>org.jboss.spec.javax.faces</groupId>
             <artifactId>jboss-jsf-api_2.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Import the EJB spec, required to import the beans -->
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>
             <artifactId>jboss-ejb-api_3.1_spec</artifactId>
@@ -82,26 +77,23 @@
     </dependencies>
 
     <build>
-        <!-- Set the name of the war, used as the context root when the app 
-            is deployed -->
+
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${version.war.plugin}</version>
                 <configuration>
-                    <!-- Java EE 6 doesn't require web.xml, Maven needs to catch up! -->
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
-            <!-- JBoss AS plugin to deploy war -->
+
             <plugin>
                 <groupId>org.jboss.as.plugins</groupId>
                 <artifactId>jboss-as-maven-plugin</artifactId>
                 <version>${version.jboss.maven.plugin}</version>
             </plugin>
-            <!-- Compiler plugin enforces Java 1.6 compatibility and activates 
-                annotation processors -->
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${version.compiler.plugin}</version>
