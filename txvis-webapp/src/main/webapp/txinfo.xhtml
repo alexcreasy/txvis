@@ -23,7 +23,7 @@
                 <dt>Transaction UID: </dt>
                 <dd>#{transactionInfoBean.transaction.txuid}</dd>
                 <dt>Node ID:</dt>
-                <dd>#{transactionInfoBean.transaction.jbossNodeid}</dd>
+                <dd>#{transactionInfoBean.transaction.nodeid}</dd>
                 <dt>Distributed:</dt>
                 <dd>#{transactionInfoBean.transaction.distributed}</dd>
                 <dt>Outcome: </dt>
@@ -68,7 +68,7 @@
                          styleClass="table table-striped">
                 <h:column>
                     <f:facet name="header">Node ID</f:facet>
-                    <h:link value="#{tx.jbossNodeid}" outcome="txinfo" >
+                    <h:link value="#{tx.nodeid}" outcome="txinfo" >
                         <f:param name="includeViewParams" value="true" />
                         <f:param name="txid" value="#{tx.id}" />
                     </h:link>

@@ -5,13 +5,13 @@ package org.jboss.narayana.txvis.persistence;
  * Date: 17/07/2013
  * Time: 20:18
  */
-public class CORBAid {
+public class CORBARequestDetails {
 
     private final Long requestId;
     private final String ior;
     private final String nodeid;
 
-    public CORBAid(Long requestId, String ior, String nodeid) {
+    public CORBARequestDetails(Long requestId, String ior, String nodeid) {
         this.requestId = requestId;
         this.ior = ior;
         this.nodeid = nodeid;

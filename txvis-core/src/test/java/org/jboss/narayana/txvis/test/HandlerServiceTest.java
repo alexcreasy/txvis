@@ -91,7 +91,7 @@ public class HandlerServiceTest {
 
         assertNotNull("Transaction not created", tx);
         assertEquals("Incorrect txuid", txuid, tx.getTxuid());
-        assertEquals("Incorrect jbossNodeId", jbossNodeId, tx.getJbossNodeid());
+        assertEquals("Incorrect jbossNodeId", jbossNodeId, tx.getNodeid());
         assertEquals("Incorrect startTime", timestamp, tx.getStartTime());
     }
 

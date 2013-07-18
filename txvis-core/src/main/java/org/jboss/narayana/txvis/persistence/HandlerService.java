@@ -36,7 +36,7 @@ public class HandlerService {
 
     private final String nodeid = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
 
-    private final Map<String, CORBAid> threadReqMap = new HashMap<>();
+    private final Map<String, CORBARequestDetails> threadReqMap = new HashMap<>();
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -166,23 +166,21 @@ public class HandlerService {
 
 
     public void associateRequestId(String threadId, Long requestId, String ior) {
-        threadReqMap.put(threadId, new CORBAid(requestId, ior, nodeid));
+        threadReqMap.put(threadId, new CORBARequestDetails(requestId, ior, nodeid));
     }
 
     public void begin(String txuid, Timestamp timestamp, String threadId) {
 
+        Transaction tx = new Transaction(txuid, nodeid, timestamp);
+        transactionDAO.create(tx);
+
         em = emf.createEntityManager();
         try
         {
-            em.getTransaction().begin();
-            Transaction tx = new Transaction(txuid, nodeid, timestamp);
-            em.persist(tx);
-            em.getTransaction().commit();
-
 
             if (threadReqMap.containsKey(threadId))
             {
-                CORBAid corbaid = threadReqMap.remove(threadId);
+                CORBARequestDetails corbaid = threadReqMap.remove(threadId);
 
                 RequestRecord rec = null;
                 try

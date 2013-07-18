@@ -21,7 +21,7 @@ import java.util.*;
 @Entity
 @NamedQueries({
     @NamedQuery(name = "Transaction.findByNodeidAndTxuid",
-            query = "SELECT t FROM Transaction t WHERE t.jbossNodeid=:nodeid AND t.txuid=:txuid"),
+            query = "SELECT t FROM Transaction t WHERE t.nodeid=:nodeid AND t.txuid=:txuid"),
     @NamedQuery(name = "Transaction.findAllTopLevel", query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY"),
     @NamedQuery(name = "Transaction.findAllTopLevelWithStatus",
             query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY AND u.status=:status"),
@@ -37,7 +37,7 @@ public class Transaction implements Serializable {
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
 
-    private String jbossNodeid;
+    private String nodeid;
     private Long startTime;
     private Long endTime;
 
@@ -53,9 +53,9 @@ public class Transaction implements Serializable {
 
 
     /*
-     * A join table is used to model the parent / subordinate relationship
-     * rather than a foreign key column on the subordinate, as it eliminates
-     * the need for any kind of locking during while monitoring a distributed
+     * A join table is used to implement the parent / subordinate relationship
+     * rather than having a foreign key field on the subordinate, as it eliminates
+     * the need for any kind of database locking while monitoring a distributed
      * transaction across multiple nodes.
      */
 
@@ -107,17 +107,17 @@ public class Transaction implements Serializable {
 
         this.txuid = txuid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, jbossNodeid, timestamp));
+        events.add(new Event(this, EventType.BEGIN, nodeid, timestamp));
     }
 
-    public Transaction(String txuid, String jbossNodeid, Timestamp timestamp) {
+    public Transaction(String txuid, String nodeid, Timestamp timestamp) {
         if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
             throw new IllegalArgumentException("Illegal transactionId: " + txuid);
 
         this.txuid = txuid;
-        this.jbossNodeid = jbossNodeid;
+        this.nodeid = nodeid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, jbossNodeid, timestamp));
+        events.add(new Event(this, EventType.BEGIN, nodeid, timestamp));
     }
 
     public Long getId() {
@@ -161,14 +161,14 @@ public class Transaction implements Serializable {
         Event e = null;
         switch (status) {
             case PREPARE:
-                e = new Event(this, EventType.PREPARE, jbossNodeid, timestamp);
+                e = new Event(this, EventType.PREPARE, nodeid, timestamp);
                 break;
             case COMMIT: case ONE_PHASE_COMMIT:
-                e = new Event(this, EventType.COMMIT, jbossNodeid, timestamp);
+                e = new Event(this, EventType.COMMIT, nodeid, timestamp);
                 setEndTime(timestamp);
                 break;
             case PHASE_ONE_ABORT: case PHASE_TWO_ABORT:
-                e = new Event(this, EventType.ABORT, jbossNodeid, timestamp);
+                e = new Event(this, EventType.ABORT, nodeid, timestamp);
                 setEndTime(timestamp);
                 break;
         }
@@ -187,16 +187,16 @@ public class Transaction implements Serializable {
      *
      * @return
      */
-    public String getJbossNodeid() {
-        return jbossNodeid;
+    public String getNodeid() {
+        return nodeid;
     }
 
     /**
      *
      * @param nodeId
      */
-    public void setJbossNodeid(String nodeId) {
-        this.jbossNodeid = nodeId;
+    public void setNodeid(String nodeId) {
+        this.nodeid = nodeId;
     }
 
     /**
@@ -321,13 +321,13 @@ public class Transaction implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Transaction: < tx_uid=`").append(txuid)
-                .append("`, nodeid=`").append(jbossNodeid)
-                .append("`, parentNodeId=`").append(parent != null ? parent.jbossNodeid : "null")
+                .append("`, nodeid=`").append(nodeid)
+                .append("`, parentNodeId=`").append(parent != null ? parent.nodeid : "null")
                 .append("`, status=`").append(status)
                 .append("`, subordinateNodeIds=`");
 
         for (Transaction tx : subordinates)
-            sb.append(tx.jbossNodeid).append(", ");
+            sb.append(tx.nodeid).append(", ");
 
         return sb.append("` >").toString();
     }
@@ -336,7 +336,7 @@ public class Transaction implements Serializable {
     public int hashCode() {
         int result = 17;
         result = 31 * result + txuid.hashCode();
-        result = 31 * result + jbossNodeid.hashCode();
+        result = 31 * result + nodeid.hashCode();
         return result;
     }
 
@@ -345,6 +345,6 @@ public class Transaction implements Serializable {
         if (!(obj instanceof Transaction))
             return false;
         Transaction tx = (Transaction) obj;
-        return txuid.equals(tx.txuid) && jbossNodeid.equals(tx.jbossNodeid);
+        return txuid.equals(tx.txuid) && nodeid.equals(tx.nodeid);
     }
 }
