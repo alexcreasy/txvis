@@ -36,7 +36,7 @@ public class HandlerService {
 
     private final String nodeid = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
 
-    private final Map<String, Long> interposThreadMap = new HashMap<>();
+    private final Map<String, CORBAid> threadReqMap = new HashMap<>();
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -52,31 +52,33 @@ public class HandlerService {
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
 
-
-    public void associateRequestId(String threadId, Long requestId) {
-        interposThreadMap.put(threadId, requestId);
-    }
-
-    public void checkIfParent(String nodeid, Long requestId) {
+    public void checkIfParent(String nodeid, Long requestId, String ior) {
         em = emf.createEntityManager();
         try
         {
-            RequestRecord rec = em.find(RequestRecord.class, requestId);
+            RequestRecord rec = null;
 
-            if (rec == null) {
+            try
+            {
+                rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                        .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
+            }
+            catch (NoResultException e)
+            {
                 try
                 {
                     if (logger.isTraceEnabled())
                         logger.trace("HandlerService.checkIfParent - create request record");
+
                     em.getTransaction().begin();
 
-                        em.persist(new RequestRecord(requestId, nodeid));
+                        em.persist(new RequestRecord(requestId, nodeid, ior));
                         em.flush();
 
                     em.getTransaction().commit();
                     em.close();
                 }
-                catch (PersistenceException ee)
+                catch (PersistenceException pe)
                 {
                     if (logger.isTraceEnabled())
                         logger.trace("HandlerService.checkIfParent - request record already created, retrieve");
@@ -85,7 +87,16 @@ public class HandlerService {
                         em.getTransaction().rollback();
 
                     // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
-                    rec = em.find(RequestRecord.class, requestId);
+                    try
+                    {
+                        rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                                .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
+                    }
+                    catch (NoResultException nre)
+                    {
+                        // If we still can't find a record something else caused the PersistenceException!
+                        logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
+                    }
                 }
             }
 
@@ -103,7 +114,7 @@ public class HandlerService {
 
                 Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                         .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+                        .getSingleResult();
 
                 if (logger.isTraceEnabled())
                     logger.trace("HandlerService.checkIfParent - retrieve parent with node id: "+nodeid +
@@ -111,9 +122,8 @@ public class HandlerService {
 
                 Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                         .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
-                        .setLockMode(LockModeType.PESSIMISTIC_WRITE).getSingleResult();
+                        .getSingleResult();
 
-                subordinate.setParent(parent);
                 parent.addSubordinate(subordinate);
 
                 em.flush();
@@ -121,7 +131,7 @@ public class HandlerService {
                 if (logger.isTraceEnabled())
                     logger.trace("HandlerService.checkIfParent - remove request record: "+rec);
 
-                em.remove(rec);
+                //em.remove(rec);
 
                 em.getTransaction().commit();
 
@@ -153,6 +163,12 @@ public class HandlerService {
      * com.arjuna.ats.arjuna.coordinator.BasicAction
      *
      */
+
+
+    public void associateRequestId(String threadId, Long requestId, String ior) {
+        threadReqMap.put(threadId, new CORBAid(requestId, ior, nodeid));
+    }
+
     public void begin(String txuid, Timestamp timestamp, String threadId) {
 
         em = emf.createEntityManager();
@@ -164,36 +180,48 @@ public class HandlerService {
             em.getTransaction().commit();
 
 
-            if (interposThreadMap.containsKey(threadId))
+            if (threadReqMap.containsKey(threadId))
             {
-                Long requestId = interposThreadMap.remove(threadId);
+                CORBAid corbaid = threadReqMap.remove(threadId);
 
-                RequestRecord rec = em.find(RequestRecord.class, requestId);
-
-                if (rec == null)
+                RequestRecord rec = null;
+                try
                 {
-                    try {
+                    rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                            .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
+                            .getSingleResult();
+                }
+                catch (NoResultException e)
+                {
+                    try
+                    {
                         em.getTransaction().begin();
                         if (logger.isTraceEnabled())
                             logger.trace("HandlerService.begin - create request record");
-                        em.persist(new RequestRecord(requestId, nodeid, txuid));
+                        em.persist(new RequestRecord(corbaid.getRequestId(), nodeid, corbaid.getIor(), txuid));
                         em.flush();
                         em.getTransaction().commit();
                     }
-                    catch (PersistenceException ee) {
-
+                    catch (PersistenceException pe)
+                    {
                         if (logger.isTraceEnabled())
                             logger.trace("HandlerService.begin - record already exists, retrieve");
 
                         if (em.getTransaction().isActive())
                             em.getTransaction().rollback();
 
-                        // Another node has written a record in the meantime as we must have gotten
-                        // a primary key violation, retrieve a fresh copy.
-                        rec = em.find(RequestRecord.class, requestId);
-
-                        if (rec == null)
-                            throw new IllegalStateException("Unable to retrieve a RequestRecord after EntityExistsException");
+                        // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
+                        try
+                        {
+                            rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                                    .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
+                                    .getSingleResult();
+                        }
+                        catch (NoResultException nre)
+                        {
+                            // If we still can't find a record something else caused the PersistenceException!
+                            logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
+                        }
                     }
                 }
 
@@ -211,13 +239,12 @@ public class HandlerService {
                         logger.trace("HandlerService.begin - retrieve parent");
                     Transaction parent = findTransaction(rec.getNodeid(), txuid);
 
-                    parent.addSubordinate(subordinate);
                     subordinate.setParent(parent);
                     em.flush();
 
                     if (logger.isTraceEnabled())
                         logger.trace("HandlerService.begin - remove record: "+rec);
-                    em.remove(rec);
+                    //em.remove(rec);
                     em.getTransaction().commit();
 
                     if (logger.isTraceEnabled())
@@ -229,7 +256,6 @@ public class HandlerService {
         {
             em.close();
         }
-
     }
 
     /**
@@ -285,8 +311,7 @@ public class HandlerService {
             em.getTransaction().begin();
 
             Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                    .setParameter("txuid", txuid).getSingleResult();
+                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
 
             tx.setStatus(status, timestamp);
             em.flush();

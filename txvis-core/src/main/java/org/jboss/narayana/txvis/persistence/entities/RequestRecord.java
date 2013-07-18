@@ -10,11 +10,17 @@ import javax.persistence.*;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "RequestRecord.findByRequestId",
-                query = "FROM RequestRecord r WHERE r.requestid=:requestid"),
+                query = "FROM RequestRecord r WHERE r.requestid=:requestid"
+        ),
         @NamedQuery(name = "RequestRecord.findByNodeIdAndTxUID",
-                query = "FROM RequestRecord s WHERE s.nodeid=:nodeid AND s.txuid=:txuid"),
+                query = "FROM RequestRecord r WHERE r.nodeid=:nodeid AND r.txuid=:txuid"
+        ),
         @NamedQuery(name = "RequestRecord.findByRequestIdAndTxUID",
-                query = "FROM RequestRecord t WHERE t.requestid=:requestid AND t.txuid=:txuid"),
+                query = "FROM RequestRecord r WHERE r.requestid=:requestid AND r.txuid=:txuid"
+        ),
+        @NamedQuery(name = "RequestRecord.findByRequestIdAndIOR",
+                query = "FROM RequestRecord r where r.requestid=:requestid AND r.ior=:ior"
+        )
 })
 public class RequestRecord {
 
@@ -24,21 +30,26 @@ public class RequestRecord {
     @Column(nullable = false)
     private String nodeid;
 
+    @Column(nullable = false, columnDefinition = "text")
+    private String ior;
+
     @Column(nullable = true)
     private String txuid;
 
 
     public RequestRecord() {}
 
-    public RequestRecord(Long requestid, String nodeid) {
+    public RequestRecord(Long requestid, String nodeid, String ior) {
         this.nodeid = nodeid;
         this.requestid = requestid;
+        this.ior = ior;
     }
 
-    public RequestRecord(Long requestid, String nodeid, String txuid) {
+    public RequestRecord(Long requestid, String nodeid, String ior, String txuid) {
         this.requestid = requestid;
         this.nodeid = nodeid;
         this.txuid = txuid;
+        this.ior = ior;
     }
 
 
@@ -66,8 +77,16 @@ public class RequestRecord {
         this.txuid = txuid;
     }
 
+    public String getIor() {
+        return ior;
+    }
+
+    public void setIor(String ior) {
+        this.ior = ior;
+    }
+
     @Override
     public String toString() {
-        return "InterPosition Record: nodeId="+nodeid+", requestId="+requestid+", txuid="+txuid;
+        return "RequestRecord: nodeId="+nodeid+", requestId="+requestid+", ior="+ior+", txuid="+txuid;
     }
 }

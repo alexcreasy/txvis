@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 import java.util.*;
 
 /**
+ *
+ *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 15/04/2013
  * Time: 14:09
@@ -49,12 +51,30 @@ public class Transaction implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<Event> events = new LinkedList<>();
 
-    @ManyToOne
-    private Transaction parent = null;
 
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    /*
+     * A join table is used to model the parent / subordinate relationship
+     * rather than a foreign key column on the subordinate, as it eliminates
+     * the need for any kind of locking during while monitoring a distributed
+     * transaction across multiple nodes.
+     */
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable (
+            name = "Transaction_Hierarchy",
+            joinColumns = {@JoinColumn(name="Parent_id")},
+            inverseJoinColumns = {@JoinColumn(name = "Subordinate_id")}
+    )
+    @Fetch(value = FetchMode.SUBSELECT) // Hibernate
     private Collection<Transaction> subordinates = new HashSet<>();
+
+    @ManyToOne
+    @JoinTable (
+            name = "Transaction_Hierarchy",
+            joinColumns = {@JoinColumn(name="Subordinate_id", insertable = false, updatable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "Parent_id", insertable = false, updatable = false)}
+    )
+    private Transaction parent = null;
 
     // Restrict default constructor to EJB container
     protected Transaction() {}
@@ -236,7 +256,8 @@ public class Transaction implements Serializable {
      * @param tx
      */
     public void addSubordinate(Transaction tx) {
-        subordinates.add(tx);
+        this.subordinates.add(tx);
+        tx.parent = this;
     }
 
     /**
@@ -249,10 +270,11 @@ public class Transaction implements Serializable {
 
     /**
      *
-     * @param parent
+     * @param tx
      */
-    public void setParent(Transaction parent) {
-        this.parent = parent;
+    public void setParent(Transaction tx) {
+        this.parent = tx;
+        tx.subordinates.add(this);
     }
 
     /**

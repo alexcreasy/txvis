@@ -10,6 +10,8 @@ import javax.ejb.*;
 import java.io.File;
 
 /**
+ *
+ *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 25/04/2013
  * Time: 01:50
@@ -30,7 +32,6 @@ import java.io.File;
  * it can cause a recursive loop, which will rapidly result in the JVM running
  * out of memory!
  */
-
 @Singleton
 @LocalBean
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -63,8 +64,8 @@ public class LogMonitorBean {
             try {
                 tailer = new Tailer(logFile, logParser, Configuration.LOGFILE_POLL_INTERVAL, true);
                 tailer.run();
-
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.error("Unhandled exception, shutting down...", e);
                 // Not shutting down can cause problems when trying to undeploy the application if the
                 // unhandled exception cannot be recovered from simply catching it, which appears to
