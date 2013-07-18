@@ -14,7 +14,9 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
 import javax.ejb.*;
+import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
+import javax.interceptor.InvocationContext;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -53,92 +55,84 @@ public class HandlerService {
     private ParticipantRecordDAO participantRecordDAO;
 
     public void checkIfParent(String nodeid, Long requestId, String ior) {
-        em = emf.createEntityManager();
+        RequestRecord rec = null;
+
         try
         {
-            RequestRecord rec = null;
-
+            rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                    .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
+        }
+        catch (NoResultException e)
+        {
             try
             {
-                rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                        .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
-            }
-            catch (NoResultException e)
-            {
-                try
-                {
-                    if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.checkIfParent - create request record");
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent - create request record");
 
-                    em.getTransaction().begin();
-
-                        em.persist(new RequestRecord(requestId, nodeid, ior));
-                        em.flush();
-
-                    em.getTransaction().commit();
-                }
-                catch (PersistenceException pe)
-                {
-                    if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.checkIfParent - request record already created, retrieve");
-
-                    if (em.getTransaction().isActive())
-                        em.getTransaction().rollback();
-
-                    // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
-                    try
-                    {
-                        rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                                .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
-                    }
-                    catch (NoResultException nre)
-                    {
-                        // If we still can't find a record something else caused the PersistenceException!
-                        logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
-                    }
-                }
-            }
-
-            // rec == null => we just created a new record, therefore we don't have enough information to create
-            // the hierarchy yet.
-            if (rec != null) {
                 em.getTransaction().begin();
 
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent - retrieve subordinate with node id: "+rec.getNodeid() +
-                    ", txuid: "+rec.getTxuid());
-
-                Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                        .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
-                        .getSingleResult();
-
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent - retrieve parent with node id: "+nodeid +
-                            ", txuid: "+rec.getTxuid());
-
-                Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                        .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
-                        .getSingleResult();
-
-                parent.addSubordinate(subordinate);
-
-                em.flush();
-
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent - remove request record: "+rec);
-
-                //em.remove(rec);
+                    em.persist(new RequestRecord(requestId, nodeid, ior));
+                    em.flush();
 
                 em.getTransaction().commit();
+            }
+            catch (PersistenceException pe)
+            {
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.checkIfParent - request record already created, retrieve");
 
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
+                if (em.getTransaction().isActive())
+                    em.getTransaction().rollback();
+
+                // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
+                try
+                {
+                    rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                            .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
+                }
+                catch (NoResultException nre)
+                {
+                    // If we still can't find a record something else caused the PersistenceException!
+                    logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
                 }
             }
         }
-        finally
-        {
-            em.close();
+
+        // rec == null => we just created a new record, therefore we don't have enough information to create
+        // the hierarchy yet.
+        if (rec != null) {
+            em.getTransaction().begin();
+
+            if (logger.isTraceEnabled())
+                logger.trace("HandlerService.checkIfParent - retrieve subordinate with node id: "+rec.getNodeid() +
+                ", txuid: "+rec.getTxuid());
+
+            Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                    .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
+                    .getSingleResult();
+
+            if (logger.isTraceEnabled())
+                logger.trace("HandlerService.checkIfParent - retrieve parent with node id: "+nodeid +
+                        ", txuid: "+rec.getTxuid());
+
+            Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                    .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
+                    .getSingleResult();
+
+            parent.addSubordinate(subordinate);
+
+            em.flush();
+
+            if (logger.isTraceEnabled())
+                logger.trace("HandlerService.checkIfParent - remove request record: "+rec);
+
+            //em.remove(rec);
+
+            em.getTransaction().commit();
+
+            if (logger.isTraceEnabled()) {
+                logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
+            }
         }
     }
 
@@ -165,89 +159,81 @@ public class HandlerService {
     }
 
     public void begin(String txuid, Timestamp timestamp, String threadId) {
-
+        em.getTransaction().begin();
         Transaction tx = new Transaction(txuid, nodeid, timestamp);
-        transactionDAO.create(tx);
+        em.persist(tx);
+        em.getTransaction().commit();
 
-        em = emf.createEntityManager();
-        try
+        if (threadReqMap.containsKey(threadId))
         {
+            CORBARequestDetails corbaid = threadReqMap.remove(threadId);
 
-            if (threadReqMap.containsKey(threadId))
+            RequestRecord rec = null;
+            try
             {
-                CORBARequestDetails corbaid = threadReqMap.remove(threadId);
-
-                RequestRecord rec = null;
+                rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                        .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
+                        .getSingleResult();
+            }
+            catch (NoResultException e)
+            {
                 try
-                {
-                    rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                            .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
-                            .getSingleResult();
-                }
-                catch (NoResultException e)
-                {
-                    try
-                    {
-                        em.getTransaction().begin();
-                        if (logger.isTraceEnabled())
-                            logger.trace("HandlerService.begin - create request record");
-                        em.persist(new RequestRecord(corbaid.getRequestId(), nodeid, corbaid.getIor(), txuid));
-                        em.flush();
-                        em.getTransaction().commit();
-                    }
-                    catch (PersistenceException pe)
-                    {
-                        if (logger.isTraceEnabled())
-                            logger.trace("HandlerService.begin - record already exists, retrieve");
-
-                        if (em.getTransaction().isActive())
-                            em.getTransaction().rollback();
-
-                        // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
-                        try
-                        {
-                            rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                                    .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
-                                    .getSingleResult();
-                        }
-                        catch (NoResultException nre)
-                        {
-                            // If we still can't find a record something else caused the PersistenceException!
-                            logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
-                        }
-                    }
-                }
-
-                // rec == null => we just created a new record, therefore we don't have enough information to create
-                // the hierarchy yet.
-                if (rec != null)
                 {
                     em.getTransaction().begin();
                     if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.begin - retrieve subordinate");
-
-                    Transaction subordinate = em.merge(tx);
-
-                    if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.begin - retrieve parent");
-                    Transaction parent = findTransaction(rec.getNodeid(), txuid);
-
-                    subordinate.setParent(parent);
+                        logger.trace("HandlerService.begin - create request record");
+                    em.persist(new RequestRecord(corbaid.getRequestId(), nodeid, corbaid.getIor(), txuid));
                     em.flush();
-
-                    if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.begin - remove record: "+rec);
-                    //em.remove(rec);
                     em.getTransaction().commit();
-
+                }
+                catch (PersistenceException pe)
+                {
                     if (logger.isTraceEnabled())
-                        logger.trace("Hierarchy detected: "+tx+" is a subordinate of "+parent);
+                        logger.trace("HandlerService.begin - record already exists, retrieve");
+
+                    if (em.getTransaction().isActive())
+                        em.getTransaction().rollback();
+
+                    // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
+                    try
+                    {
+                        rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                                .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
+                                .getSingleResult();
+                    }
+                    catch (NoResultException nre)
+                    {
+                        // If we still can't find a record something else caused the PersistenceException!
+                        logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
+                    }
                 }
             }
-        }
-        finally
-        {
-            em.close();
+
+            // rec == null => we just created a new record, therefore we don't have enough information to create
+            // the hierarchy yet.
+            if (rec != null)
+            {
+                em.getTransaction().begin();
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.begin - retrieve subordinate");
+
+                Transaction subordinate = em.merge(tx);
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.begin - retrieve parent");
+                Transaction parent = findTransaction(rec.getNodeid(), txuid);
+
+                subordinate.setParent(parent);
+                em.flush();
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.begin - remove record: "+rec);
+                //em.remove(rec);
+                em.getTransaction().commit();
+
+                if (logger.isTraceEnabled())
+                    logger.trace("Hierarchy detected: "+tx+" is a subordinate of "+parent);
+            }
         }
     }
 
@@ -298,27 +284,21 @@ public class HandlerService {
 
 
     private void setStatus(String txuid, Status status, Timestamp timestamp){
-        em = emf.createEntityManager();
-        try
-        {
-            em.getTransaction().begin();
+        em.getTransaction().begin();
 
-            Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+        Transaction tx;
+        try {
+            tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                     .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
-
-            tx.setStatus(status, timestamp);
-            em.flush();
-            em.getTransaction().commit();
         }
-        catch (NoResultException e)
-        {
+        catch (NoResultException e) {
             logger.warn("HandlerService.setStatus: Could not retrieve Transaction entity with nodeid=`"+nodeid +
                     "`, txuid=`"+txuid+"`");
+            return;
         }
-        finally
-        {
-            em.close();
-        }
+
+        tx.setStatus(status, timestamp);
+        em.getTransaction().commit();
     }
 
     /*
@@ -331,26 +311,21 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourcePreparedJTS(String rmuid, Timestamp timestamp) {
-        em = emf.createEntityManager();
-        try
-        {
-            em.getTransaction().begin();
+        em.getTransaction().begin();
 
-            ParticipantRecord rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class)
+        ParticipantRecord rec;
+        try {
+            rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class)
                     .setParameter("rmuid", rmuid).getSingleResult();
-
-            rec.setResourceOutcome(Vote.COMMIT, timestamp);
-
-            em.getTransaction().commit();
         }
-        catch (NoResultException e)
-        {
+        catch (NoResultException e) {
             logger.warn("HandlerService.resourcePreparedJTS: Could not retrieve ParticipantRecord for rmuid=`"+rmuid+"`");
+            return;
         }
-        finally
-        {
-            em.close();
-        }
+
+        rec.setResourceOutcome(Vote.COMMIT, timestamp);
+
+        em.getTransaction().commit();
     }
 
     /**
@@ -371,29 +346,23 @@ public class HandlerService {
     }
 
     public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
+        em.getTransaction().begin();
 
-        em = emf.createEntityManager();
-        try
-        {
-            em.getTransaction().begin();
-
-            ParticipantRecord rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class)
+        ParticipantRecord rec;
+        try {
+            rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class)
                     .setParameter("rmuid", rmuid).getSingleResult();
-
-            rec.setResourceOutcome(Vote.ABORT, timestamp);
-            rec.setXaException(xaException);
-
-            em.getTransaction().commit();
         }
-        catch (NoResultException e)
-        {
+        catch (NoResultException e) {
             logger.warn("HandlerService.resourceFailedToPrepareJTS: Could not retrieve ParticipantRecord for rmuid=`"
                     + rmuid+"`");
+            return;
         }
-        finally
-        {
-            em.close();
-        }
+
+        rec.setResourceOutcome(Vote.ABORT, timestamp);
+        rec.setXaException(xaException);
+
+        em.getTransaction().commit();
     }
 
     /**
@@ -407,7 +376,7 @@ public class HandlerService {
         final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
 
         if (rec == null) {
-            logger.warn("Could not retrieve, exitting after back off");
+            logger.warn("Could not retrieve, exitting");
             return;
         }
 
@@ -426,40 +395,33 @@ public class HandlerService {
      */
     public void enlistResourceManagerByUID(String txuid, String rmuid, String rmJndiName, String rmProductName,
                                            String rmProductVersion, Timestamp timestamp) {
+        Transaction tx;
+        try {
+            tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
+        }
+        catch (NoResultException e) {
+            logger.warn("HandlerService.enlistResourceManagerByUID: Unable to retrieve Transaction");
+            return;
+        }
 
-        em = emf.createEntityManager();
+        ResourceManager rm;
         try
         {
-            em.getTransaction().begin();
-
-            final Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
-
-            ResourceManager rm;
-            try
-            {
-                rm = em.createNamedQuery("ResourceManager.findByJndiName" , ResourceManager.class)
-                        .setParameter("jndiName", rmJndiName).getSingleResult();
-            }
-            catch (NoResultException x)
-            {
-                rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
-                em.persist(rm);
-            }
-
-            final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
-            rec.setRmuid(rmuid);
-            em.persist(rec);
-            em.getTransaction().commit();
+            rm = em.createNamedQuery("ResourceManager.findByJndiName" , ResourceManager.class)
+                    .setParameter("jndiName", rmJndiName).getSingleResult();
         }
-        catch (NoResultException e)
+        catch (NoResultException x)
         {
-            logger.warn("HandlerService.enlistResourceManagerByUID: Unable to retrieve Transaction");
+            rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
+            em.persist(rm);
         }
-        finally
-        {
-            em.close();
-        }
+
+        em.getTransaction().begin();
+        final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
+        rec.setRmuid(rmuid);
+        em.persist(rec);
+        em.getTransaction().commit();
     }
 
 
@@ -500,43 +462,37 @@ public class HandlerService {
      * @param txuid
      */
     public void cleanup(String txuid) {
-        em = emf.createEntityManager();
-        try
-        {
-            Transaction tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+
+        Transaction tx = null;
+        try {
+            tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
                     .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
-
-            if (tx != null && tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
-                em.getTransaction().begin();
-                em.remove(tx);
-                em.getTransaction().commit();
-                logger.info("Cleaned up phantom transaction: "+txuid);
-            }
-
         }
-        catch (NoResultException e)
-        {
+        catch (NoResultException e) {
             logger.warn("HandlerService.cleanup: Could not retrieve Transaction for nodeid=`"+nodeid+"`, txuid=`"+txuid+"`");
         }
-        finally
-        {
-            em.close();
+
+        if (tx != null && tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
+            em.getTransaction().begin();
+            em.remove(tx);
+            em.getTransaction().commit();
+            logger.info("Cleaned up phantom transaction: "+txuid);
         }
     }
 
-//    @AroundInvoke
-//    public Object intercept(InvocationContext ctx) throws Exception {
-//        if (em == null || !em.isOpen())
-//            this.em = emf.createEntityManager();
-//
-//        Object o = null;
-//
-//        try {
-//            o = ctx.proceed();
-//        }
-//        finally {
-//            em.close();
-//        }
-//        return o;
-//    }
+    @AroundInvoke
+    public Object intercept(InvocationContext ctx) throws Exception {
+        if (em == null || !em.isOpen())
+            this.em = emf.createEntityManager();
+
+        Object o = null;
+
+        try {
+            o = ctx.proceed();
+        }
+        finally {
+            em.close();
+        }
+        return o;
+    }
 }
