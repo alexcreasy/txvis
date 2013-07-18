@@ -76,7 +76,6 @@ public class HandlerService {
                         em.flush();
 
                     em.getTransaction().commit();
-                    em.close();
                 }
                 catch (PersistenceException pe)
                 {
@@ -103,9 +102,6 @@ public class HandlerService {
             // rec == null => we just created a new record, therefore we don't have enough information to create
             // the hierarchy yet.
             if (rec != null) {
-                if (!em.isOpen())
-                    em = emf.createEntityManager();
-
                 em.getTransaction().begin();
 
                 if (logger.isTraceEnabled())
@@ -142,8 +138,7 @@ public class HandlerService {
         }
         finally
         {
-            if (em.isOpen())
-                em.close();
+            em.close();
         }
     }
 
