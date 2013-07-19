@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis;
 
+import org.jboss.narayana.txvis.logparsing.as8.filters.PackageFilter;
 import org.jboss.narayana.txvis.logparsing.as8.handlers.*;
 
 import java.io.File;
@@ -35,6 +36,10 @@ public final class Configuration {
             JTSResourcePrepareHandler.class,
             JTSInterpositionHandler.class,
             ArjunaTransactionImpleHandler.class,
+    };
+
+    public static final Class[] LOG_FILTERS = new Class[] {
+            PackageFilter.class,
     };
 
     /**

@@ -34,13 +34,32 @@ public final class LogParserFactory {
                 h.injectService(service);
                 logParser.addHandler(h);
 
-                if (logger.isInfoEnabled())
-                    logger.info("Successfully loaded log handler: "+c.getSimpleName());
-            } catch (InstantiationException | IllegalAccessException | ClassCastException e) {
+                if (logger.isDebugEnabled())
+                    logger.debug("Successfully loaded log handler: "+c.getSimpleName());
+            }
+            catch (InstantiationException | IllegalAccessException | ClassCastException e) {
                 logger.fatal("Unable to load log handler: " + c, e);
                 throw new IllegalStateException(e);
             }
         }
+
+        // Instantiate Filter classes listed in Configuration utility class and
+        // add them to the LogParser
+        for (Class c : Configuration.LOG_FILTERS) {
+            try {
+                Filter f = (Filter) c.newInstance();
+                logParser.addFilter(f);
+
+                if (logger.isDebugEnabled())
+                    logger.debug("Successfully loaded filter: "+c.getSimpleName());
+
+            }
+            catch (InstantiationException | IllegalAccessException | ClassCastException e) {
+                logger.fatal("Unable to load log filter: " + c, e);
+                throw new IllegalStateException(e);
+            }
+        }
+
         return logParser;
     }
 

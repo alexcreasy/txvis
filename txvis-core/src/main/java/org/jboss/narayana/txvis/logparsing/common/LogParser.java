@@ -17,6 +17,7 @@ public final class LogParser implements TailerListener {
 
     private static final Logger logger = Logger.getLogger(LogParser.class.getName());
     private final List<Handler> handlers = new LinkedList<>();
+    private final List<Filter> filters = new LinkedList<>();
     private Tailer tailer;
 
     // Enforce package-private constructor
@@ -24,14 +25,21 @@ public final class LogParser implements TailerListener {
 
     /**
      *
-     * @param lineHandler
+     * @param handler
      * @throws NullPointerException
      */
-    void addHandler(Handler lineHandler) throws NullPointerException {
-        if (lineHandler == null)
-            throw new NullPointerException("Method called with null parameter: lineHandler");
-        handlers.add(lineHandler);
+    void addHandler(Handler handler) throws NullPointerException {
+        if (handler == null)
+            throw new NullPointerException("Method called with null parameter: handler");
+        handlers.add(handler);
     }
+
+    void addFilter(Filter filter) throws NullPointerException {
+        if (filter == null)
+            throw new NullPointerException("Method called with null parameter: filter");
+        filters.add(filter);
+    }
+
 
     /**
      *
@@ -39,6 +47,15 @@ public final class LogParser implements TailerListener {
      */
     @Override
     public void handle(String line) {
+
+        // First check the line against all loaded matches, if there is a positive match skip
+        // processing.
+        for (Filter filter : filters) {
+            if (filter.matches(line))
+                return;
+        }
+
+        // If there are no filter matches, test against all handlers.
         for (Handler handler : handlers) {
             final Matcher matcher = handler.getPattern().matcher(line);
 
