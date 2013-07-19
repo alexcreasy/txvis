@@ -19,6 +19,7 @@ import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 /**
@@ -38,7 +39,7 @@ public class HandlerService {
 
     private final String nodeid = System.getProperty(Configuration.NODEID_SYS_PROP_NAME);
 
-    private final Map<String, CORBARequestDetails> threadReqMap = new HashMap<>();
+    private final Map<String, RequestRecord.CompositePK> threadReqMap = new HashMap<>();
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -54,115 +55,11 @@ public class HandlerService {
     @EJB
     private ParticipantRecordDAO participantRecordDAO;
 
-    public void checkIfParent(String nodeid, Long requestId, String ior) {
-        RequestRecord rec = retrieveOrCreate(requestId, ior);
-
-        // rec == null => we just created a new record, therefore we don't have enough information to create
-        // the hierarchy yet.
-        if (rec != null) {
-            em.getTransaction().begin();
-
-            if (logger.isTraceEnabled())
-                logger.trace("HandlerService.checkIfParent - retrieve subordinate with node id: "+rec.getNodeid() +
-                ", txuid: "+rec.getTxuid());
-
-            Transaction subordinate = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", rec.getNodeid()).setParameter("txuid", rec.getTxuid())
-                    .getSingleResult();
-
-            if (logger.isTraceEnabled())
-                logger.trace("HandlerService.checkIfParent - retrieve parent with node id: "+nodeid +
-                        ", txuid: "+rec.getTxuid());
-
-            Transaction parent = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setParameter("txuid", rec.getTxuid())
-                    .getSingleResult();
-
-            parent.addSubordinate(subordinate);
-
-            em.flush();
-
-            if (logger.isTraceEnabled())
-                logger.trace("HandlerService.checkIfParent - remove request record: "+rec);
-
-            //em.remove(rec);
-
-            em.getTransaction().commit();
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("Hierarchy detected: "+parent+" is a parent of "+subordinate);
-            }
-        }
-    }
-
-    private Transaction findTransaction(String nodeid, String txuid) {
-        try {
-            return em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", nodeid).setParameter("txuid", txuid).getSingleResult();
-        }
-        catch (NoResultException e) {
-            return null;
-        }
-    }
-
-
     /*
      * These methods provide the logic for handling log lines output by
      * com.arjuna.ats.arjuna.coordinator.BasicAction
      *
      */
-
-
-    public void associateRequestId(String threadId, Long requestId, String ior) {
-        threadReqMap.put(threadId, new CORBARequestDetails(requestId, ior, nodeid));
-    }
-
-    private RequestRecord retrieveOrCreate(Long requestid, String ior) {
-        return retrieveOrCreate(requestid, ior, null);
-    }
-
-    private RequestRecord retrieveOrCreate(Long requestid, String ior, String txuid) {
-        RequestRecord rec = null;
-        try
-        {
-            rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                    .setParameter("requestid", requestid).setParameter("ior", ior)
-                    .getSingleResult();
-        }
-        catch (NoResultException e)
-        {
-            try
-            {
-                em.getTransaction().begin();
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.retrieveOrCreate - create request record");
-                em.persist(new RequestRecord(requestid, nodeid, ior, txuid));
-                em.flush();
-                em.getTransaction().commit();
-            }
-            catch (PersistenceException pe)
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.retrieveOrCreate - record already exists, retrieve");
-
-                if (em.getTransaction().isActive())
-                    em.getTransaction().rollback();
-
-                // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
-                try {
-                    rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                            .setParameter("requestid", requestid).setParameter("ior", ior)
-                            .getSingleResult();
-                }
-                catch (NoResultException nre) {
-                    // If we still can't find a record something else caused the PersistenceException!
-                    logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
-                }
-            }
-        }
-        return rec;
-    }
-
 
     public void begin(String txuid, Timestamp timestamp, String threadId) {
         em.getTransaction().begin();
@@ -170,32 +67,20 @@ public class HandlerService {
         em.persist(tx);
         em.getTransaction().commit();
 
+
+        // Check to see if this is a subordinate transaction
         if (threadReqMap.containsKey(threadId)) {
-            CORBARequestDetails corbaRequestDetails = threadReqMap.remove(threadId);
-            RequestRecord rec = retrieveOrCreate(corbaRequestDetails.getRequestId(), corbaRequestDetails.getIor(), txuid);
+            RequestRecord.CompositePK requestKey = threadReqMap.remove(threadId);
+            RequestRecord rec = handleRequest(requestKey.getRequestId(), requestKey.getIor(), txuid);
 
             // if rec == null we don't have enough information yet to establish the transaction hierarchy
             if (rec != null) {
-
                 em.getTransaction().begin();
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.begin - retrieve subordinate");
 
-                Transaction subordinate = em.merge(tx);
+                createHierarchy(rec.getNodeid(), nodeid, txuid);
+                em.remove(rec);
 
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.begin - retrieve parent");
-
-                Transaction parent = findTransaction(rec.getNodeid(), txuid);
-                subordinate.setParent(parent);
-
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.begin - remove record: "+rec);
-                //em.remove(rec);
                 em.getTransaction().commit();
-
-                if (logger.isTraceEnabled())
-                    logger.trace("Hierarchy detected: "+tx+" is a subordinate of "+parent);
             }
         }
     }
@@ -264,6 +149,90 @@ public class HandlerService {
         em.getTransaction().commit();
     }
 
+
+
+    /*
+     * The below methods deal with establishing and modelling a transaction hierarchy for distributed
+     * transactions.
+     */
+
+    public void associateThreadWithRequestId(String threadId, Long requestId, String ior) {
+        threadReqMap.put(threadId, new RequestRecord.CompositePK(requestId, ior));
+    }
+
+    private RequestRecord handleRequest(Long requestid, String ior) {
+        return handleRequest(requestid, ior, null);
+    }
+
+    private RequestRecord handleRequest(Long requestid, String ior, String txuid) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("HandlerService.handleRequest( `{0}`, `{1}`, `{2}` )", requestid, ior, txuid));
+
+        RequestRecord rec = em.find(RequestRecord.class, new RequestRecord.CompositePK(requestid, ior));
+
+        if (rec == null) {
+            try {
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.handleRequest - create request record");
+
+                em.getTransaction().begin();
+
+                em.persist(new RequestRecord(requestid, nodeid, ior, txuid));
+
+                // Flush needs to be called to force a PersistenceException if creating the new record has
+                // violated a primary key constraint, otherwise the JPA spec is unclear on which exception
+                // will be thrown, Hibernate will usually throw a RollbackException which is less specific.
+                em.flush();
+
+                em.getTransaction().commit();
+            }
+            catch (PersistenceException pe) {
+
+                if (em.getTransaction().isActive())
+                    em.getTransaction().rollback();
+
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.handleRequest - record already exists, retrieve");
+
+                // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
+                rec = em.find(RequestRecord.class, new RequestRecord.CompositePK(requestid, ior));
+
+                if (rec == null)
+                    // If we still can't find a record something else caused the PersistenceException!
+                    logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
+            }
+        }
+        return rec;
+    }
+
+    public void checkIfParent(String nodeid, Long requestId, String ior) {
+        RequestRecord rec = handleRequest(requestId, ior);
+
+        // rec == null => we just created a new record, therefore we don't have enough information to create
+        // the hierarchy yet.
+        if (rec != null) {
+            em.getTransaction().begin();
+
+            createHierarchy(nodeid, rec.getNodeid(), rec.getTxuid());
+            em.remove(rec);
+
+            em.getTransaction().commit();
+        }
+    }
+
+    private void createHierarchy(String parentNodeId, String subordinateNodeId, String txuid) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("HandlerService.createHierarchy( `{0}`, `{1}`, `{2}` )",
+                    parentNodeId, subordinateNodeId, txuid));
+
+        Transaction subordinate = findTransaction(subordinateNodeId, txuid);
+        Transaction parent = findTransaction(parentNodeId, txuid);
+        subordinate.setParent(parent);
+    }
+
+
+
     /*
      * The below methods deal with Transaction Participants
      */
@@ -278,8 +247,8 @@ public class HandlerService {
 
         ParticipantRecord rec;
         try {
-            rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class)
-                    .setParameter("rmuid", rmuid).getSingleResult();
+            rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class).setParameter("rmuid", rmuid)
+                    .getSingleResult();
         }
         catch (NoResultException e) {
             logger.warn("HandlerService.resourcePreparedJTS: Could not retrieve ParticipantRecord for rmuid=`"+rmuid+"`");
@@ -440,6 +409,20 @@ public class HandlerService {
             em.remove(tx);
             em.getTransaction().commit();
             logger.info("Cleaned up phantom transaction: "+txuid);
+        }
+    }
+
+
+    private Transaction findTransaction(String nodeid, String txuid) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("HandlerService.findTransaction( `{0}`, `{1}` )", nodeid, txuid));
+
+        try {
+            return em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+                    .setParameter("nodeid", nodeid).setParameter("txuid", txuid).getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
         }
     }
 

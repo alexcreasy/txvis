@@ -27,7 +27,7 @@ public class JTSInterpositionHandler extends JbossAS8AbstractHandler {
                 service.checkIfParent(matcher.group("NODEID"), Long.parseLong(matcher.group("REQID")), matcher.group("IOR"));
                 break;
             case "receive_request":
-                service.associateRequestId(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")),
+                service.associateThreadWithRequestId(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")),
                         matcher.group("IOR"));
                 break;
         }

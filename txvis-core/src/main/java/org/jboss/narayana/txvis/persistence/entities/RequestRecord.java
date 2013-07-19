@@ -88,13 +88,18 @@ public class RequestRecord implements Serializable {
      * requestid and ior. This allows us to handle the race condition where
      * multiple
      */
-    static class CompositePK implements Serializable {
+    public static class CompositePK implements Serializable {
 
         private Long requestid;
         private String ior;
 
 
         public CompositePK() {}
+
+        public CompositePK(Long requestid, String ior) {
+            this.requestid = requestid;
+            this.ior = ior;
+        }
 
         public Long getRequestId() {
             return requestid;
