@@ -158,61 +158,66 @@ public class HandlerService {
         threadReqMap.put(threadId, new CORBARequestDetails(requestId, ior, nodeid));
     }
 
+    private RequestRecord retrieveOrCreate(Long requestid, String ior) {
+        return retrieveOrCreate(requestid, ior, null);
+    }
+
+    private RequestRecord retrieveOrCreate(Long requestid, String ior, String txuid) {
+        RequestRecord rec = null;
+        try
+        {
+            rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                    .setParameter("requestid", requestid).setParameter("ior", ior)
+                    .getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            try
+            {
+                em.getTransaction().begin();
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.retrieveOrCreate - create request record");
+                em.persist(new RequestRecord(requestid, nodeid, ior, txuid));
+                em.flush();
+                em.getTransaction().commit();
+            }
+            catch (PersistenceException pe)
+            {
+                if (logger.isTraceEnabled())
+                    logger.trace("HandlerService.retrieveOrCreate - record already exists, retrieve");
+
+                if (em.getTransaction().isActive())
+                    em.getTransaction().rollback();
+
+                // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
+                try {
+                    rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
+                            .setParameter("requestid", requestid).setParameter("ior", ior)
+                            .getSingleResult();
+                }
+                catch (NoResultException nre) {
+                    // If we still can't find a record something else caused the PersistenceException!
+                    logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
+                }
+            }
+        }
+        return rec;
+    }
+
+
     public void begin(String txuid, Timestamp timestamp, String threadId) {
         em.getTransaction().begin();
         Transaction tx = new Transaction(txuid, nodeid, timestamp);
         em.persist(tx);
         em.getTransaction().commit();
 
-        if (threadReqMap.containsKey(threadId))
-        {
-            CORBARequestDetails corbaid = threadReqMap.remove(threadId);
+        if (threadReqMap.containsKey(threadId)) {
+            CORBARequestDetails corbaRequestDetails = threadReqMap.remove(threadId);
+            RequestRecord rec = retrieveOrCreate(corbaRequestDetails.getRequestId(), corbaRequestDetails.getIor(), txuid);
 
-            RequestRecord rec = null;
-            try
-            {
-                rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                        .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
-                        .getSingleResult();
-            }
-            catch (NoResultException e)
-            {
-                try
-                {
-                    em.getTransaction().begin();
-                    if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.begin - create request record");
-                    em.persist(new RequestRecord(corbaid.getRequestId(), nodeid, corbaid.getIor(), txuid));
-                    em.flush();
-                    em.getTransaction().commit();
-                }
-                catch (PersistenceException pe)
-                {
-                    if (logger.isTraceEnabled())
-                        logger.trace("HandlerService.begin - record already exists, retrieve");
+            // if rec == null we don't have enough information yet to establish the transaction hierarchy
+            if (rec != null) {
 
-                    if (em.getTransaction().isActive())
-                        em.getTransaction().rollback();
-
-                    // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
-                    try
-                    {
-                        rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                                .setParameter("requestid", corbaid.getRequestId()).setParameter("ior", corbaid.getIor())
-                                .getSingleResult();
-                    }
-                    catch (NoResultException nre)
-                    {
-                        // If we still can't find a record something else caused the PersistenceException!
-                        logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
-                    }
-                }
-            }
-
-            // rec == null => we just created a new record, therefore we don't have enough information to create
-            // the hierarchy yet.
-            if (rec != null)
-            {
                 em.getTransaction().begin();
                 if (logger.isTraceEnabled())
                     logger.trace("HandlerService.begin - retrieve subordinate");
@@ -221,10 +226,9 @@ public class HandlerService {
 
                 if (logger.isTraceEnabled())
                     logger.trace("HandlerService.begin - retrieve parent");
-                Transaction parent = findTransaction(rec.getNodeid(), txuid);
 
+                Transaction parent = findTransaction(rec.getNodeid(), txuid);
                 subordinate.setParent(parent);
-                em.flush();
 
                 if (logger.isTraceEnabled())
                     logger.trace("HandlerService.begin - remove record: "+rec);

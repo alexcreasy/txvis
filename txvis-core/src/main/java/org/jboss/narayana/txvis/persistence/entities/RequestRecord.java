@@ -1,6 +1,7 @@
 package org.jboss.narayana.txvis.persistence.entities;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -22,22 +23,24 @@ import javax.persistence.*;
                 query = "FROM RequestRecord r where r.requestid=:requestid AND r.ior=:ior"
         )
 })
-public class RequestRecord {
+@IdClass(RequestRecord.CompositePK.class)
+public class RequestRecord implements Serializable {
 
     @Id
     private Long requestid;
 
+    @Id
+    @Column(columnDefinition = "varchar(750)")
+    private String ior;
+
     @Column(nullable = false)
     private String nodeid;
-
-    @Column(nullable = false, columnDefinition = "text")
-    private String ior;
 
     @Column(nullable = true)
     private String txuid;
 
 
-    public RequestRecord() {}
+    protected RequestRecord() {}
 
     public RequestRecord(Long requestid, String nodeid, String ior) {
         this.nodeid = nodeid;
@@ -57,16 +60,8 @@ public class RequestRecord {
         return nodeid;
     }
 
-    public void setNodeid(String nodeid) {
-        this.nodeid = nodeid;
-    }
-
     public Long getRequestid() {
         return requestid;
-    }
-
-    public void setRequestid(Long requestid) {
-        this.requestid = requestid;
     }
 
     public String getTxuid() {
@@ -81,12 +76,59 @@ public class RequestRecord {
         return ior;
     }
 
-    public void setIor(String ior) {
-        this.ior = ior;
-    }
-
     @Override
     public String toString() {
         return "RequestRecord: nodeId="+nodeid+", requestId="+requestid+", ior="+ior+", txuid="+txuid;
+    }
+
+
+    /*
+     * Implements the composite key for RequestRecord. This is used to enforce
+     * the uniqueness constraint that no two RequestRecords should have identical
+     * requestid and ior. This allows us to handle the race condition where
+     * multiple
+     */
+    static class CompositePK implements Serializable {
+
+        private Long requestid;
+        private String ior;
+
+
+        public CompositePK() {}
+
+        public Long getRequestId() {
+            return requestid;
+        }
+        public void setRequestId(Long requestId) {
+            this.requestid = requestId;
+        }
+
+        public String getIor() {
+            return ior;
+        }
+
+        public void setIor(String ior) {
+            this.ior = ior;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this)
+                return true;
+
+            if (!(o instanceof CompositePK))
+                return false;
+
+            final CompositePK rec = (CompositePK) o;
+
+            return this.requestid.equals(rec.requestid) && this.ior.equals(rec.ior);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17 + requestid.hashCode();
+            result = 31 * result + ior.hashCode();
+            return result;
+        }
     }
 }
