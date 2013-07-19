@@ -55,48 +55,7 @@ public class HandlerService {
     private ParticipantRecordDAO participantRecordDAO;
 
     public void checkIfParent(String nodeid, Long requestId, String ior) {
-        RequestRecord rec = null;
-
-        try
-        {
-            rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                    .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
-        }
-        catch (NoResultException e)
-        {
-            try
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent - create request record");
-
-                em.getTransaction().begin();
-
-                    em.persist(new RequestRecord(requestId, nodeid, ior));
-                    em.flush();
-
-                em.getTransaction().commit();
-            }
-            catch (PersistenceException pe)
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("HandlerService.checkIfParent - request record already created, retrieve");
-
-                if (em.getTransaction().isActive())
-                    em.getTransaction().rollback();
-
-                // Race condition: Another node has created a record in the meantime, retrieve a fresh copy.
-                try
-                {
-                    rec = em.createNamedQuery("RequestRecord.findByRequestIdAndIOR", RequestRecord.class)
-                            .setParameter("requestid", requestId).setParameter("ior", ior).getSingleResult();
-                }
-                catch (NoResultException nre)
-                {
-                    // If we still can't find a record something else caused the PersistenceException!
-                    logger.error("Unable to retrieve RequestRecord after PersistenceException", pe);
-                }
-            }
-        }
+        RequestRecord rec = retrieveOrCreate(requestId, ior);
 
         // rec == null => we just created a new record, therefore we don't have enough information to create
         // the hierarchy yet.
