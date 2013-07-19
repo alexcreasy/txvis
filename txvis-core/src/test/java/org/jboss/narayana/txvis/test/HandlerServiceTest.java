@@ -12,7 +12,7 @@ import org.jboss.narayana.txvis.persistence.entities.Event;
 import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
-import org.jboss.narayana.txvis.persistence.enums.ResourceOutcome;
+import org.jboss.narayana.txvis.persistence.enums.Vote;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.test.utils.UniqueIdGenerator;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -85,20 +85,20 @@ public class HandlerServiceTest {
     public void beginTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
 
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
 
         assertNotNull("Transaction not created", tx);
         assertEquals("Incorrect txuid", txuid, tx.getTxuid());
-        assertEquals("Incorrect jbossNodeId", jbossNodeId, tx.getJbossNodeid());
+        assertEquals("Incorrect jbossNodeId", jbossNodeId, tx.getNodeid());
         assertEquals("Incorrect startTime", timestamp, tx.getStartTime());
     }
 
     @Test
     public void prepareTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.prepare(txuid, timestamp);
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
 
@@ -108,7 +108,7 @@ public class HandlerServiceTest {
     @Test
     public void phase2CommitTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.phase2Commit(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -120,7 +120,7 @@ public class HandlerServiceTest {
     @Test
     public void commitTx1PhaseTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.onePhaseCommit(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -132,7 +132,7 @@ public class HandlerServiceTest {
     @Test
     public void topLevelAbortTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.abort(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -144,7 +144,7 @@ public class HandlerServiceTest {
     @Test
     public void resourceDrivenAbortTxTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
         service.phase2Abort(txuid, timestamp);
 
         final Transaction tx = transactionDAO.retrieve(jbossNodeId, txuid);
@@ -156,7 +156,7 @@ public class HandlerServiceTest {
     @Test
     public void enlistResourceManagerTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         // Test that the service creates a new ResourceManager if it does not already exist
         final String jndiName1 = idGen.getUniqueJndiName();
@@ -182,14 +182,14 @@ public class HandlerServiceTest {
     @Test
     public void resourcePreparedTest() throws Exception {
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourcePrepared(txuid, jndiName, timestamp);
 
-        assertEquals("ParticipantRecord contained incorrect vote" , ResourceOutcome.COMMIT,
-                participantRecordDAO.retrieve(txuid, jndiName).getResourceOutcome());
+        assertEquals("ParticipantRecord contained incorrect vote" , Vote.COMMIT,
+                participantRecordDAO.retrieve(txuid, jndiName).getVote());
     }
 
     @Test
@@ -197,14 +197,14 @@ public class HandlerServiceTest {
         final String xaException = "XAER_RMERR";
 
         final String txuid = idGen.getUniqueTxId();
-        service.begin(txuid, timestamp);
+        service.begin(txuid, timestamp, null);
 
         final String jndiName = idGen.getUniqueJndiName();
         service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
         service.resourceFailedToPrepare(txuid, jndiName, xaException, timestamp);
 
-        assertEquals("ParticipantRecord contained incorrect vote" , ResourceOutcome.ABORT,
-                participantRecordDAO.retrieve(txuid, jndiName).getResourceOutcome());
+        assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
+                participantRecordDAO.retrieve(txuid, jndiName).getVote());
 
         assertEquals("ParticipantRecord contained incorrect XAException" , xaException,
                 participantRecordDAO.retrieve(txuid, jndiName).getXaException());

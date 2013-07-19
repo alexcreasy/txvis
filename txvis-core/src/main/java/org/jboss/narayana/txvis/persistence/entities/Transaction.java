@@ -12,11 +12,20 @@ import java.sql.Timestamp;
 import java.util.*;
 
 /**
+ *
+ *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 15/04/2013
  * Time: 14:09
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "Transaction.findByNodeidAndTxuid",
+            query = "SELECT t FROM Transaction t WHERE t.nodeid=:nodeid AND t.txuid=:txuid"),
+    @NamedQuery(name = "Transaction.findAllTopLevel", query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY"),
+    @NamedQuery(name = "Transaction.findAllTopLevelWithStatus",
+            query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY AND u.status=:status"),
+})
 public class Transaction implements Serializable {
 
     @Id
@@ -28,11 +37,7 @@ public class Transaction implements Serializable {
     @Enumerated(EnumType.STRING)
     private Status status = Status.IN_FLIGHT;
 
-    private boolean distributed;
-
-    private boolean topLevel;
-
-    private String jbossNodeid;
+    private String nodeid;
     private Long startTime;
     private Long endTime;
 
@@ -46,6 +51,30 @@ public class Transaction implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private Collection<Event> events = new LinkedList<>();
 
+
+    /*
+     * A join table is used to implement the parent / subordinate relationship
+     * rather than having a foreign key field on the subordinate, as it eliminates
+     * the need for any kind of database locking while monitoring a distributed
+     * transaction across multiple nodes.
+     */
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable (
+            name = "Transaction_Hierarchy",
+            joinColumns = {@JoinColumn(name="Parent_id")},
+            inverseJoinColumns = {@JoinColumn(name = "Subordinate_id")}
+    )
+    @Fetch(value = FetchMode.SUBSELECT) // Hibernate
+    private Collection<Transaction> subordinates = new HashSet<>();
+
+    @ManyToOne
+    @JoinTable (
+            name = "Transaction_Hierarchy",
+            joinColumns = {@JoinColumn(name="Subordinate_id", insertable = false, updatable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "Parent_id", insertable = false, updatable = false)}
+    )
+    private Transaction parent = null;
 
     // Restrict default constructor to EJB container
     protected Transaction() {}
@@ -78,17 +107,17 @@ public class Transaction implements Serializable {
 
         this.txuid = txuid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, jbossNodeid, timestamp));
+        events.add(new Event(this, EventType.BEGIN, nodeid, timestamp));
     }
 
-    public Transaction(String txuid, String jbossNodeid, Timestamp timestamp) {
+    public Transaction(String txuid, String nodeid, Timestamp timestamp) {
         if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
             throw new IllegalArgumentException("Illegal transactionId: " + txuid);
 
         this.txuid = txuid;
-        this.jbossNodeid = jbossNodeid;
+        this.nodeid = nodeid;
         setStartTime(timestamp);
-        events.add(new Event(this, EventType.BEGIN, jbossNodeid, timestamp));
+        events.add(new Event(this, EventType.BEGIN, nodeid, timestamp));
     }
 
     public Long getId() {
@@ -103,13 +132,15 @@ public class Transaction implements Serializable {
         return this.txuid;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isTopLevel() {
-        return topLevel;
+        return parent == null;
     }
 
-    public void setTopLevel(boolean topLevel) {
-        this.topLevel = topLevel;
-    }
+
 
     /**
      *
@@ -130,14 +161,14 @@ public class Transaction implements Serializable {
         Event e = null;
         switch (status) {
             case PREPARE:
-                e = new Event(this, EventType.PREPARE, jbossNodeid, timestamp);
+                e = new Event(this, EventType.PREPARE, nodeid, timestamp);
                 break;
             case COMMIT: case ONE_PHASE_COMMIT:
-                e = new Event(this, EventType.COMMIT, jbossNodeid, timestamp);
+                e = new Event(this, EventType.COMMIT, nodeid, timestamp);
                 setEndTime(timestamp);
                 break;
             case PHASE_ONE_ABORT: case PHASE_TWO_ABORT:
-                e = new Event(this, EventType.ABORT, jbossNodeid, timestamp);
+                e = new Event(this, EventType.ABORT, nodeid, timestamp);
                 setEndTime(timestamp);
                 break;
         }
@@ -149,31 +180,23 @@ public class Transaction implements Serializable {
      * @return
      */
     public boolean isDistributed() {
-        return distributed;
-    }
-
-    /**
-     *
-     * @param distributed
-     */
-    public void setDistributed(boolean distributed) {
-        this.distributed = distributed;
+        return parent != null || !subordinates.isEmpty();
     }
 
     /**
      *
      * @return
      */
-    public String getJbossNodeid() {
-        return jbossNodeid;
+    public String getNodeid() {
+        return nodeid;
     }
 
     /**
      *
      * @param nodeId
      */
-    public void setJbossNodeid(String nodeId) {
-        this.jbossNodeid = nodeId;
+    public void setNodeid(String nodeId) {
+        this.nodeid = nodeId;
     }
 
     /**
@@ -196,6 +219,10 @@ public class Transaction implements Serializable {
         return (endTime != null) ? new Timestamp(endTime) : null;
     }
 
+    /**
+     *
+     * @param timestamp
+     */
     private void setEndTime(Timestamp timestamp) {
         this.endTime = timestamp.getTime();
     }
@@ -220,10 +247,48 @@ public class Transaction implements Serializable {
      *
      * @return
      */
+    public Collection<Transaction> getSubordinates() {
+        return subordinates;
+    }
+
+    /**
+     *
+     * @param tx
+     */
+    public void addSubordinate(Transaction tx) {
+        this.subordinates.add(tx);
+        tx.parent = this;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Transaction getParent() {
+        return parent;
+    }
+
+    /**
+     *
+     * @param tx
+     */
+    public void setParent(Transaction tx) {
+        this.parent = tx;
+        tx.subordinates.add(this);
+    }
+
+    /**
+     *
+     * @return
+     */
     public Collection<Event> getEvents() {
         return events;
     }
 
+    /**
+     *
+     * @return
+     */
     public Collection<Event> getEventsInTemporalOrder() {
         //FIXME - Problem with hibernate compatibilty with JPA2.0 OrderBy annotation, this hack will probably
         //FIXME - incur a performance penalty
@@ -255,10 +320,31 @@ public class Transaction implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb
-            .append("Transaction: < tx_uid=`").append(txuid)
-            .append("`, nodeid=`").append(jbossNodeid)
-            .append("` >");
-        return sb.toString();
+        sb.append("Transaction: < tx_uid=`").append(txuid)
+                .append("`, nodeid=`").append(nodeid)
+                .append("`, parentNodeId=`").append(parent != null ? parent.nodeid : "null")
+                .append("`, status=`").append(status)
+                .append("`, subordinateNodeIds=`");
+
+        for (Transaction tx : subordinates)
+            sb.append(tx.nodeid).append(", ");
+
+        return sb.append("` >").toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + txuid.hashCode();
+        result = 31 * result + nodeid.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Transaction))
+            return false;
+        Transaction tx = (Transaction) obj;
+        return txuid.equals(tx.txuid) && nodeid.equals(tx.nodeid);
     }
 }

@@ -4,7 +4,9 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import javax.ejb.*;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceUnit;
 import java.io.Serializable;
 import java.util.List;
@@ -31,27 +33,31 @@ public class TransactionDAO implements Serializable{
     }
 
     public Transaction retrieve(Long primaryKeyId) throws NullPointerException {
-        return dao.retrieve(Transaction.class, primaryKeyId);
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.find(Transaction.class, primaryKeyId);
+        }
+        finally {
+            em.close();
+        }
     }
 
     public Transaction retrieve(String nodeid, String txuid) {
-        return dao.querySingle(Transaction.class, "FROM Transaction t WHERE t.jbossNodeid='"+nodeid+"' AND t.txuid='"+txuid+"'");
-    }
-
-    public List<Transaction> retrieveAllWithTxUID(String txuid) {
-        return dao.queryMultiple(Transaction.class, "FROM Transaction t WHERE t.txuid='"+txuid+"'");
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class).setParameter("nodeid", nodeid)
+                    .setParameter("txuid", txuid).getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
+        finally {
+            em.close();
+        }
     }
 
     public List<Transaction> retrieveAll() {
         return dao.queryMultiple(Transaction.class, "FROM Transaction t ORDER BY t.startTime");
-    }
-
-    public void update(Transaction tx) throws NullPointerException {
-        dao.update(tx);
-    }
-
-    public void delete(Transaction tx) throws NullPointerException {
-        dao.delete(tx);
     }
 
     public void deleteAll() {
@@ -59,7 +65,29 @@ public class TransactionDAO implements Serializable{
     }
 
     public List<Transaction> retrieveAllWithStatus(Status status) {
-        return dao.queryMultiple(Transaction.class, "FROM " + Transaction.class.getSimpleName() + " e WHERE status='" + status + "'");
+        return dao.queryMultiple(Transaction.class, "FROM " + Transaction.class.getSimpleName() + " e WHERE status='"
+                + status + "'");
+    }
+
+    public List<Transaction> findAllTopLevel() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createNamedQuery("Transaction.findAllTopLevel", Transaction.class).getResultList();
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    public List<Transaction> findAllTopLevelWithStatus(Status status) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createNamedQuery("Transaction.findAllTopLevelWithStatus", Transaction.class)
+                    .setParameter("status", status).getResultList();
+        }
+        finally {
+            em.close();
+        }
     }
 
 }

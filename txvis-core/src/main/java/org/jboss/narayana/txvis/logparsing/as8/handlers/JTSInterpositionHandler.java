@@ -10,7 +10,8 @@ import java.util.regex.Matcher;
 public class JTSInterpositionHandler extends JbossAS8AbstractHandler {
 
     private static final String REGEX = "Interposition(?:Server|Client)RequestInterceptorImpl::" +
-            "(?<METHOD>send_request|receive_request)\\s\\(\\screate\\s\\)\\snodeId=(?<NODEID>.*?)\\srequestId=(?<REQID>\\d+)";
+            "(?<METHOD>send_request|receive_request)\\s\\(\\screate\\s\\)\\snodeId=(?<NODEID>.*?)\\srequestId=(?<REQID>\\d+)" +
+            ".*?(?<IOR>IOR:[A-Z0-9]+)";
 
     // InterpositionServerRequestInterceptorImpl::receive_request ( create ) nodeId=server2 requestId=100
     // InterpositionClientRequestInterceptorImpl::send_request ( create ) nodeId=server1 requestId=100
@@ -23,10 +24,11 @@ public class JTSInterpositionHandler extends JbossAS8AbstractHandler {
     public void handle(Matcher matcher, String line) {
         switch (matcher.group("METHOD")) {
             case "send_request":
-                service.sendInterposition(matcher.group("NODEID"), Long.parseLong(matcher.group("REQID")));
+                service.checkIfParent(matcher.group("NODEID"), Long.parseLong(matcher.group("REQID")), matcher.group("IOR"));
                 break;
             case "receive_request":
-                service.receiveInterposition(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")));
+                service.associateThreadWithRequestId(matcher.group(THREAD_ID), Long.parseLong(matcher.group("REQID")),
+                        matcher.group("IOR"));
                 break;
         }
     }
