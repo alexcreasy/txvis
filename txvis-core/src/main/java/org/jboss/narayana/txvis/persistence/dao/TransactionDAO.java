@@ -45,7 +45,7 @@ public class TransactionDAO implements Serializable{
     public Transaction retrieve(String nodeid, String txuid) {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class).setParameter("nodeid", nodeid)
+            return em.createNamedQuery("Transaction.findNatural", Transaction.class).setParameter("nodeid", nodeid)
                     .setParameter("txuid", txuid).getSingleResult();
         }
         catch (NoResultException e) {

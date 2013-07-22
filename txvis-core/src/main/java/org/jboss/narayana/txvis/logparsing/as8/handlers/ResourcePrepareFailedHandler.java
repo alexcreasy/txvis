@@ -28,7 +28,7 @@ public class ResourcePrepareFailedHandler extends JbossAS8AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.resourceFailedToPrepare(matcher.group(TXUID), matcher.group("JNDINAME"), matcher.group("XAEXCEPTION"),
+        service.resourceFailedToPrepareJTA(matcher.group(TXUID), matcher.group("JNDINAME"), matcher.group("XAEXCEPTION"),
                 parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

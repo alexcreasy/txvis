@@ -13,8 +13,9 @@ import java.util.HashSet;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "ResourceManager.findByJndiName",
-                query = "FROM ResourceManager r WHERE r.jndiName=:jndiName"),
+        @NamedQuery(name = "ResourceManager.findAll",
+                    query = "FROM ResourceManager r"
+        )
 })
 public class ResourceManager implements Serializable {
 

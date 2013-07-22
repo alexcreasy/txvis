@@ -160,7 +160,7 @@ public class HandlerServiceTest {
 
         // Test that the service creates a new ResourceManager if it does not already exist
         final String jndiName1 = idGen.getUniqueJndiName();
-        service.enlistResourceManager(txuid, jndiName1, null, null, timestamp);
+        service.enlistResourceManagerJTA(txuid, jndiName1, null, null, timestamp);
         final ResourceManager rm1 = resourceManagerDAO.retrieve(jndiName1);
         assertNotNull("ResourceManager not created", rm1);
         assertEquals("ResourceManager contained incorrect Jndi name", jndiName1, rm1.getJndiName());
@@ -170,7 +170,7 @@ public class HandlerServiceTest {
         ResourceManager rm2 = new ResourceManager(jndiName2, null, null);
         resourceManagerDAO.create(rm2);
         assertNotNull("ResourceManager not created",resourceManagerDAO.retrieve(jndiName2));
-        service.enlistResourceManager(txuid, jndiName2, null, null, timestamp);
+        service.enlistResourceManagerJTA(txuid, jndiName2, null, null, timestamp);
         rm2 = resourceManagerDAO.retrieve(jndiName2);
         assertNotNull("ResourceManager not created", rm2);
         assertEquals("ResourceManager contained incorrect Jndi name", jndiName2, rm2.getJndiName());
@@ -185,8 +185,8 @@ public class HandlerServiceTest {
         service.begin(txuid, timestamp, null);
 
         final String jndiName = idGen.getUniqueJndiName();
-        service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
-        service.resourcePrepared(txuid, jndiName, timestamp);
+        service.enlistResourceManagerJTA(txuid, jndiName, null, null, timestamp);
+        service.resourcePreparedJTA(txuid, jndiName, timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" , Vote.COMMIT,
                 participantRecordDAO.retrieve(txuid, jndiName).getVote());
@@ -200,8 +200,8 @@ public class HandlerServiceTest {
         service.begin(txuid, timestamp, null);
 
         final String jndiName = idGen.getUniqueJndiName();
-        service.enlistResourceManager(txuid, jndiName, null, null, timestamp);
-        service.resourceFailedToPrepare(txuid, jndiName, xaException, timestamp);
+        service.enlistResourceManagerJTA(txuid, jndiName, null, null, timestamp);
+        service.resourceFailedToPrepareJTA(txuid, jndiName, xaException, timestamp);
 
         assertEquals("ParticipantRecord contained incorrect vote" , Vote.ABORT,
                 participantRecordDAO.retrieve(txuid, jndiName).getVote());

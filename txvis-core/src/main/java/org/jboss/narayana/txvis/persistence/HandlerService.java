@@ -46,14 +46,6 @@ public class HandlerService {
 
     private EntityManager em;
 
-    @EJB
-    private TransactionDAO transactionDAO;
-
-    @EJB
-    private ResourceManagerDAO resourceManagerDAO;
-
-    @EJB
-    private ParticipantRecordDAO participantRecordDAO;
 
     /*
      * These methods provide the logic for handling log lines output by
@@ -136,7 +128,7 @@ public class HandlerService {
 
         Transaction tx;
         try {
-            tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+            tx = em.createNamedQuery("Transaction.findNatural", Transaction.class)
                     .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
         }
         catch (NoResultException e) {
@@ -245,16 +237,8 @@ public class HandlerService {
     public void resourcePreparedJTS(String rmuid, Timestamp timestamp) {
         em.getTransaction().begin();
 
-        ParticipantRecord rec;
-        try {
-            rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class).setParameter("rmuid", rmuid)
-                    .getSingleResult();
-        }
-        catch (NoResultException e) {
-            logger.warn("HandlerService.resourcePreparedJTS: Could not retrieve ParticipantRecord for rmuid=`"+rmuid+"`");
-            return;
-        }
-
+        final ParticipantRecord rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
+                .setParameter("rmuid", rmuid).getSingleResult();
         rec.setResourceOutcome(Vote.COMMIT, timestamp);
 
         em.getTransaction().commit();
@@ -266,30 +250,20 @@ public class HandlerService {
      * @param rmJndiName
      * @param timestamp
      */
-    public void resourcePrepared(String txuid, String rmJndiName, Timestamp timestamp) {
+    public void resourcePreparedJTA(String txuid, String rmJndiName, Timestamp timestamp) {
+        em.getTransaction().begin();
 
-        final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
-
-        if (rec == null)
-            throw new IllegalStateException("HandlerService.resourcePrepared(), ParticipantRecord not found: " + txuid);
-
+        final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
         rec.setResourceOutcome(Vote.COMMIT, timestamp);
-        participantRecordDAO.update(rec);
+
+        em.getTransaction().commit();
     }
 
     public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
         em.getTransaction().begin();
 
-        ParticipantRecord rec;
-        try {
-            rec = em.createNamedQuery("ParticipantRecord.findByUID", ParticipantRecord.class)
+        final ParticipantRecord rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
                     .setParameter("rmuid", rmuid).getSingleResult();
-        }
-        catch (NoResultException e) {
-            logger.warn("HandlerService.resourceFailedToPrepareJTS: Could not retrieve ParticipantRecord for rmuid=`"
-                    + rmuid+"`");
-            return;
-        }
 
         rec.setResourceOutcome(Vote.ABORT, timestamp);
         rec.setXaException(xaException);
@@ -303,59 +277,36 @@ public class HandlerService {
      * @param rmJndiName
      * @param timestamp
      */
-    public void resourceFailedToPrepare(String txuid, String rmJndiName, String xaExceptionType, Timestamp timestamp) {
+    public void resourceFailedToPrepareJTA(String txuid, String rmJndiName, String xaExceptionType, Timestamp timestamp) {
+        em.getTransaction().begin();
 
-        final ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
-
-        if (rec == null) {
-            logger.warn("Could not retrieve, exitting");
-            return;
-        }
-
+        final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
         rec.setResourceOutcome(Vote.ABORT, timestamp);
         rec.setXaException(xaExceptionType);
-        participantRecordDAO.update(rec);
-    }
 
-    /**
-     *
-     * @param txuid
-     * @param rmJndiName
-     * @param rmProductName
-     * @param rmProductVersion
-     * @param timestamp
-     */
-    public void enlistResourceManagerByUID(String txuid, String rmuid, String rmJndiName, String rmProductName,
-                                           String rmProductVersion, Timestamp timestamp) {
-        Transaction tx;
-        try {
-            tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
-        }
-        catch (NoResultException e) {
-            logger.warn("HandlerService.enlistResourceManagerByUID: Unable to retrieve Transaction");
-            return;
-        }
-
-        ResourceManager rm;
-        try
-        {
-            rm = em.createNamedQuery("ResourceManager.findByJndiName" , ResourceManager.class)
-                    .setParameter("jndiName", rmJndiName).getSingleResult();
-        }
-        catch (NoResultException x)
-        {
-            rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
-            em.persist(rm);
-        }
-
-        em.getTransaction().begin();
-        final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
-        rec.setRmuid(rmuid);
-        em.persist(rec);
         em.getTransaction().commit();
     }
 
+    /**
+     *
+     * @param txuid
+     * @param rmJndiName
+     * @param rmProductName
+     * @param rmProductVersion
+     * @param timestamp
+     */
+    public void enlistResourceManagerJTS(String txuid, String rmuid, String rmJndiName, String rmProductName,
+                                         String rmProductVersion, Timestamp timestamp) {
+            em.getTransaction().begin();
+            final ResourceManager rm = retrieveOrCreateResourceManager(rmJndiName, rmProductName, rmProductVersion);
+            final Transaction tx = findTransaction(nodeid, txuid);
+            final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
+            rec.setRmuid(rmuid);
+            em.persist(rec);
+
+            em.getTransaction().commit();
+    }
+
 
     /**
      *
@@ -365,28 +316,17 @@ public class HandlerService {
      * @param rmProductVersion
      * @param timestamp
      */
-    public ParticipantRecord enlistResourceManager(String txuid, String rmJndiName, String rmProductName,
-                                                   String rmProductVersion, Timestamp timestamp) {
+    public void enlistResourceManagerJTA(String txuid, String rmJndiName, String rmProductName,
+                                                      String rmProductVersion, Timestamp timestamp) {
+        em.getTransaction().begin();
 
-        ParticipantRecord rec = participantRecordDAO.retrieve(txuid, rmJndiName);
+        final ResourceManager rm = retrieveOrCreateResourceManager(rmJndiName, rmProductName, rmProductVersion);
+        final Transaction tx = findTransaction(nodeid, txuid);
+        final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
 
-        if (rec != null) {
-            logger.error("ParticipantRecord already created: "+rec);
-        }
-        else {
-            ResourceManager rm = resourceManagerDAO.retrieve(rmJndiName);
-            if (rm == null) {
-                // Create the RM is it hasn't been enlisted before.
-                rm = new ResourceManager(rmJndiName, rmProductName, rmProductVersion);
-                resourceManagerDAO.create(rm);
-            }
+        em.persist(rec);
 
-            // Enlist the RM as a Participant of this transaction
-            rec = new ParticipantRecord(transactionDAO.retrieve(nodeid, txuid), rm, timestamp);
-        }
-
-        rec = participantRecordDAO.update(rec);
-        return rec;
+        em.getTransaction().commit();
     }
 
     /**
@@ -395,14 +335,7 @@ public class HandlerService {
      */
     public void cleanup(String txuid) {
 
-        Transaction tx = null;
-        try {
-            tx = em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
-                    .setParameter("nodeid", this.nodeid).setParameter("txuid", txuid).getSingleResult();
-        }
-        catch (NoResultException e) {
-            logger.warn("HandlerService.cleanup: Could not retrieve Transaction for nodeid=`"+nodeid+"`, txuid=`"+txuid+"`");
-        }
+        final Transaction tx = findTransaction(nodeid, txuid);
 
         if (tx != null && tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
             em.getTransaction().begin();
@@ -413,12 +346,21 @@ public class HandlerService {
     }
 
 
+
+
+    /*
+     * TODO: Temporary place for some data access methods, these should be refactored out of this class.
+     * Requires completion and integration of EntityManagerSession.
+     *
+     */
+
+
     private Transaction findTransaction(String nodeid, String txuid) {
         if (logger.isTraceEnabled())
             logger.trace(MessageFormat.format("HandlerService.findTransaction( `{0}`, `{1}` )", nodeid, txuid));
 
         try {
-            return em.createNamedQuery("Transaction.findByNodeidAndTxuid", Transaction.class)
+            return em.createNamedQuery("Transaction.findNatural", Transaction.class)
                     .setParameter("nodeid", nodeid).setParameter("txuid", txuid).getSingleResult();
         }
         catch (NoResultException e) {
@@ -426,8 +368,38 @@ public class HandlerService {
         }
     }
 
+    private ParticipantRecord findParticipantRecord(String nodeid, String txuid, String rmJndiName) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("HandlerService.findParticipantRecord( `{0}`, `{1}`, `{3}` )",
+                    nodeid, txuid, rmJndiName));
+
+        try {
+            return em.createNamedQuery("ParticipantRecord.findNatural", ParticipantRecord.class)
+                    .setParameter("nodeid", nodeid).setParameter("txuid", txuid).setParameter("jndiName", rmJndiName)
+                    .getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private ResourceManager retrieveOrCreateResourceManager(String jndiName, String productName, String productVersion) {
+        if (logger.isTraceEnabled())
+            logger.trace(MessageFormat.format("HandlerService.retrieveOrCreateResourceManager(( `{0}`, `{1}`, `{3}` )",
+                    jndiName, productName, productVersion));
+
+        ResourceManager rm = em.find(ResourceManager.class, jndiName);
+
+        if (rm == null) {
+            rm = new ResourceManager(jndiName, productName, productVersion);
+            em.persist(rm);
+        }
+
+        return rm;
+    }
+
     @AroundInvoke
-    public Object intercept(InvocationContext ctx) throws Exception {
+    private Object intercept(InvocationContext ctx) throws Exception {
         if (em == null || !em.isOpen())
             this.em = emf.createEntityManager();
 

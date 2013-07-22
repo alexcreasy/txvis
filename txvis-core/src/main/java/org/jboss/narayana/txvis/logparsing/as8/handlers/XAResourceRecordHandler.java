@@ -28,7 +28,7 @@ public class XAResourceRecordHandler extends JbossAS8AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.enlistResourceManager(matcher.group(TXUID),  matcher.group(RM_JNDI_NAME), matcher.group(RM_PRODUCT_NAME),
+        service.enlistResourceManagerJTA(matcher.group(TXUID), matcher.group(RM_JNDI_NAME), matcher.group(RM_PRODUCT_NAME),
                 matcher.group(RM_PRODUCT_VERSION), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

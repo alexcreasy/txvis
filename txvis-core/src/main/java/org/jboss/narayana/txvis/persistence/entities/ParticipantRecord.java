@@ -14,10 +14,28 @@ import java.sql.Timestamp;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "ParticipantRecord.findByUID", query = "FROM ParticipantRecord r WHERE r.rmuid=:rmuid"),
+        @NamedQuery(name = "ParticipantRecord.findNatural",
+                query = "FROM ParticipantRecord p WHERE p.transaction.nodeid=:nodeid AND p.transaction.txuid=:txuid " +
+                        "AND p.resourceManager.jndiName=:jndiName"
+        ),
+        @NamedQuery(name = "ParticipantRecord.findByRmuid",
+                    query = "FROM ParticipantRecord p WHERE p.rmuid=:rmuid"
+        ),
+        @NamedQuery(name = "ParticipantRecord.findAll",
+                    query = "FROM ParticipantRecord p"
+        ),
+        @NamedQuery(name = "ParticipantRecord.findAllForTransaction",
+                    query = "FROM ParticipantRecord p WHERE p.transaction.txuid=:txuid"
+        ),
+        @NamedQuery(name = "ParticipantRecord.findAllForProduct",
+                    query = "FROM ParticipantRecord p WHERE p.resourceManager.productName=:productName"
+        ),
 
+        //TODO Remove need for this query, then remove this query
         @NamedQuery(name = "ParticipantRecord.findByTxUIDandJndiName",
-                query = "FROM ParticipantRecord e WHERE e.transaction.txuid=:txuid AND e.resourceManager.jndiName=:jndiName"),
+                    query = "FROM ParticipantRecord e WHERE e.transaction.txuid=:txuid AND " +
+                            "e.resourceManager.jndiName=:jndiName"
+        ),
 })
 public class ParticipantRecord implements Serializable {
 

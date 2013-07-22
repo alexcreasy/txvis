@@ -20,11 +20,18 @@ import java.util.*;
  */
 @Entity
 @NamedQueries({
-    @NamedQuery(name = "Transaction.findByNodeidAndTxuid",
-            query = "SELECT t FROM Transaction t WHERE t.nodeid=:nodeid AND t.txuid=:txuid"),
-    @NamedQuery(name = "Transaction.findAllTopLevel", query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY"),
+    @NamedQuery(name = "Transaction.findNatural",
+                query = "SELECT t FROM Transaction t WHERE t.nodeid=:nodeid AND t.txuid=:txuid"
+    ),
+    @NamedQuery(name = "Transaction.findAll",
+                query = "SELECT t FROM Transaction t ORDER BY t.startTime"
+    ),
+    @NamedQuery(name = "Transaction.findAllTopLevel",
+                query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY"
+    ),
     @NamedQuery(name = "Transaction.findAllTopLevelWithStatus",
-            query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY AND u.status=:status"),
+                query = "SELECT u FROM Transaction u WHERE u.parent IS EMPTY AND u.status=:status"
+    ),
 })
 public class Transaction implements Serializable {
 

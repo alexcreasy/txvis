@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.webapp.models;
 
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -20,7 +21,7 @@ import java.util.Collection;
 public class TransactionListBean implements Serializable {
 
     @Inject
-    private TransactionDAO dao;
+    private DataAccessObject dao;
 
     private Collection<Transaction> transactionsList;
 
@@ -36,8 +37,8 @@ public class TransactionListBean implements Serializable {
 
     public void filter() {
         transactionsList = filterByStatus == null
-                ? dao.findAllTopLevel()
-                : dao.findAllTopLevelWithStatus(filterByStatus);
+                ? dao.findAllTopLevelTransactions()
+                : dao.findAllTopLevelTransactionsWithStatus(filterByStatus);
     }
 
     public void setFilterByStatus(Status status) {

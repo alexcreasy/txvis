@@ -1,5 +1,6 @@
 package org.jboss.narayana.txvis.webapp.models;
 
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 
@@ -23,7 +24,7 @@ public class TransactionInfoBean implements Serializable {
     private String txID;
 
     @Inject
-    private TransactionDAO dao;
+    private DataAccessObject dao;
 
     private Transaction tx;
 
@@ -43,6 +44,6 @@ public class TransactionInfoBean implements Serializable {
     }
 
     public void init() {
-        tx = dao.retrieve(Long.parseLong(getTxID()));
+        tx = dao.findTransaction(Long.parseLong(getTxID()));
     }
 }

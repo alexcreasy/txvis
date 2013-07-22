@@ -27,7 +27,7 @@ public class JTSResourceEnlistHandler extends JbossAS8AbstractHandler {
      */
     @Override
     public void handle(Matcher matcher, String line) {
-        service.enlistResourceManagerByUID(matcher.group(TXUID), matcher.group(RMUID), matcher.group(RM_JNDI_NAME),
+        service.enlistResourceManagerJTS(matcher.group(TXUID), matcher.group(RMUID), matcher.group(RM_JNDI_NAME),
                 matcher.group(RM_PRODUCT_NAME), matcher.group(RM_PRODUCT_VERSION), parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }
