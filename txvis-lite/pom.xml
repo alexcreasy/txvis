@@ -71,18 +71,6 @@
                             <port>10099</port>
                         </configuration>
                     </plugin>
-                    <plugin>
-                        <groupId>org.jboss.as.plugins</groupId>
-                        <artifactId>jboss-as-maven-plugin</artifactId>
-                        <version>${version.jboss.maven.plugin}</version>
-                        <configuration>
-                            <execCommands />
-                            <execute-commands />
-                            <filename>${project.artifactId}.ear</filename>
-                            <skip>false</skip>
-                            <port>10199</port>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
