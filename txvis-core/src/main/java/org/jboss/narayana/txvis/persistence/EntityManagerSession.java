@@ -13,32 +13,11 @@ import javax.persistence.PersistenceUnit;
  * is useful when not using container manager transactions (CMT) (txvis is unable to use
  * CMT as they are not available when using RESOURCE_LOCAL rather than JTA transactions.
  * Txvis is unable to use JTA transactions as the tool is monitoring transactions produced by
- * JBoss AS,
+ * JBoss AS, to use JTA transactions would not only spoil the data collected but also generally
+ * results in a recursive loop, whereby for every transaction txvis consumes, it produces
+ * another which is then consumed etc.
  *
  *
- * The following code snippet is an example of how this class should be used.
- * <code>
- *     @EJB
- *     private EntityManagerSession entityManagerSession;
- *     ...
- *     public void someMethod() {
- *
- *         EntityManager em = entityManagerSession.getEntityManager();
- *
- *         // null check is necessary to see if we're the top layer of the call
- *         if (em == null)
- *             em = entityManagerSession.createEntityManager();
- *
- *        // This part is **ESSENTIAL**
- *        try {
- *
- *            // Do something.
- *
- *        } finally {
- *            entityManagerSession.closeSession();
- *        }
- *     }
- * </code>
  *
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
  * Date: 22/07/2013

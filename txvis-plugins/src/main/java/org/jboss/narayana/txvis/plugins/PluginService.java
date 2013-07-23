@@ -1,11 +1,14 @@
 package org.jboss.narayana.txvis.plugins;
 
 import org.apache.log4j.Logger;
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.ejb.*;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 
 /**
@@ -23,22 +26,48 @@ public class PluginService {
 
     private Collection<Plugin> plugins = new LinkedList<>();
 
+    @Resource
+    private SessionContext ctx;
+
+    public static final long POLL_INTERVAL = 20000;
+
+    @EJB
+    private DataAccessObject dao;
 
     @PostConstruct
     protected void setup() {
 
-        for (Class<Plugin> c : PluginConfig.PLUGINS) {
+        for (Class<?> c : PluginConfig.PLUGINS) {
             try {
-                plugins.add(c.newInstance());
+                Plugin p = (Plugin) c.newInstance();
+                p.injectDAO(dao);
+                plugins.add(p);
             }
-            catch (InstantiationException | IllegalAccessException e) {
+            catch (InstantiationException | IllegalAccessException | ClassCastException e ) {
                 logger.error("PluginService.setup - unable to load plugin: "+c.getSimpleName(), e);
             }
         }
-
     }
 
     @PreDestroy
-    protected void tearDown() {}
+    protected void tearDown() {
+        for (Timer timer : ctx.getTimerService().getTimers())
+            timer.cancel();
+    }
+
+    @Schedule(minute = "*/2", hour = "*", persistent = true)
+    public void scanForIssues() {
+        for (Plugin p : plugins)
+            p.findIssues();
+    }
+
+    public Collection<Issue> getIssues() {
+        Collection<Issue> issues = new LinkedList<>();
+
+        for (Plugin p : plugins)
+            issues.addAll(p.getIssues());
+
+        return issues;
+    }
 
 }

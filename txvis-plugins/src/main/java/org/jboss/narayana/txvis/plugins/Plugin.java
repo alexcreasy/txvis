@@ -1,5 +1,7 @@
 package org.jboss.narayana.txvis.plugins;
 
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
+
 import java.util.Collection;
 
 /**
@@ -15,5 +17,9 @@ public interface Plugin {
 
     void tearDown();
 
-    Collection<Message> getMessages();
+    Collection<Issue> getIssues();
+
+    void findIssues();
+
+    void injectDAO(DataAccessObject dao);
 }
