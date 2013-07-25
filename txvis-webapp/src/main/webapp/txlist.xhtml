@@ -10,52 +10,77 @@
 </h:head>
 
 <h:body>
-   <div class="container">
+   <div class="container-fluid" id="content">
        <div class="page-header">
            <h1>Transaction Visualisation Tool</h1>
        </div>
-       <h:form class="form-inline">
-           <div>
-               <h4>Filter</h4>
-               <h:outputLabel for="filterByStatus" value="By Status: " />
-               <h:selectOneMenu id="filterByStatus" value="#{transactionListBean.filterByStatus}">
-                   <f:selectItem itemLabel="ALL" itemValue="" />
-                   <f:selectItems value="#{transactionListBean.statuses}" />
-                   <f:ajax render="txlist" event="change" execute="filterByStatus" />
-               </h:selectOneMenu>
+       <div class="row-fluid">
+           <div class="span8">
+               <h:form class="form-inline">
+                   <div>
+                       <h4>Filter</h4>
+                       <h:outputLabel for="filterByStatus" value="By Status: " />
+                       <h:selectOneMenu id="filterByStatus" value="#{transactionListBean.filterByStatus}">
+                           <f:selectItem itemLabel="ALL" itemValue="" />
+                           <f:selectItems value="#{transactionListBean.statuses}" />
+                           <f:ajax render="txlist" event="change" execute="filterByStatus" />
+                       </h:selectOneMenu>
+                   </div>
+                   <div>
+                       <h:dataTable value="#{transactionListBean.transactionsList}" id="txlist" var="transaction"
+                                    styleClass="table table-striped">
+                           <h:column>
+                               <f:facet name="header">Transaction ID</f:facet>
+                               <h:link value="#{transaction.txuid}" outcome="txinfo" >
+                                   <f:param name="includeViewParams" value="true" />
+                                   <f:param name="txid" value="#{transaction.id}" />
+                               </h:link>
+                           </h:column>
+                           <h:column>
+                               <f:facet name="header">Node</f:facet>
+                               #{transaction.nodeid}
+                           </h:column>
+                           <h:column>
+                               <f:facet name="header">Distributed</f:facet>
+                               #{transaction.distributed}
+                           </h:column>
+                           <h:column>
+                               <f:facet name="header">Status</f:facet>
+                               #{transaction.status}
+                           </h:column>
+                           <h:column>
+                               <f:facet name="header">Duration</f:facet>
+                               #{transaction.duration}ms
+                           </h:column>
+                       </h:dataTable>
+                   </div>
+               </h:form>
            </div>
-           <div>
-               <h:dataTable value="#{transactionListBean.transactionsList}" id="txlist" var="transaction"
-                            styleClass="table table-striped">
-                   <h:column>
-                       <f:facet name="header">Transaction ID</f:facet>
-                       <h:link value="#{transaction.txuid}" outcome="txinfo" >
-                           <f:param name="includeViewParams" value="true" />
-                           <f:param name="txid" value="#{transaction.id}" />
-                       </h:link>
-                   </h:column>
-                   <h:column>
-                       <f:facet name="header">Node</f:facet>
-                       #{transaction.nodeid}
-                   </h:column>
-                   <h:column>
-                       <f:facet name="header">Distributed</f:facet>
-                       #{transaction.distributed}
-                   </h:column>
-                   <h:column>
-                       <f:facet name="header">Status</f:facet>
-                       #{transaction.status}
-                   </h:column>
-                   <h:column>
-                       <f:facet name="header">Duration</f:facet>
-                       #{transaction.duration}ms
-                   </h:column>
-               </h:dataTable>
+           <div class="span4">
+               <ui:repeat value="#{transactionListBean.issues}" var="issue">
+                   <div class="alert alert-info">
+                       <button type="button" class="close" data-dismiss="alert">X</button>
+                       <p><strong><h:outputText value="#{issue.title}" escape="false" /></strong></p>
+                       <p><h:outputText value="#{issue.body}" escape="false" /></p>
+                   </div>
+               </ui:repeat>
            </div>
-       </h:form>
+       </div>
    </div>
 
     <h:outputScript library="js" name="jquery-1.9.1.min.js" />
     <h:outputScript library="js" name="bootstrap.min.js" />
+    <script>
+        var POLL_INTERVAL = 10000;
+        $(function() {
+            setInterval(
+                function() {
+                    $('#content').load(document.URL + ' #content');
+                    console.log(document.URL);
+                },
+                POLL_INTERVAL
+            )
+        })
+    </script>
 </h:body>
 </html>

@@ -6,6 +6,7 @@ import org.jboss.narayana.txvis.persistence.enums.Status;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 /**
@@ -15,7 +16,7 @@ import java.util.LinkedList;
  */
 public class LongTimeInFlightPlugin implements Plugin {
 
-    private Collection<Issue> issues = new LinkedList<>();
+    private Collection<Issue> issues = new HashSet<>();
 
     private DataAccessObject dao;
 
@@ -42,13 +43,14 @@ public class LongTimeInFlightPlugin implements Plugin {
 
     @Override
     public void findIssues() {
-        for (Transaction tx : dao.findAllWithStatus(Status.IN_FLIGHT)) {
+        for (Transaction tx : dao.findAllTopLevelTransactionsWithStatus(Status.COMMIT)) {
            if (tx.getDuration() > THRESHOLD) {
                Issue issue = new Issue();
                issue.setCause(tx);
                issue.setTitle("Transaction in flight " + tx.getDuration() + "ms");
                issue.setBody("Transaction: " + tx.getTxuid() + " has been in flight longer than the specified threshold, " +
                        "of "+THRESHOLD+"ms this may indicate it is stuck");
+               issue.parse();
                issues.add(issue);
            }
        }

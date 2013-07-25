@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.*;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -20,7 +21,7 @@ import java.util.LinkedList;
 @Startup
 @TransactionManagement(TransactionManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class PluginService {
+public class PluginService implements Serializable {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 

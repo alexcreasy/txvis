@@ -4,6 +4,8 @@ import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
+import org.jboss.narayana.txvis.plugins.Issue;
+import org.jboss.narayana.txvis.plugins.PluginService;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
@@ -22,6 +24,9 @@ public class TransactionListBean implements Serializable {
 
     @Inject
     private DataAccessObject dao;
+
+    @Inject
+    private PluginService pluginService;
 
     private Collection<Transaction> transactionsList;
 
@@ -59,5 +64,9 @@ public class TransactionListBean implements Serializable {
 
     public Status[] getStatuses() {
         return Status.values();
+    }
+
+    public Collection<Issue> getIssues() {
+        return pluginService.getIssues();
     }
 }
