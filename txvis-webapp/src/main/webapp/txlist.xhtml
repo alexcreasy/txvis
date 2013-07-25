@@ -29,7 +29,8 @@
 
                    <div id="transactions">
                        <h:dataTable value="#{transactionListBean.transactionsList}" id="txlist" var="transaction"
-                                    styleClass="table table-striped">
+                                    styleClass="table table-striped"
+                                    rendered="#{not empty transactionListBean.transactionsList}">
                            <h:column>
                                <f:facet name="header">Transaction ID</f:facet>
                                <h:link value="#{transaction.txuid}" outcome="txinfo" >
@@ -72,7 +73,7 @@
     <h:outputScript library="js" name="jquery-1.9.1.min.js" />
     <h:outputScript library="js" name="bootstrap.min.js" />
     <script>
-        var POLL_INTERVAL = 10000;
+        var POLL_INTERVAL = 5000;
         $(function() {
             setInterval(
                 function() {
