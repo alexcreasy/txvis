@@ -22,7 +22,7 @@ public class WedgedTxPlugin implements Plugin {
             " this may indicate that the transaction is wedged (stuck)";
 
     public static final String[] TAGS = new String[] {
-        "Transaction", "Wedged"
+        "Wedged"
     };
 
     private Set<Issue> issues = new HashSet<>();
