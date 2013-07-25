@@ -7,10 +7,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.*;
+import javax.ejb.Timer;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -56,14 +55,14 @@ public class PluginService implements Serializable {
             timer.cancel();
     }
 
-    @Schedule(minute = "*/2", hour = "*", persistent = true)
+    //@Schedule(minute = "*/2", hour = "*", persistent = true)
     public void scanForIssues() {
         for (Plugin p : plugins)
             p.findIssues();
     }
 
-    public Collection<Issue> getIssues() {
-        Collection<Issue> issues = new LinkedList<>();
+    public Set<Issue> getIssues() {
+        Set<Issue> issues = new HashSet<>();
 
         for (Plugin p : plugins)
             issues.addAll(p.getIssues());

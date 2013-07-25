@@ -25,9 +25,6 @@ public class TransactionListBean implements Serializable {
     @Inject
     private DataAccessObject dao;
 
-    @Inject
-    private PluginService pluginService;
-
     private Collection<Transaction> transactionsList;
 
     private Status filterByStatus;
@@ -64,9 +61,5 @@ public class TransactionListBean implements Serializable {
 
     public Status[] getStatuses() {
         return Status.values();
-    }
-
-    public Collection<Issue> getIssues() {
-        return pluginService.getIssues();
     }
 }

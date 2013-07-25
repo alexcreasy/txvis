@@ -13,7 +13,7 @@
         <class>org.jboss.narayana.txvis.persistence.entities.RequestRecord</class>
             <properties>
                 <!-- Properties for Hibernate -->
-                <property name="hibernate.hbm2ddl.auto" value="create" />
+                <property name="hibernate.hbm2ddl.auto" value="validate" />
                 <property name="hibernate.show_sql" value="false" />
                 <property name="hibernate.format_sql" value="false" />
                 <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>

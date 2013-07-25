@@ -13,7 +13,7 @@ public final class PluginConfig {
     public static final Collection<Class<?>> PLUGINS = new LinkedList<>();
 
     static {
-        PLUGINS.add(LongTimeInFlightPlugin.class);
+        PLUGINS.add(WedgedTxPlugin.class);
     }
 
 }

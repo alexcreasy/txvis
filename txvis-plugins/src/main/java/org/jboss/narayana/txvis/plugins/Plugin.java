@@ -2,7 +2,7 @@ package org.jboss.narayana.txvis.plugins;
 
 import org.jboss.narayana.txvis.persistence.DataAccessObject;
 
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -11,13 +11,11 @@ import java.util.Collection;
  */
 public interface Plugin {
 
-    long getPollInterval();
-
     void setup();
 
     void tearDown();
 
-    Collection<Issue> getIssues();
+    Set<Issue> getIssues();
 
     void findIssues();
 

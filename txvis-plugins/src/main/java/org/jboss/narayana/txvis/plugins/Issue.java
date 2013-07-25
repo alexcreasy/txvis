@@ -5,6 +5,9 @@ import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,8 @@ public class Issue implements Serializable {
     private String body;
     private boolean read;
     private Transaction cause;
+
+    private Set<String> tags = new HashSet<>();
 
     public Issue() {}
 
@@ -42,7 +47,7 @@ public class Issue implements Serializable {
         return read;
     }
 
-    public void setRead(boolean read) {
+    public void markAsRead(boolean read) {
         this.read = read;
     }
 
@@ -54,25 +59,12 @@ public class Issue implements Serializable {
         this.cause = cause;
     }
 
-    public String getShortenedTxUID() {
-        String txuid = cause.getTxuid();
-        return MessageFormat.format("...{0}", txuid.substring(txuid.length() - 5, txuid.length()));
+    public void addTag(String tag) {
+        tags.add(tag);
     }
 
-
-    public void parse() {
-        Pattern p = Pattern.compile(cause.getTxuid());
-
-        Matcher m = p.matcher(body);
-
-        if (m.find()) {
-            body = m.replaceAll(getReplacementString());
-        }
-    }
-
-    private String getReplacementString() {
-        return MessageFormat.format("<a href=\"/txvis/txinfo.jsf?includeViewParams=true&amp;txid={0}\">{1}</a>",
-                cause.getId(), getShortenedTxUID());
+    public Set<String> getTags() {
+        return Collections.unmodifiableSet(tags);
     }
 
 
@@ -80,7 +72,6 @@ public class Issue implements Serializable {
     public int hashCode() {
         int result = 17;
         result = result + 37 * title.hashCode();
-        result = result + 37 * body.hashCode();
         result = result + 37 * cause.hashCode();
         return result;
     }
@@ -94,6 +85,6 @@ public class Issue implements Serializable {
             return false;
 
         final Issue i = (Issue) obj;
-        return title.equals(i.title) && body.equals(i.body) && cause.equals(i.cause);
+        return title.equals(i.title) && cause.equals(i.cause);
     }
 }
