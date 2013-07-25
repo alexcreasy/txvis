@@ -8,10 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,13 +62,10 @@ public class IssueParserBean implements Serializable {
 
         Pattern p = Pattern.compile(txuid);
         Matcher m = p.matcher(issue.getBody());
-        //System.err.println("txuid="+txuid+", shortTxuid="+shortTxuid+", issue.getBody="+issue.getBody());
         StringBuilder sb = new StringBuilder();
 
         if (m.find())
             sb.append(m.replaceAll(MessageFormat.format(TXUID_LINK_FORMAT, issue.getCause().getId(), shortTxuid)));
-
-        System.err.println(sb.toString());
 
         sb.append("<p>- ").append(produceForumLink(issue)).append("</p>");
         issue.setBody(sb.toString());
