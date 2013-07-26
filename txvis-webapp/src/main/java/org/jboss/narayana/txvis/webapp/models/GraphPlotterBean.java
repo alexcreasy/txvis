@@ -1,9 +1,14 @@
 package org.jboss.narayana.txvis.webapp.models;
 
+import com.google.gson.Gson;
+import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 
 import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -16,7 +21,42 @@ import java.util.List;
  */
 @Named
 @RequestScoped
-public class GraphPlotterBean {
+public class GraphPlotterBean implements Serializable {
+
+    @ManagedProperty(value="#{param.txid}")
+    private String txID;
+
+    @Inject
+    private DataAccessObject dao;
+
+    private Transaction tx;
+
+    private Gson gson = new Gson();
+
+    public String getTxID() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        this.txID = facesContext.getExternalContext().
+                getRequestParameterMap().get("txid");
+        return this.txID;
+    }
+
+    public void setTxID(String txID) {
+        this.txID = txID;
+    }
+
+    public Transaction getTransaction() {
+        return tx;
+    }
+
+    public void init() {
+        tx = dao.findTransaction(Long.parseLong(getTxID()));
+    }
+
+    public String getJsonGraph() {
+        return gson.toJson(Node.populateNewInstance(tx));
+    }
+
+
 
     public static class Node implements Serializable {
 
