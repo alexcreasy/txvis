@@ -93,12 +93,14 @@ public class GraphPlotterBean implements Serializable {
             current.id = String.valueOf(tx.getId());
             current.name = tx.getNodeid();
 
+            // Populate this transaction's participants
             for (ParticipantRecord rec : tx.getParticipantRecords()) {
                 Node participant = new Node(rec.getResourceManager().getJndiName(),
                         rec.getResourceManager().getProductName());
                 current.children.add(participant);
             }
 
+            // Recursively populate the tree with subordinates.
             for (Transaction subordinate : tx.getSubordinates())
                 populate(current, subordinate);
         }

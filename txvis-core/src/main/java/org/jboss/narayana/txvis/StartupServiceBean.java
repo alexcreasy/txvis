@@ -25,9 +25,9 @@ import java.io.File;
  *
  * As with all EJBs used in Txvis, transaction management MUST be disabled as
  * below. This application is monitoring the transactions produced on the
- * server it's deployed on so as well as dirtying the data the tool will collect,
- * it can cause a recursive loop, which will rapidly result in the JVM running
- * out of memory!
+ * server it's deployed on so, as well as dirtying the data the tool will collect,
+ * it can cause a recursive loop, whereby txvis spawns a new transaction for
+ * every transaction it reads.
  */
 
 @Singleton
@@ -53,6 +53,8 @@ public class StartupServiceBean {
         System.setProperty(Configuration.NODEID_SYS_PROP_NAME,
                 arjPropertyManager.getCoreEnvironmentBean().getNodeIdentifier());
 
+        System.setProperty("ARJ_DEFAULT_TIMEOUT", String.valueOf(
+                arjPropertyManager.getCoordinatorEnvironmentBean().getDefaultTimeout()));
 
         if (logger.isInfoEnabled()) {
             logger.info("TxVis: JBoss Transaction Visualization Tool");

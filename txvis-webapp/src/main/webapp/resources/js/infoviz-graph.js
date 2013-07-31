@@ -1,7 +1,8 @@
 /*
 
- * The below code is a publicly available example **taken in its entirety** from the InfoVis examples
+ * The below code is a publicly available example from the InfoVis examples
  * page at: http://philogb.github.io/jit/static/v20/Jit/Examples/Spacetree/example1.js
+ * This code has had some very minor modifications made.
  *
  */
 

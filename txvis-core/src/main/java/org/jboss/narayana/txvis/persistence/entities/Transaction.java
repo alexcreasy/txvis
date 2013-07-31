@@ -23,6 +23,9 @@ import java.util.*;
     @NamedQuery(name = "Transaction.findNatural",
                 query = "FROM Transaction t WHERE t.nodeid=:nodeid AND t.txuid=:txuid"
     ),
+    @NamedQuery(name = "Transaction.findTopLevel",
+                query = "FROM Transaction t WHERE t.txuid=:txuid AND t.parent IS EMPTY"
+    ),
     @NamedQuery(name = "Transaction.findAll",
                 query = "FROM Transaction t ORDER BY t.startTime"
     ),
