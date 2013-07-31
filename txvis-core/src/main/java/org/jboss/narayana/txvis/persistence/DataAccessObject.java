@@ -57,6 +57,11 @@ public class DataAccessObject implements Serializable {
         return em.createNamedQuery("Transaction.findAll", Transaction.class).getResultList();
     }
 
+    public Collection<Transaction> findAllWithStatus(Status status) {
+        return em.createNamedQuery("Transaction.findAllWithStatus", Transaction.class).setParameter("status", status)
+                .getResultList();
+    }
+
     public Collection<Transaction> findAllTopLevelTransactions() {
         return em.createNamedQuery("Transaction.findAllTopLevel", Transaction.class).getResultList();
     }
@@ -110,7 +115,7 @@ public class DataAccessObject implements Serializable {
         return em.find(ResourceManager.class, jndiName);
     }
 
-    public Collection<ResourceManager> findAll() {
+    public Collection<ResourceManager> findAllResourceManagers() {
         return em.createNamedQuery("ResourceManager.findAll", ResourceManager.class).getResultList();
     }
 

@@ -10,10 +10,10 @@ import java.util.LinkedList;
  */
 public final class PluginConfig {
 
-    public static final Collection<Class<Plugin>> PLUGINS = new LinkedList<>();
+    public static final Collection<Class<?>> PLUGINS = new LinkedList<>();
 
     static {
-        // PLUGINS.add();
+        PLUGINS.add(WedgedTxPlugin.class);
     }
 
 }

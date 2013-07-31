@@ -25,7 +25,7 @@
             <user-name>txvis</user-name>
             <password>txvis</password>
         </security>
-        <!--<transaction-isolation>TRANSACTION_SERIALIZABLE</transaction-isolation>-->
+        <transaction-isolation>TRANSACTION_READ_UNCOMMITTED</transaction-isolation>
     </datasource>
     <!--<xa-datasource jndi-name="java:jboss/datasources/txvisDS" pool-name="txvisDS" enabled="true" use-java-context="true">-->
         <!--<xa-datasource-property name="ServerName">localhost</xa-datasource-property>-->

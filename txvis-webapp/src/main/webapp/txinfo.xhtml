@@ -15,7 +15,13 @@
         <div class="page-header">
             <h1>Transaction Visualisation Tool</h1>
         </div>
-        <p><h:link value="&#171; Transaction List" outcome="txlist" /></p>
+        <p>
+            <h:link value="&#171; Transaction List" outcome="txlist" /> |
+            <h:link value="Parent" outcome="txinfo" rendered="#{transactionInfoBean.transaction.parent != null}">
+                <f:param name="includeViewParams" value="true" />
+                <f:param name="txid" value="#{transactionInfoBean.transaction.parent.id}" />
+            </h:link>
+        </p>
         <hr />
         <div>
             <h3>Transaction Information</h3>
@@ -31,7 +37,7 @@
                 <dt>Start Time: </dt>
                 <dd>#{transactionInfoBean.transaction.startTime}</dd>
                 <dt>End Time: </dt>
-                <dd>#{transactionInfoBean.transaction.endTime}</dd>
+                <dd>#{transactionInfoBean.transaction.endTime != null ? transactionInfoBean.transaction.endTime : "-"}</dd>
                 <dt>Duration: </dt>
                 <dd>#{transactionInfoBean.transaction.duration}ms</dd>
             </dl>
@@ -39,46 +45,56 @@
         <hr />
         <div>
             <h3>Enlisted Participants</h3>
-            <h4>Resources</h4>
-            <h:dataTable value="#{transactionInfoBean.transaction.participantRecords}" var="rec"
-                         styleClass="table table-striped">
-                <h:column>
-                    <f:facet name="header">Jndi Name</f:facet>
-                    #{rec.resourceManager.jndiName}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Product Name</f:facet>
-                    #{rec.resourceManager.productName}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Product Version</f:facet>
-                   #{rec.resourceManager.productVersion}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Vote</f:facet>
-                    #{rec.vote}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">XAException</f:facet>
-                    #{rec.xaException}
-                </h:column>
-            </h:dataTable>
-            <h4>Subordinate Transactions</h4>
-            <h:dataTable value="#{transactionInfoBean.transaction.subordinates}" var="tx"
-                         styleClass="table table-striped">
-                <h:column>
-                    <f:facet name="header">Node ID</f:facet>
-                    <h:link value="#{tx.nodeid}" outcome="txinfo" >
-                        <f:param name="includeViewParams" value="true" />
-                        <f:param name="txid" value="#{tx.id}" />
-                    </h:link>
 
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Outcome</f:facet>
-                    #{tx.status}
-                </h:column>
-            </h:dataTable>
+            <h4>Resources</h4>
+            <h:outputText value="No enlisted resources"
+                          rendered="#{empty transactionInfoBean.transaction.participantRecords}" />
+                <h:dataTable value="#{transactionInfoBean.transaction.participantRecords}" var="rec"
+                             styleClass="table table-striped"
+                             rendered="#{not empty transactionInfoBean.transaction.participantRecords}">
+                    <h:column>
+                        <f:facet name="header">Jndi Name</f:facet>
+                        #{rec.resourceManager.jndiName}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Product Name</f:facet>
+                        #{rec.resourceManager.productName}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Product Version</f:facet>
+                       #{rec.resourceManager.productVersion}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Vote</f:facet>
+                        #{rec.vote}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">XAException</f:facet>
+                        #{rec.xaException}
+                    </h:column>
+                </h:dataTable>
+
+            <h:panelGroup layout="block" rendered="#{transactionInfoBean.transaction.distributed}">
+                <h4>Subordinate Transactions</h4>
+                <h:outputText value="No subordinate transaction"
+                              rendered="#{empty transactionInfoBean.transaction.subordinates}" />
+                <h:dataTable value="#{transactionInfoBean.transaction.subordinates}" var="tx"
+                             styleClass="table table-striped"
+                             rendered="#{not empty transactionInfoBean.transaction.subordinates}">
+                    <h:column>
+                        <f:facet name="header">Node ID</f:facet>
+                        <h:link value="#{tx.nodeid}" outcome="txinfo" >
+                            <f:param name="includeViewParams" value="true" />
+                            <f:param name="txid" value="#{tx.id}" />
+                        </h:link>
+
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Outcome</f:facet>
+                        #{tx.status}
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
         </div>
         <hr />
         <div>
@@ -100,7 +116,13 @@
             </h:dataTable>
         </div>
         <hr />
-        <p><h:link value="&#171; Transaction List" outcome="txlist" /></p>
+        <p>
+            <h:link value="&#171; Transaction List" outcome="txlist" /> |
+            <h:link value="Parent" outcome="txinfo" rendered="#{transactionInfoBean.transaction.parent != null}">
+                <f:param name="includeViewParams" value="true" />
+                <f:param name="txid" value="#{transactionInfoBean.transaction.parent.id}" />
+            </h:link>
+        </p>
         <hr />
     </div>
 

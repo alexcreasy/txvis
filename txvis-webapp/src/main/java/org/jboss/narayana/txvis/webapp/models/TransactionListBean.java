@@ -4,6 +4,8 @@ import org.jboss.narayana.txvis.persistence.DataAccessObject;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.Transaction;
 import org.jboss.narayana.txvis.persistence.enums.Status;
+import org.jboss.narayana.txvis.plugins.Issue;
+import org.jboss.narayana.txvis.plugins.PluginService;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;

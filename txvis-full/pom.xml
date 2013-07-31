@@ -28,6 +28,11 @@
             <artifactId>txvis-core</artifactId>
             <type>ejb</type>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.narayana</groupId>
+            <artifactId>txvis-plugins</artifactId>
+            <type>ejb</type>
+        </dependency>
     </dependencies>
 
     <build>
