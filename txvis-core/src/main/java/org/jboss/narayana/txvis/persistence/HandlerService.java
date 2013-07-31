@@ -235,13 +235,28 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourcePreparedJTS(String rmuid, Timestamp timestamp) {
-        em.getTransaction().begin();
+        try {
+            em.getTransaction().begin();
 
-        final ParticipantRecord rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
-                .setParameter("rmuid", rmuid).getSingleResult();
-        rec.setResourceOutcome(Vote.COMMIT, timestamp);
+            ParticipantRecord rec = null;
+            try {
+                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
+                        .setParameter("rmuid", rmuid).getSingleResult();
+            }
+            catch (NoResultException e) {
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+            }
 
-        em.getTransaction().commit();
+            rec.setResourceOutcome(Vote.COMMIT, timestamp);
+
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolled Back");
+        }
     }
 
     /**
@@ -251,24 +266,51 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourcePreparedJTA(String txuid, String rmJndiName, Timestamp timestamp) {
-        em.getTransaction().begin();
+        try {
+            em.getTransaction().begin();
 
-        final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
-        rec.setResourceOutcome(Vote.COMMIT, timestamp);
+            final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
 
-        em.getTransaction().commit();
+            if (rec == null) {
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+            }
+
+            rec.setResourceOutcome(Vote.COMMIT, timestamp);
+
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolled Back");
+        }
     }
 
     public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
-        em.getTransaction().begin();
+        try {
+            em.getTransaction().begin();
 
-        final ParticipantRecord rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
-                    .setParameter("rmuid", rmuid).getSingleResult();
+            ParticipantRecord rec = null;
+            try {
+                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
+                        .setParameter("rmuid", rmuid).getSingleResult();
+            }
+            catch (NoResultException e) {
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+            }
 
-        rec.setResourceOutcome(Vote.ABORT, timestamp);
-        rec.setXaException(xaException);
+            rec.setResourceOutcome(Vote.ABORT, timestamp);
+            rec.setXaException(xaException);
 
-        em.getTransaction().commit();
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolled Back");
+        }
     }
 
     /**
@@ -278,13 +320,26 @@ public class HandlerService {
      * @param timestamp
      */
     public void resourceFailedToPrepareJTA(String txuid, String rmJndiName, String xaExceptionType, Timestamp timestamp) {
-        em.getTransaction().begin();
+        try {
+            em.getTransaction().begin();
 
-        final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
-        rec.setResourceOutcome(Vote.ABORT, timestamp);
-        rec.setXaException(xaExceptionType);
+            final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
 
-        em.getTransaction().commit();
+            if (rec == null) {
+                em.getTransaction().rollback();
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+            }
+
+            rec.setResourceOutcome(Vote.ABORT, timestamp);
+            rec.setXaException(xaExceptionType);
+
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolledback");
+        }
     }
 
     /**
@@ -297,14 +352,25 @@ public class HandlerService {
      */
     public void enlistResourceManagerJTS(String txuid, String rmuid, String rmJndiName, String rmProductName,
                                          String rmProductVersion, Timestamp timestamp) {
+        try {
             em.getTransaction().begin();
             final ResourceManager rm = retrieveOrCreateResourceManager(rmJndiName, rmProductName, rmProductVersion);
             final Transaction tx = findTransaction(nodeid, txuid);
+
+            // Error condition which usually only occurs when the tool is deployed mid transaction
+            if (tx == null)
+                em.getTransaction().rollback();
+
             final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
             rec.setRmuid(rmuid);
             em.persist(rec);
 
             em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Unable to find transaction");
+        }
     }
 
 
@@ -318,15 +384,26 @@ public class HandlerService {
      */
     public void enlistResourceManagerJTA(String txuid, String rmJndiName, String rmProductName,
                                                       String rmProductVersion, Timestamp timestamp) {
-        em.getTransaction().begin();
+        try {
+            em.getTransaction().begin();
 
-        final ResourceManager rm = retrieveOrCreateResourceManager(rmJndiName, rmProductName, rmProductVersion);
-        final Transaction tx = findTransaction(nodeid, txuid);
-        final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
+            final ResourceManager rm = retrieveOrCreateResourceManager(rmJndiName, rmProductName, rmProductVersion);
+            final Transaction tx = findTransaction(nodeid, txuid);
 
-        em.persist(rec);
+            // Error condition which usually only occurs when the tool is deployed mid transaction
+            if (tx == null)
+                em.getTransaction().rollback();
 
-        em.getTransaction().commit();
+            final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
+
+            em.persist(rec);
+
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Unable to find transaction");
+        }
     }
 
     /**
