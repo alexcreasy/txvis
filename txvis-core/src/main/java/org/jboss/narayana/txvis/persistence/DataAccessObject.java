@@ -10,10 +10,7 @@ import javax.ejb.*;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -49,6 +46,14 @@ public class DataAccessObject implements Serializable {
                     .setParameter("txuid", txuid).getSingleResult();
         }
         catch (NoResultException nre) {
+            return null;
+        }
+    }
+    public Transaction findTopLevelTransaction(String txuid) {
+        try {
+            return em.createNamedQuery("Transaction.findTopLevel", Transaction.class).setParameter("txuid", txuid)
+                    .getSingleResult();
+        } catch (NoResultException | NonUniqueResultException e) {
             return null;
         }
     }
@@ -95,14 +100,18 @@ public class DataAccessObject implements Serializable {
         return em.createNamedQuery("ParticipantRecord.findAll", ParticipantRecord.class).getResultList();
     }
 
-    public Collection<ParticipantRecord> findAllForTransaction(String txuid) {
+    public Collection<ParticipantRecord> findAllParticipantRecordsForTransaction(String txuid) {
         return em.createNamedQuery("ParticipantRecord.findAllForTransaction", ParticipantRecord.class)
                 .setParameter("txuid", txuid).getResultList();
     }
 
-    public Collection<ParticipantRecord> findAllForProduct(String productName) {
+    public Collection<ParticipantRecord> findAllParticipantRecordsForProduct(String productName) {
         return em.createNamedQuery("ParticipantRecord.findAllForProduct", ParticipantRecord.class)
                 .setParameter("productName", productName).getResultList();
+    }
+
+    public Collection<ParticipantRecord> findAllParticipantRecordsForTransactionThrowingAnException(String txuid) {
+        return null;
     }
 
 

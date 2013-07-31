@@ -23,6 +23,9 @@ import java.util.*;
     @NamedQuery(name = "Transaction.findNatural",
                 query = "FROM Transaction t WHERE t.nodeid=:nodeid AND t.txuid=:txuid"
     ),
+    @NamedQuery(name = "Transaction.findTopLevel",
+                query = "FROM Transaction t WHERE t.txuid=:txuid AND t.parent IS EMPTY"
+    ),
     @NamedQuery(name = "Transaction.findAll",
                 query = "FROM Transaction t ORDER BY t.startTime"
     ),
@@ -96,10 +99,6 @@ public class Transaction implements Serializable {
      * @throws IllegalArgumentException
      */
     public Transaction(String txuid) throws NullPointerException, IllegalArgumentException {
-
-        if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
-            throw new IllegalArgumentException("Illegal transactionId: " + txuid);
-
         this.txuid = txuid;
     }
 
@@ -111,19 +110,12 @@ public class Transaction implements Serializable {
      * @throws IllegalArgumentException
      */
     public Transaction(String txuid, Timestamp timestamp) throws NullPointerException, IllegalArgumentException {
-
-        if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
-            throw new IllegalArgumentException("Illegal transactionId: " + txuid);
-
         this.txuid = txuid;
         setStartTime(timestamp);
         events.add(new Event(this, EventType.BEGIN, nodeid, timestamp));
     }
 
     public Transaction(String txuid, String nodeid, Timestamp timestamp) {
-        if (!txuid.matches(AbstractHandler.PATTERN_TXUID))
-            throw new IllegalArgumentException("Illegal transactionId: " + txuid);
-
         this.txuid = txuid;
         this.nodeid = nodeid;
         setStartTime(timestamp);
