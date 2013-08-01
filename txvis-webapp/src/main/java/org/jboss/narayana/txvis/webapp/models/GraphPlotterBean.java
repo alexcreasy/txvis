@@ -11,8 +11,10 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -53,7 +55,7 @@ public class GraphPlotterBean implements Serializable {
     }
 
     public String getJsonGraph() {
-        return gson.toJson(Node.populateNewInstance(tx));
+        return gson.toJson(Node.getInstance(tx));
     }
 
 
@@ -62,7 +64,7 @@ public class GraphPlotterBean implements Serializable {
 
         private String id;
         private String name;
-        private String[] data = new String[0];
+        private Map<String, String> data = new HashMap<>();
         private List<Node> children = new LinkedList<>();
 
 
@@ -74,7 +76,7 @@ public class GraphPlotterBean implements Serializable {
         }
 
 
-        public static Node populateNewInstance(Transaction tx)  {
+        public static Node getInstance(Transaction tx)  {
             Node parent = new Node();
             populate(parent, tx);
             return parent;
@@ -92,11 +94,17 @@ public class GraphPlotterBean implements Serializable {
 
             current.id = String.valueOf(tx.getId());
             current.name = tx.getNodeid();
+            current.data.put("isResource", "false");
 
             // Populate this transaction's participants
             for (ParticipantRecord rec : tx.getParticipantRecords()) {
                 Node participant = new Node(rec.getResourceManager().getJndiName(),
                         rec.getResourceManager().getProductName());
+
+                participant.data.put("isResource", "true");
+                participant.data.put("vote", rec.getVote().toString());
+                participant.data.put("xaException", rec.getXaException());
+
                 current.children.add(participant);
             }
 
