@@ -35,7 +35,8 @@ public class IssueParserBean implements Serializable {
     public Collection<Issue> getUnreadIssues() {
         pluginService.scanForIssues();
         updateIssues();
-        // JSF doesn't support iterating over a set
+
+        // facelets don't support iterating over a set
         return new LinkedList<>(unreadIssues);
     }
 

@@ -1,11 +1,8 @@
 /*
-
- * The below code is a publicly available example from the InfoVis examples
- * page at: http://philogb.github.io/jit/static/v20/Jit/Examples/Spacetree/example1.js
- * This code has had some very minor modifications made.
- *
+ * The below code has is taken from the publicly available example at:
+ * http://philogb.github.io/jit/static/v20/Jit/Examples/Spacetree/example1.js
+ * with very minor modification.
  */
-
 
 var labelType, useGradients, nativeTextSupport, animate;
 
@@ -42,7 +39,7 @@ function init(){
         //set node and edge styles
         //set overridable=true for styling individual
         //nodes or edges
-        offsetX: 250, offsetY: 50,
+        offsetX: 250,
         constrained: false,
         levelDistance: 50,
         //enable panning
@@ -54,10 +51,10 @@ function init(){
         //set overridable=true for styling individual
         //nodes or edges
         Node: {
-            height: 40,
-            width: 60,
             type: 'rectangle',
             color: '#aaa',
+            autoWidth: true,
+            autoHeight: true,
             overridable: true
         },
 
@@ -72,23 +69,15 @@ function init(){
         onCreateLabel: function(label, node){
             label.id = node.id;
             label.innerHTML = node.name;
-            label.onclick = function(){
-                if(normal.checked) {
-                    st.onClick(node.id);
-                } else {
-                    st.setRoot(node.id, 'animate');
-
-                }
-            };
             //set label styles
             var style = label.style;
-            style.width = 60 + 'px';
-            style.height = 17 + 'px';
+            
             style.cursor = 'pointer';
             style.color = '#333';
             style.fontSize = '0.8em';
             style.textAlign= 'center';
-            style.paddingTop = '3px';
+            style.paddingTop = '7px';
+            style.paddingLeft = '22px';
             style.zIndex = '1000';
         },
 
@@ -98,22 +87,18 @@ function init(){
         //The data properties prefixed with a dollar
         //sign will override the global node style properties.
         onBeforePlotNode: function(node){
-            //add some color to the nodes in the path between the
-            //root node and the selected node.
-            if (node.selected) {
-                node.data.$color = "#ff7";
+
+            if (node.data.isResource == 'true') {
+               node.data.$type = 'ellipse';
+               node.data.$color = '#d9edf7';
             }
-            else {
-                delete node.data.$color;
-                //if the node belongs to the last plotted level
-                if(!node.anySubnode("exist")) {
-                    //count children number
-                    var count = 0;
-                    node.eachSubnode(function(n) { count++; });
-                    //assign a node color based on
-                    //how many children it has
-                    node.data.$color = ['#aaa', '#baa', '#caa', '#daa', '#eaa', '#faa'][count];
-                }
+
+            if (node.data.vote == 'COMMIT') {
+                node.data.$color = '#468847';
+            }
+
+            if (node.data.xaException) {
+                node.data.$color = '#b94a48';
             }
         },
 

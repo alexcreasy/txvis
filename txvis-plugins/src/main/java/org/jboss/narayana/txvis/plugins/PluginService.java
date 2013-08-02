@@ -57,8 +57,10 @@ public class PluginService implements Serializable {
 
     //@Schedule(minute = "*/2", hour = "*", persistent = true)
     public void scanForIssues() {
+
         for (Plugin p : plugins)
             p.findIssues();
+
     }
 
     public Set<Issue> getIssues() {

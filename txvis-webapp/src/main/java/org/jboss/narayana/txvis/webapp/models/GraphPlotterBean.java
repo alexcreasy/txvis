@@ -52,6 +52,9 @@ public class GraphPlotterBean implements Serializable {
 
     public void init() {
         tx = dao.findTransaction(Long.parseLong(getTxID()));
+        // Ensure we have the root transaction
+        if (tx.getParent() != null)
+            tx = dao.findTopLevelTransaction(tx.getTxuid());
     }
 
     public String getJsonGraph() {

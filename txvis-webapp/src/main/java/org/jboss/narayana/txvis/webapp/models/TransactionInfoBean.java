@@ -10,6 +10,8 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @Author Alex Creasy &lt;a.r.creasy@newcastle.ac.uk$gt;
@@ -41,6 +43,15 @@ public class TransactionInfoBean implements Serializable {
 
     public Transaction getTransaction() {
         return tx;
+    }
+
+    public List<Transaction> getReverseHierarchy() {
+        List<Transaction> result = new LinkedList<>();
+
+        for (Transaction tx = this.tx.getParent(); tx != null; tx = tx.getParent())
+            result.add(0, tx);
+
+        return result;
     }
 
     public void init() {
