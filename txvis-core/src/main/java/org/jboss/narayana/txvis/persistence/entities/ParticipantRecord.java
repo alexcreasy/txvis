@@ -157,14 +157,11 @@ public class ParticipantRecord implements Serializable {
 
         Event e = null;
         switch (vote) {
-            case PREPARE:
+            case ONE_PHASE_COMMIT: case COMMIT:
                 e = new Event(EventType.PREPARE, resourceManager.getJndiName(), timestamp);
                 break;
-            case ONE_PHASE_COMMIT: case COMMIT:
-                e = new Event(EventType.COMMIT, resourceManager.getJndiName(), timestamp);
-                break;
             case ABORT:
-                e = new Event(EventType.ABORT, resourceManager.getJndiName(), timestamp);
+                e = new Event(EventType.PREPARE_FAILED, resourceManager.getJndiName(), timestamp);
                 break;
         }
         transaction.addEvent(e);

@@ -28,14 +28,15 @@ public final class Configuration {
      */
     public static final Class[] LOG_HANDLERS = new Class[] {
             BasicActionHandler.class,
-            XAResourceRecordHandler.class,
-            ResourcePrepareFailedHandler.class,
-            XAResourceRecordTopLevelPrepareHandler.class,
-            JTSResourceEnlistHandler.class,
+            JTACreateResourceRecordHandler.class,
+            JTAResourceExceptionHandler.class,
+            JTAResourceRecordHandler.class,
+            JTSCreateResourceRecordHandler.class,
             JTSResourceExceptionHandler.class,
-            JTSResourcePrepareHandler.class,
+            JTSResourceRecordHandler.class,
             JTSInterpositionHandler.class,
             ArjunaTransactionImpleHandler.class,
+            TxPrepareFailedHandler.class,
     };
 
     public static final Class[] LOG_FILTERS = new Class[] {

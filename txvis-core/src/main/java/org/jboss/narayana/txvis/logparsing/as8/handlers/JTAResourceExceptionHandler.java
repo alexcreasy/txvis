@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
  * Date: 27/04/2013
  * Time: 20:34
  */
-public class ResourcePrepareFailedHandler extends JbossAS8AbstractHandler {
+public class JTAResourceExceptionHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
@@ -17,7 +17,7 @@ public class ResourcePrepareFailedHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
-    public ResourcePrepareFailedHandler() {
+    public JTAResourceExceptionHandler() {
         super(REGEX);
     }
 

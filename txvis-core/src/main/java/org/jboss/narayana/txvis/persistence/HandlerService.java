@@ -6,10 +6,8 @@ import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
 import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
 import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
 import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
-import org.jboss.narayana.txvis.persistence.entities.RequestRecord;
-import org.jboss.narayana.txvis.persistence.entities.ParticipantRecord;
-import org.jboss.narayana.txvis.persistence.entities.ResourceManager;
-import org.jboss.narayana.txvis.persistence.entities.Transaction;
+import org.jboss.narayana.txvis.persistence.entities.*;
+import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
 import org.jboss.narayana.txvis.persistence.enums.Vote;
 
@@ -83,7 +81,9 @@ public class HandlerService {
      * @param timestamp
      */
     public void prepare(String txuid, Timestamp timestamp) {
+        em.getTransaction().begin();
         setStatus(txuid, Status.PREPARE, timestamp);
+        em.getTransaction().commit();
     }
 
     /**
@@ -92,7 +92,9 @@ public class HandlerService {
      * @param timestamp
      */
     public void phase2Commit(String txuid, Timestamp timestamp) {
+        em.getTransaction().begin();
         setStatus(txuid, Status.COMMIT, timestamp);
+        em.getTransaction().commit();
     }
 
     /**
@@ -101,7 +103,9 @@ public class HandlerService {
      * @param timestamp
      */
     public void onePhaseCommit(String txuid, Timestamp timestamp) {
+        em.getTransaction().begin();
         setStatus(txuid, Status.ONE_PHASE_COMMIT, timestamp);
+        em.getTransaction().commit();
     }
 
     /**
@@ -110,7 +114,9 @@ public class HandlerService {
      * @param timestamp
      */
     public void abort(String txuid, Timestamp timestamp) {
+        em.getTransaction().begin();
         setStatus(txuid, Status.PHASE_ONE_ABORT, timestamp);
+        em.getTransaction().commit();
     }
 
     /**
@@ -119,13 +125,26 @@ public class HandlerService {
      * @param timestamp
      */
     public void phase2Abort(String txuid, Timestamp timestamp) {
+        em.getTransaction().begin();
         setStatus(txuid, Status.PHASE_TWO_ABORT, timestamp);
+        em.getTransaction().commit();
+    }
+
+    /**
+     *
+     * @param txuid
+     * @param timestamp
+     */
+    public void txPrepareFailed(String txuid, Timestamp timestamp) {
+        em.getTransaction().begin();
+        Transaction tx = findTransaction(this.nodeid, txuid);
+        tx.addEvent(new Event(EventType.PREPARE_FAILED, this.nodeid, timestamp));
+        em.getTransaction().commit();
+
     }
 
 
     private void setStatus(String txuid, Status status, Timestamp timestamp){
-        em.getTransaction().begin();
-
         Transaction tx;
         try {
             tx = em.createNamedQuery("Transaction.findNatural", Transaction.class)
@@ -138,7 +157,6 @@ public class HandlerService {
         }
 
         tx.setStatus(status, timestamp);
-        em.getTransaction().commit();
     }
 
 
@@ -339,6 +357,40 @@ public class HandlerService {
         catch (RollbackException e) {
             if (logger.isTraceEnabled())
                 logger.trace("Transaction Rolledback");
+        }
+    }
+
+    public void resourceCommitOrAbortJTS(String rmuid, EventType eventType, Timestamp timestamp) {
+        try {
+            em.getTransaction().begin();
+
+            ParticipantRecord rec = null;
+            try {
+                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
+                        .setParameter("rmuid", rmuid).getSingleResult();
+            }
+            catch (NoResultException e) {
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+            }
+
+            switch (eventType) {
+                case COMMIT:
+                    rec.getTransaction().addEvent(new Event(EventType.COMMIT, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case ABORT:
+                    rec.getTransaction().addEvent(new Event(EventType.ABORT, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+            }
+
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolled Back");
         }
     }
 

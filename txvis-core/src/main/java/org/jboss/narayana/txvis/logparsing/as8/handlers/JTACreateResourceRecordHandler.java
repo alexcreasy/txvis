@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
  * Date: 28/04/2013
  * Time: 22:43
  */
-public class XAResourceRecordHandler extends JbossAS8AbstractHandler {
+public class JTACreateResourceRecordHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
@@ -17,7 +17,7 @@ public class XAResourceRecordHandler extends JbossAS8AbstractHandler {
     /**
      *
      */
-    public XAResourceRecordHandler() {
+    public JTACreateResourceRecordHandler() {
         super(REGEX);
     }
 
