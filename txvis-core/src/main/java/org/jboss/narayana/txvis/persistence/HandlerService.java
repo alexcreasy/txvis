@@ -3,9 +3,6 @@ package org.jboss.narayana.txvis.persistence;
 import org.apache.log4j.Logger;
 import org.jboss.narayana.txvis.Configuration;
 import org.jboss.narayana.txvis.interceptors.LoggingInterceptor;
-import org.jboss.narayana.txvis.persistence.dao.ParticipantRecordDAO;
-import org.jboss.narayana.txvis.persistence.dao.ResourceManagerDAO;
-import org.jboss.narayana.txvis.persistence.dao.TransactionDAO;
 import org.jboss.narayana.txvis.persistence.entities.*;
 import org.jboss.narayana.txvis.persistence.enums.EventType;
 import org.jboss.narayana.txvis.persistence.enums.Status;
@@ -267,7 +264,8 @@ public class HandlerService {
                 em.getTransaction().rollback();
             }
 
-            rec.setResourceOutcome(Vote.COMMIT, timestamp);
+            rec.getTransaction().addEvent(new Event(EventType.PREPARE, rec.getResourceManager().getJndiName(), timestamp));
+            rec.setPrepareCalled(true);
 
             em.getTransaction().commit();
         }
@@ -295,7 +293,7 @@ public class HandlerService {
                 em.getTransaction().rollback();
             }
 
-            rec.setResourceOutcome(Vote.COMMIT, timestamp);
+            rec.setVote(Vote.COMMIT, timestamp);
 
             em.getTransaction().commit();
         }
@@ -320,7 +318,7 @@ public class HandlerService {
                 em.getTransaction().rollback();
             }
 
-            rec.setResourceOutcome(Vote.ABORT, timestamp);
+            rec.setVote(Vote.ABORT, timestamp);
             rec.setXaException(xaException);
 
             em.getTransaction().commit();
@@ -349,7 +347,7 @@ public class HandlerService {
                     logger.trace("Unable to find ParticipantRecord");
             }
 
-            rec.setResourceOutcome(Vote.ABORT, timestamp);
+            rec.setVote(Vote.ABORT, timestamp);
             rec.setXaException(xaExceptionType);
 
             em.getTransaction().commit();
@@ -374,6 +372,9 @@ public class HandlerService {
                     logger.trace("Unable to find ParticipantRecord");
                 em.getTransaction().rollback();
             }
+
+            if (rec.isPrepareCalled() && rec.getXaException() == null)
+                rec.setVote(Vote.COMMIT, timestamp);
 
             switch (eventType) {
                 case COMMIT:

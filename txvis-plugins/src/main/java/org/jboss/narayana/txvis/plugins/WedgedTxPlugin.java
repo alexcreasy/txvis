@@ -18,8 +18,8 @@ public class WedgedTxPlugin implements Plugin {
 
     public static final String TITLE = "Possible Wedged Transaction";
 
-    public static final String BODY = "Transaction: {0} has been in flight longer than the default timeout value of {1}ms" +
-            " this may indicate that the transaction is wedged (stuck)";
+    public static final String BODY = "Transaction: {0} has been in status prepare longer than the default timeout value of " +
+            "{1}ms this may indicate that the transaction is wedged (stuck)";
 
     public static final String[] TAGS = new String[] {
         "Wedged"
@@ -45,7 +45,7 @@ public class WedgedTxPlugin implements Plugin {
 
     @Override
     public void findIssues() {
-        for (Transaction tx : dao.findAllTopLevelTransactionsWithStatus(Status.IN_FLIGHT)) {
+        for (Transaction tx : dao.findAllTopLevelTransactionsWithStatus(Status.PREPARE)) {
            if (tx.getDuration() > THRESHOLD) {
                Issue issue = new Issue();
                issue.setCause(tx);

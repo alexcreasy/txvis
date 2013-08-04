@@ -31,21 +31,15 @@ function init(){
         injectInto: 'infovis',
         //set duration for the animation
         duration: 800,
-        //set animation transition type
         transition: $jit.Trans.Quart.easeInOut,
-        //set distance between node and its children
         levelsToShow: 30,
-//        align: 'left',
-        //set node and edge styles
-        //set overridable=true for styling individual
-        //nodes or edges
-        offsetX: 250,
+        offsetX: 350,
         constrained: false,
         levelDistance: 50,
         //enable panning
         Navigation: {
-            enable:true,
-            panning:true
+            enable:false,
+            panning:false
         },
         //set node and edge styles
         //set overridable=true for styling individual
@@ -53,8 +47,8 @@ function init(){
         Node: {
             type: 'rectangle',
             color: '#aaa',
-            autoWidth: true,
-            autoHeight: true,
+            height: 40,
+            width: 150,
             overridable: true
         },
 
@@ -71,13 +65,14 @@ function init(){
             label.innerHTML = node.name;
             //set label styles
             var style = label.style;
-            
+
             style.cursor = 'pointer';
             style.color = '#333';
             style.fontSize = '0.8em';
             style.textAlign= 'center';
-            style.paddingTop = '7px';
-            style.paddingLeft = '22px';
+            style.width = 150 + 'px';
+            style.height = 20 + 'px';
+            style.paddingTop = '10px';
             style.zIndex = '1000';
         },
 

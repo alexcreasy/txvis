@@ -57,6 +57,8 @@ public class ParticipantRecord implements Serializable {
     @Enumerated(EnumType.STRING)
     private Vote vote = Vote.UNKNOWN;
 
+    private boolean prepareCalled;
+
 
     // Restrict default constructor to EJB container
     protected ParticipantRecord() {}
@@ -152,21 +154,21 @@ public class ParticipantRecord implements Serializable {
      * @param vote
      * @throws NullPointerException
      */
-    public void setResourceOutcome(Vote vote, Timestamp timestamp) {
+    public void setVote(Vote vote, Timestamp timestamp) {
         this.vote = vote;
 
-        Event e = null;
-        switch (vote) {
-            case ONE_PHASE_COMMIT: case COMMIT:
-                e = new Event(EventType.PREPARE, resourceManager.getJndiName(), timestamp);
-                break;
-            case ABORT:
-                e = new Event(EventType.PREPARE_FAILED, resourceManager.getJndiName(), timestamp);
-                break;
+        if (Vote.ABORT.equals(vote)) {
+            transaction.addEvent(new Event(EventType.PREPARE_FAILED, resourceManager.getJndiName(), timestamp));
         }
-        transaction.addEvent(e);
     }
 
+    public boolean isPrepareCalled() {
+        return prepareCalled;
+    }
+
+    public void setPrepareCalled(boolean prepareCalled) {
+        this.prepareCalled = prepareCalled;
+    }
 
     /**
      *
