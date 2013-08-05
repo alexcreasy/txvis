@@ -48,6 +48,9 @@ public class LogMonitorBean {
     @Resource
     private SessionContext sessionContext;
 
+    @EJB
+    private StartupServiceBean startupServiceBean;
+
     /**
      * Starts asynchronously monitoring the logfile which must have been set by invoking the
      * setFile method. This method is non-blocking and control will be returned immediately to
@@ -72,6 +75,9 @@ public class LogMonitorBean {
                 // be a large majority of cases. The stop method should be invoked through the
                 // containers proxies.
                 sessionContext.getBusinessObject(LogMonitorBean.class).stop();
+
+                // Attempt to restart the logger.
+                startupServiceBean.startLogParser();
             }
         }
     }

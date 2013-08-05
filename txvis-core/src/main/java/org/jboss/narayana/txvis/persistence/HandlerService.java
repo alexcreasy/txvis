@@ -538,6 +538,10 @@ public class HandlerService {
         try {
             o = ctx.proceed();
         }
+
+        catch (Throwable t) {
+            logger.warn("HandlerService.intercept: Unhandled Exception", t);
+        }
         finally {
             em.close();
         }

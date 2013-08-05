@@ -68,6 +68,10 @@ public class StartupServiceBean {
             logger.info("");
         }
 
+        startLogParser();
+    }
+
+    public void startLogParser() {
         /*
          * FIXME The logfile is currently hardwired to "server.log" in the Jboss logfile directory.
          * Ideally this should be able to be overridden by giving a system property to the application server.

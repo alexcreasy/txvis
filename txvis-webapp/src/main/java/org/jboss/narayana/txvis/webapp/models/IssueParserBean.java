@@ -47,8 +47,9 @@ public class IssueParserBean implements Serializable {
     private void updateIssues() {
         Set<Issue> latestIssues = pluginService.getIssues();
 
-        // Perform relative complement of set readIssues in latestIssues to get unread issues.
-        //latestIssues.removeAll(readIssues);
+        // Ditch any issues which are no longer valid
+        unreadIssues.retainAll(latestIssues);
+        // Don't parse any issues a second time.
         latestIssues.removeAll(unreadIssues);
 
         for (Issue issue : latestIssues)
@@ -67,6 +68,8 @@ public class IssueParserBean implements Serializable {
 
         if (m.find())
             sb.append(m.replaceAll(MessageFormat.format(TXUID_LINK_FORMAT, issue.getCause().getId(), shortTxuid)));
+        else
+            sb.append(issue.getBody());
 
         sb.append("<p>- ").append(produceForumLink(issue)).append("</p>");
         issue.setBody(sb.toString());

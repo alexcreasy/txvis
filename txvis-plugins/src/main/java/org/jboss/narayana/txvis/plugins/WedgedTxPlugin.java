@@ -45,6 +45,8 @@ public class WedgedTxPlugin implements Plugin {
 
     @Override
     public void findIssues() {
+        Set<Issue> newIssues = new HashSet<>();
+
         for (Transaction tx : dao.findAllTopLevelTransactionsWithStatus(Status.PREPARE)) {
            if (tx.getDuration() > THRESHOLD) {
                Issue issue = new Issue();
@@ -54,9 +56,13 @@ public class WedgedTxPlugin implements Plugin {
                for (String tag : TAGS)
                    issue.addTag(tag);
 
-               issues.add(issue);
+               newIssues.add(issue);
            }
        }
+        // The below operations ensure that 1) we don't create duplicate issues and
+        // 2) We don't overwrite any existing issues which may have been parsed already.
+        issues.retainAll(newIssues);
+        issues.addAll(newIssues);
     }
 
     @Override
