@@ -71,9 +71,10 @@ public class TransactionInfoBean implements Serializable {
     public void init() {
 
         if (getTxID() != null) {
-
+            tx = dao.findTransaction(Long.parseLong(getTxID()));
         }
-
-        tx = dao.findTransaction(Long.parseLong(getTxID()));
+        else if (getTxUID() != null) {
+            tx = dao.findTopLevelTransaction(getTxUID());
+        }
     }
 }

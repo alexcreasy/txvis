@@ -28,6 +28,9 @@ public class GraphPlotterBean implements Serializable {
     @ManagedProperty(value="#{param.txid}")
     private String txID;
 
+    @ManagedProperty(value="#{param.txuid}")
+    private String txUID;
+
     @Inject
     private DataAccessObject dao;
 
@@ -42,8 +45,19 @@ public class GraphPlotterBean implements Serializable {
         return this.txID;
     }
 
+    public String getTxUID() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        this.txUID = facesContext.getExternalContext().
+                getRequestParameterMap().get("txuid");
+        return this.txUID;
+    }
+
     public void setTxID(String txID) {
         this.txID = txID;
+    }
+
+    public void setTxUID(String txUID) {
+        this.txUID = txUID;
     }
 
     public Transaction getTransaction() {
@@ -51,10 +65,14 @@ public class GraphPlotterBean implements Serializable {
     }
 
     public void init() {
+        if (getTxUID() != null)
+            tx = dao.findTopLevelTransaction(getTxUID());
+        else if (getTxID() != null) {
         tx = dao.findTransaction(Long.parseLong(getTxID()));
         // Ensure we have the root transaction
         if (tx.getParent() != null)
             tx = dao.findTopLevelTransaction(tx.getTxuid());
+        }
     }
 
     public String getJsonGraph() {
