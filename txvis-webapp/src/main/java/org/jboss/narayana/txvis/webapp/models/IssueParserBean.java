@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @Named
 public class IssueParserBean implements Serializable {
 
-    public static final String TXUID_LINK_FORMAT = "<a href=\"/txvis/txinfo.jsf?includeViewParams=true&amp;txid={0}\">{1}</a>";
+    public static final String TXUID_LINK_FORMAT = "<a href=\"/txvis/txinfo.jsf?includeViewParams=true&amp;txuid={0}\">{1}</a>";
     public static final String FORUM_LINK_FORMAT = "<a href=\"https://community.jboss.org/search.jspa?q={0}&containerType=14" +
             "&container=2040\">Search JBoss forums for help</a>";
 
@@ -54,15 +54,19 @@ public class IssueParserBean implements Serializable {
     }
 
     private void parseIssue(Issue issue) {
-        final String txuid = issue.getCause().getTxuid();
-        final String shortTxuid = MessageFormat.format("...{0}", txuid.substring(txuid.length() - 5, txuid.length()));
+        final String pattern = "(?<TXUID>(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
 
-        Pattern p = Pattern.compile(txuid);
+
+        Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(issue.getBody());
         StringBuilder sb = new StringBuilder();
 
-        if (m.find())
-            sb.append(m.replaceAll(MessageFormat.format(TXUID_LINK_FORMAT, issue.getCause().getId(), shortTxuid)));
+        if (m.find()) {
+            final String txuid = m.group("TXUID");
+            final String shortTxuid = MessageFormat.format("...{0}", txuid.substring(txuid.length() - 5, txuid.length()));
+
+            sb.append(m.replaceAll(MessageFormat.format(TXUID_LINK_FORMAT, txuid, shortTxuid)));
+        }
         else
             sb.append(issue.getBody());
 
