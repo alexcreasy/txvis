@@ -14,6 +14,7 @@ public final class PluginConfig {
 
     static {
         PLUGINS.add(WedgedTxPlugin.class);
+        PLUGINS.add(RMRollbackPlugin.class);
     }
 
 }

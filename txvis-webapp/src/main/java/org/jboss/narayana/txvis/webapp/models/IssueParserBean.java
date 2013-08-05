@@ -29,33 +29,28 @@ public class IssueParserBean implements Serializable {
     @Inject
     private PluginService pluginService;
 
-    private Set<Issue> unreadIssues = new HashSet<>();
-    private Set<Issue> readIssues = new HashSet<>();
+    private Set<Issue> issues = new HashSet<>();
 
-    public Collection<Issue> getUnreadIssues() {
+    public Collection<Issue> getIssues() {
         pluginService.scanForIssues();
         updateIssues();
 
         // facelets don't support iterating over a set
-        return new LinkedList<>(unreadIssues);
-    }
-
-    public void markAllIssuesUnread() {
-        //unreadIssues.addAll(readIssues);
+        return new LinkedList<>(issues);
     }
 
     private void updateIssues() {
         Set<Issue> latestIssues = pluginService.getIssues();
 
         // Ditch any issues which are no longer valid
-        unreadIssues.retainAll(latestIssues);
+        issues.retainAll(latestIssues);
         // Don't parse any issues a second time.
-        latestIssues.removeAll(unreadIssues);
+        latestIssues.removeAll(issues);
 
         for (Issue issue : latestIssues)
             parseIssue(issue);
 
-        unreadIssues.addAll(latestIssues);
+        issues.addAll(latestIssues);
     }
 
     private void parseIssue(Issue issue) {
