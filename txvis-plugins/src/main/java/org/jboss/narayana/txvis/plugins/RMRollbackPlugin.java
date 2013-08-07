@@ -87,7 +87,7 @@ public class RMRollbackPlugin implements Plugin {
                 "indicate it has been misconfigured. Rollbacks were caused in transactions: ")
                 .append(causedRollBackList.get(0).getTransaction().getTxuid()).append(", ")
                 .append(causedRollBackList.get(1).getTransaction().getTxuid()).append(", ")
-                .append(causedRollBackList.get(2).getTransaction().getTxuid()).append("...");
+                .append(causedRollBackList.get(2).getTransaction().getTxuid()).append(" ...");
         issue.setBody(sb.toString());
 
         issue.addTag(rm.getProductName());

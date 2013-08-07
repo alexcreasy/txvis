@@ -54,21 +54,19 @@ public class IssueParserBean implements Serializable {
     }
 
     private void parseIssue(Issue issue) {
-        final String pattern = "(?<TXUID>(?:-?[0-9a-f]+:){4}-?[0-9a-f]+)";
+        final String pattern = "(?:-?[0-9a-f]+:){4}-?[0-9a-f]+";
 
 
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(issue.getBody());
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
 
-        if (m.find()) {
-            final String txuid = m.group("TXUID");
+        while (m.find()) {
+            final String txuid = m.group(0);
             final String shortTxuid = MessageFormat.format("...{0}", txuid.substring(txuid.length() - 5, txuid.length()));
-
-            sb.append(m.replaceAll(MessageFormat.format(TXUID_LINK_FORMAT, txuid, shortTxuid)));
+            m.appendReplacement(sb, MessageFormat.format(TXUID_LINK_FORMAT, txuid, shortTxuid));
         }
-        else
-            sb.append(issue.getBody());
+        m.appendTail(sb);
 
         sb.append("<p>- ").append(produceForumLink(issue)).append("</p>");
         issue.setBody(sb.toString());
