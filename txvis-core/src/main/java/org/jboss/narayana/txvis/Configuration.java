@@ -35,6 +35,7 @@ public final class Configuration {
             JTSResourceExceptionHandler.class,
             JTSResourceRecordHandler.class,
             JTSInterpositionHandler.class,
+            JTSResourceStatusChangeHandler.class,
             ArjunaTransactionImpleHandler.class,
             TxPrepareFailedHandler.class,
     };
