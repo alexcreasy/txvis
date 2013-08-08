@@ -14,14 +14,13 @@ public class JTSResourceStatusChangeHandler extends JbossAS8AbstractHandler {
             + "\\snode\\sid:\\s\\((?<NODE>[^\\)]+)\\)";
 
 
-    //BasicAction::doCommit() result for action-id (0:ffff0a0d4129:-13cf8631:5202d6f8:1d) on record id:
-    // (0:ffff0a0d4129:-13cf8631:5202d6f8:28) is (TwoPhaseOutcome.FINISH_OK) node id: (alpha)
     public JTSResourceStatusChangeHandler() {
         super(REGEX);
     }
 
     @Override
     public void handle(Matcher matcher, String line) {
-
+        service.resourceStatusOutcomeJTS(matcher.group(RMUID), matcher.group("OUTCOME"),
+                parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

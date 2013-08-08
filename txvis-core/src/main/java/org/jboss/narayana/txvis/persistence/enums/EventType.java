@@ -17,5 +17,7 @@ public enum EventType {
     HEURISTIC_ROLLBACK,
     HEURISTIC_MIXED,
     HEURISTIC_HAZARD,
-    FINISH_OK;
+    FINISH_OK,
+    FINISH_ERROR,
+    REPLAY_PHASE2;
 }

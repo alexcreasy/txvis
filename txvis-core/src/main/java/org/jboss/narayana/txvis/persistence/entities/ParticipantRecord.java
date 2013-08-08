@@ -156,10 +156,6 @@ public class ParticipantRecord implements Serializable {
      */
     public void setVote(Vote vote, Timestamp timestamp) {
         this.vote = vote;
-
-        if (Vote.ABORT.equals(vote)) {
-            transaction.addEvent(new Event(EventType.PREPARE_FAILED, resourceManager.getJndiName(), timestamp));
-        }
     }
 
     public boolean isPrepareCalled() {

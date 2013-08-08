@@ -32,6 +32,6 @@ public class JTSResourceRecordHandler extends JbossAS8AbstractHandler {
                 eventType = EventType.ABORT;
                 break;
         }
-        service.resourceStatusChangeJTS(matcher.group(RMUID), eventType, parseTimestamp(matcher.group(TIMESTAMP)));
+        service.resourceStatusBeginJTS(matcher.group(RMUID), eventType, parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }
