@@ -176,6 +176,10 @@ public class Transaction implements Serializable {
         events.add(e);
     }
 
+    public void setStatusWithoutCreatingEvent(Status status, Timestamp timestamp) {
+        this.status = status;
+    }
+
     /**
      *
      * @return

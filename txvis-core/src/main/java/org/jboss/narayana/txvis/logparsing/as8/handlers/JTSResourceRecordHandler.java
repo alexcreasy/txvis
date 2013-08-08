@@ -20,18 +20,18 @@ public class JTSResourceRecordHandler extends JbossAS8AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
+        EventType eventType = null;
         switch (matcher.group("ACTION")) {
             case "Prepare":
-                service.resourcePreparedJTS(matcher.group(RMUID), parseTimestamp(matcher.group(TIMESTAMP)));
+                eventType = EventType.PREPARE;
                 break;
             case "Commit":
-                service.resourceCommitOrAbortJTS(matcher.group(RMUID), EventType.COMMIT, parseTimestamp(
-                        matcher.group(TIMESTAMP)));
+                eventType = EventType.COMMIT;
                 break;
             case "Abort":
-                service.resourceCommitOrAbortJTS(matcher.group(RMUID), EventType.ABORT, parseTimestamp(
-                        matcher.group(TIMESTAMP)));
+                eventType = EventType.ABORT;
                 break;
         }
+        service.resourceStatusBeginJTS(matcher.group(RMUID), eventType, parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

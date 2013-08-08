@@ -18,11 +18,7 @@ public class JTSResourceExceptionHandler extends JbossAS8AbstractHandler {
 
     @Override
     public void handle(Matcher matcher, String line) {
-        switch (matcher.group("RECTYPE")) {
-            case "prepare":
-                service.resourceFailedToPrepareJTS(matcher.group(RMUID), matcher.group("XAEXCEPTION"),
-                        parseTimestamp(matcher.group(TIMESTAMP)));
-                break;
-        }
+        service.resourceThrewException(matcher.group(RMUID), matcher.group("XAEXCEPTION"),
+                parseTimestamp(matcher.group(TIMESTAMP)));
     }
 }

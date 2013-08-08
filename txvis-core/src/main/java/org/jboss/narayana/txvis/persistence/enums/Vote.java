@@ -6,5 +6,5 @@ package org.jboss.narayana.txvis.persistence.enums;
  * Time: 15:10
  */
 public enum Vote {
-    UNKNOWN, PREPARE, COMMIT, ONE_PHASE_COMMIT, ABORT
+    UNKNOWN, COMMIT, ABORT
 }

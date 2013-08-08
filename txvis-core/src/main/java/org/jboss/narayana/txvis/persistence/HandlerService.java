@@ -140,6 +140,40 @@ public class HandlerService {
 
     }
 
+    public void end(String txuid, String nodeid, String actionStatus, Timestamp timestamp) {
+        em.getTransaction().begin();
+        Transaction tx = findTransaction(this.nodeid, txuid);
+
+        switch (actionStatus) {
+            case "COMMITTED":
+                tx.setStatus(Status.COMMITTED, timestamp);
+                tx.addEvent(new Event(EventType.FINISH_OK, nodeid, timestamp));
+                break;
+            case "ABORTED":
+                tx.setStatus(Status.ABORTED, timestamp);
+                tx.addEvent(new Event(EventType.FINISH_OK, nodeid, timestamp));
+                break;
+            case "H_COMMIT":
+                tx.setStatus(Status.HEURISTIC_COMMIT, timestamp);
+                tx.addEvent(new Event(EventType.HEURISTIC_COMMIT, nodeid, timestamp));
+                break;
+            case "H_HAZARD":
+                tx.setStatus(Status.HEURISTIC_HAZARD, timestamp);
+                tx.addEvent(new Event(EventType.HEURISTIC_HAZARD, nodeid, timestamp));
+                break;
+            case "H_MIXED":
+                tx.setStatus(Status.HEURISTIC_MIXED, timestamp);
+                tx.addEvent(new Event(EventType.HEURISTIC_MIXED, nodeid, timestamp));
+                break;
+            case "H_ROLLBACK":
+                tx.setStatus(Status.HEURISTIC_ROLLBACK, timestamp);
+                tx.addEvent(new Event(EventType.HEURISTIC_ROLLBACK, nodeid, timestamp));
+                break;
+        }
+
+        em.getTransaction().commit();
+    }
+
 
     private void setStatus(String txuid, Status status, Timestamp timestamp){
         Transaction tx;
@@ -153,7 +187,19 @@ public class HandlerService {
             return;
         }
 
-        tx.setStatus(status, timestamp);
+        switch (status) {
+            case COMMIT: case PHASE_TWO_ABORT:
+                if (tx.getStatus().equals(Status.PREPARE)) {
+                    tx.setStatus(status, timestamp);
+                }
+                else {
+                    tx.addEvent(new Event(EventType.REPLAY_PHASE2, nodeid, timestamp));
+                }
+                break;
+            default:
+                tx.setStatus(status, timestamp);
+                break;
+        }
     }
 
 
@@ -244,14 +290,108 @@ public class HandlerService {
      * The below methods deal with Transaction Participants
      */
 
-    /**
-     *
-     * @param rmuid
-     * @param timestamp
-     */
-    public void resourcePreparedJTS(String rmuid, Timestamp timestamp) {
+
+    public void resourceStatusBeginJTS(String rmuid, EventType eventType, Timestamp timestamp) {
+        em.getTransaction().begin();
         try {
-            em.getTransaction().begin();
+            ParticipantRecord rec = null;
+            try {
+                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
+                        .setParameter("rmuid", rmuid).getSingleResult();
+            }
+            catch (NoResultException e) {
+               /*
+                * If no record is found it's likely a record for a subordinate action
+                * which with the current logging we're unable to associate with the
+                * nodeid / action id, so we'll just ignore it.
+                */
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+                // In case the above doesn't throw a rollback exception, throw one
+                throw new RollbackException();
+            }
+
+            rec.getTransaction().addEvent(new Event(eventType, rec.getResourceManager().getJndiName(), timestamp));
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolled Back");
+        }
+    }
+
+    public void resourceStatusOutcomeJTS(String rmuid, String twoPhaseOutcome, Timestamp timestamp) {
+        em.getTransaction().begin();
+        try {
+            ParticipantRecord rec = null;
+            try {
+                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
+                        .setParameter("rmuid", rmuid).getSingleResult();
+            }
+            catch (NoResultException e) {
+               /*
+                * If no record is found it's likely a record for a subordinate action
+                * which with the current logging we're unable to associate with the
+                * nodeid / action id, so we'll just ignore it.
+                */
+                if (logger.isTraceEnabled())
+                    logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+                // In case the above doesn't throw a rollback exception, throw one
+                throw new RollbackException();
+            }
+
+            switch (twoPhaseOutcome) {
+                case "PREPARE_OK": case "PREPARE_READONLY":
+                    rec.setVote(Vote.COMMIT, timestamp);
+                    rec.getTransaction().addEvent(new Event(EventType.PREPARE_OK, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "PREPARE_NOTOK":
+                    rec.setVote(Vote.ABORT, timestamp);
+                    rec.getTransaction().addEvent(new Event(EventType.PREPARE_FAILED, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "FINISH_OK":
+                    rec.getTransaction().addEvent(new Event(EventType.FINISH_OK, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "FINISH_ERROR": case "ONE_PHASE_ERROR": case "INVALID_TRANSACTION":
+                    rec.getTransaction().addEvent(new Event(EventType.FINISH_ERROR, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "HEURISTIC_COMMIT":
+                    rec.getTransaction().addEvent(new Event(EventType.HEURISTIC_COMMIT, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "HEURISTIC_HAZARD":
+                    rec.getTransaction().addEvent(new Event(EventType.HEURISTIC_HAZARD, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "HEURISTIC_MIXED":
+                    rec.getTransaction().addEvent(new Event(EventType.HEURISTIC_MIXED, rec.getResourceManager().getJndiName(),
+                            timestamp));
+                    break;
+                case "HEURISTIC_ROLLBACK":
+                    rec.getTransaction().addEvent(new Event(EventType.HEURISTIC_ROLLBACK,
+                            rec.getResourceManager().getJndiName(), timestamp));
+                    break;
+            }
+
+            em.getTransaction().commit();
+        }
+        catch (RollbackException e) {
+            if (logger.isTraceEnabled())
+                logger.trace("Transaction Rolled Back");
+        }
+    }
+
+
+    public void resourceThrewException(String rmuid, String xaException, Timestamp timestamp) {
+
+        em.getTransaction().begin();
+        try {
 
             ParticipantRecord rec = null;
             try {
@@ -262,10 +402,11 @@ public class HandlerService {
                 if (logger.isTraceEnabled())
                     logger.trace("Unable to find ParticipantRecord");
                 em.getTransaction().rollback();
+                // In case the above doesn't throw a rollback exception, throw one
+                throw new RollbackException();
             }
 
-            rec.getTransaction().addEvent(new Event(EventType.PREPARE, rec.getResourceManager().getJndiName(), timestamp));
-            rec.setPrepareCalled(true);
+            rec.setXaException(xaException);
 
             em.getTransaction().commit();
         }
@@ -275,13 +416,14 @@ public class HandlerService {
         }
     }
 
+
     /**
      *
      * @param txuid
      * @param rmJndiName
      * @param timestamp
      */
-    public void resourcePreparedJTA(String txuid, String rmJndiName, Timestamp timestamp) {
+    public void resourcePreparedJTA(String txuid, String rmJndiName,  Timestamp timestamp) {
         try {
             em.getTransaction().begin();
 
@@ -291,35 +433,11 @@ public class HandlerService {
                 if (logger.isTraceEnabled())
                     logger.trace("Unable to find ParticipantRecord");
                 em.getTransaction().rollback();
+                // In case the above doesn't throw a rollback exception, throw one
+                throw new RollbackException();
             }
 
             rec.setVote(Vote.COMMIT, timestamp);
-
-            em.getTransaction().commit();
-        }
-        catch (RollbackException e) {
-            if (logger.isTraceEnabled())
-                logger.trace("Transaction Rolled Back");
-        }
-    }
-
-    public void resourceFailedToPrepareJTS(String rmuid, String xaException, Timestamp timestamp) {
-        try {
-            em.getTransaction().begin();
-
-            ParticipantRecord rec = null;
-            try {
-                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
-                        .setParameter("rmuid", rmuid).getSingleResult();
-            }
-            catch (NoResultException e) {
-                if (logger.isTraceEnabled())
-                    logger.trace("Unable to find ParticipantRecord");
-                em.getTransaction().rollback();
-            }
-
-            rec.setVote(Vote.ABORT, timestamp);
-            rec.setXaException(xaException);
 
             em.getTransaction().commit();
         }
@@ -342,9 +460,11 @@ public class HandlerService {
             final ParticipantRecord rec = findParticipantRecord(nodeid, txuid, rmJndiName);
 
             if (rec == null) {
-                em.getTransaction().rollback();
                 if (logger.isTraceEnabled())
                     logger.trace("Unable to find ParticipantRecord");
+                em.getTransaction().rollback();
+                // In case the above doesn't throw a rollback exception, throw one
+                throw new RollbackException();
             }
 
             rec.setVote(Vote.ABORT, timestamp);
@@ -355,43 +475,6 @@ public class HandlerService {
         catch (RollbackException e) {
             if (logger.isTraceEnabled())
                 logger.trace("Transaction Rolledback");
-        }
-    }
-
-    public void resourceCommitOrAbortJTS(String rmuid, EventType eventType, Timestamp timestamp) {
-        try {
-            em.getTransaction().begin();
-
-            ParticipantRecord rec = null;
-            try {
-                rec = em.createNamedQuery("ParticipantRecord.findByRmuid", ParticipantRecord.class)
-                        .setParameter("rmuid", rmuid).getSingleResult();
-            }
-            catch (NoResultException e) {
-                if (logger.isTraceEnabled())
-                    logger.trace("Unable to find ParticipantRecord");
-                em.getTransaction().rollback();
-            }
-
-            if (rec.isPrepareCalled() && rec.getXaException() == null)
-                rec.setVote(Vote.COMMIT, timestamp);
-
-            switch (eventType) {
-                case COMMIT:
-                    rec.getTransaction().addEvent(new Event(EventType.COMMIT, rec.getResourceManager().getJndiName(),
-                            timestamp));
-                    break;
-                case ABORT:
-                    rec.getTransaction().addEvent(new Event(EventType.ABORT, rec.getResourceManager().getJndiName(),
-                            timestamp));
-                    break;
-            }
-
-            em.getTransaction().commit();
-        }
-        catch (RollbackException e) {
-            if (logger.isTraceEnabled())
-                logger.trace("Transaction Rolled Back");
         }
     }
 
@@ -411,8 +494,10 @@ public class HandlerService {
             final Transaction tx = findTransaction(nodeid, txuid);
 
             // Error condition which usually only occurs when the tool is deployed mid transaction
-            if (tx == null)
+            if (tx == null) {
                 em.getTransaction().rollback();
+                throw new RollbackException();
+            }
 
             final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
             rec.setRmuid(rmuid);
@@ -444,8 +529,10 @@ public class HandlerService {
             final Transaction tx = findTransaction(nodeid, txuid);
 
             // Error condition which usually only occurs when the tool is deployed mid transaction
-            if (tx == null)
+            if (tx == null) {
                 em.getTransaction().rollback();
+                throw new RollbackException();
+            }
 
             final ParticipantRecord rec = new ParticipantRecord(tx, rm, timestamp);
 
@@ -467,7 +554,8 @@ public class HandlerService {
 
         final Transaction tx = findTransaction(nodeid, txuid);
 
-        if (tx != null && tx.getParticipantRecords().size() == 0 && tx.getStatus().equals(Status.IN_FLIGHT)) {
+        if (tx != null && tx.getParticipantRecords().size() == 0
+                && tx.getParent() == null && tx.getSubordinates().size() == 0) {
             em.getTransaction().begin();
             em.remove(tx);
             em.getTransaction().commit();

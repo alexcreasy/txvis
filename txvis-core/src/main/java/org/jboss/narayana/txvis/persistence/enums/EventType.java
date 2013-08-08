@@ -6,5 +6,18 @@ package org.jboss.narayana.txvis.persistence.enums;
  * Time: 23:02
  */
 public enum EventType {
-    BEGIN, ENLIST, PREPARE, PREPARE_FAILED, COMMIT, ABORT;
+    BEGIN,
+    ENLIST,
+    PREPARE,
+    PREPARE_FAILED,
+    PREPARE_OK,
+    COMMIT,
+    ABORT,
+    HEURISTIC_COMMIT,
+    HEURISTIC_ROLLBACK,
+    HEURISTIC_MIXED,
+    HEURISTIC_HAZARD,
+    FINISH_OK,
+    FINISH_ERROR,
+    REPLAY_PHASE2;
 }
