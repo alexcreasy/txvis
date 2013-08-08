@@ -189,12 +189,10 @@ public class HandlerService {
 
         switch (status) {
             case COMMIT: case PHASE_TWO_ABORT:
-                if (tx.getStatus().equals(Status.PREPARE)) {
+                if (tx.getStatus().equals(Status.PREPARE))
                     tx.setStatus(status, timestamp);
-                }
-                else {
+                else
                     tx.addEvent(new Event(EventType.REPLAY_PHASE2, nodeid, timestamp));
-                }
                 break;
             default:
                 tx.setStatus(status, timestamp);
