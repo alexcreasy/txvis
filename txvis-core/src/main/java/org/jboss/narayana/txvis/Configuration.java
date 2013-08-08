@@ -38,6 +38,7 @@ public final class Configuration {
             JTSResourceStatusChangeHandler.class,
             ArjunaTransactionImpleHandler.class,
             TxPrepareFailedHandler.class,
+            TxFinalStatusHandler.class,
     };
 
     public static final Class[] LOG_FILTERS = new Class[] {
